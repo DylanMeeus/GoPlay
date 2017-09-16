@@ -1,4 +1,4 @@
 GoPlay
 ====
 
-Playground for my CSGO projects
+Playground for my Golang projects
