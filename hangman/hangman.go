@@ -127,7 +127,7 @@ func (game* Game) ParseInput(Input string) {
                 newString += string(game.FoundWord[i])
             }
         }
-        fmt.Println("New string " + newString)
+        fmt.Println(newString)
         game.FoundWord = newString
     } else {
         fmt.Println("Wrong!!")
