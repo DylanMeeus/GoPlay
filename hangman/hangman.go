@@ -4,6 +4,9 @@ import (
     "bufio"
     "os"
     "strings"
+    "io/ioutil"
+    "math/rand"
+    "time"
 )
 
 // some drawings
@@ -25,7 +28,8 @@ var error2 string =
 
 var error3 string =
 `
-----|
+____
+    |
     |
     |
     |
@@ -77,7 +81,7 @@ func main(){
 
 func RunGame(){
     reader := bufio.NewReader(os.Stdin)
-    currentGame := Game{Errors: 0, Word : "Esposita"}
+    currentGame := Game{Errors: 0, Word : ChooseWord()}
     currentGame.Init()
 
     for {
@@ -91,10 +95,24 @@ func RunGame(){
             os.Exit(1)
         }
         if gameLost{
-            fmt.Println("You lost, try again!")
+            fmt.Println("You lost, the word you were looking for was: " + currentGame.Word)
             os.Exit(1)
         }
     }
+}
+
+func ChooseWord() string{
+    file, err := ioutil.ReadFile("./resources/english.txt")
+    if err != nil{
+        panic(err)
+    }
+    wordString := string(file)
+    words := strings.Split(wordString,"\n")
+    arrayLen := len(words)
+    rand.Seed(time.Now().Unix())
+    randomWordIndex := rand.Int31n(int32(arrayLen))
+    word := words[randomWordIndex]
+    return strings.ToLower(word)
 }
 
 func CheckWin(g Game) bool{
@@ -117,7 +135,7 @@ func (game* Game) ParseInput(Input string) {
         return
     }
 
-    contains := strings.Contains(game.Word, string(Input[0]))
+    contains := strings.Contains(game.Word, strings.ToLower(string(Input[0])))
     if contains {
         newString := ""
         for i := 0; i < len(game.FoundWord); i++ {
@@ -130,7 +148,7 @@ func (game* Game) ParseInput(Input string) {
         fmt.Println(newString)
         game.FoundWord = newString
     } else {
-        fmt.Println("Wrong!!")
+        fmt.Println("This character does not appear in the word!")
         game.Errors += 1
         game.DrawHangman()
     }
