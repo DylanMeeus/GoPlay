@@ -1,8 +1,8 @@
 package main
 
-
-
-type tweet struct{
-    username string
-    tweetbody string
+type Tweet struct{
+    Username    string     `json:"username"`
+    Tweetbody   string    `json:"body"`
 }
+
+type Tweets []Tweet
