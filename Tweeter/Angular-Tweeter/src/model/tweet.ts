@@ -3,12 +3,12 @@
  */
 
 
-export default class Tweet{
+export class Tweet{
 
   private _username : string;
   private _tweetbody : string;
 
-  constructor(json?: string){
+  constructor(){
 
   }
 
@@ -25,7 +25,7 @@ export default class Tweet{
   }
 
   get tweetbody(){
-    return this._username;
+    return this._tweetbody;
   }
 
 }

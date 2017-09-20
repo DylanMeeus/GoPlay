@@ -2,6 +2,8 @@
  * Created by dylan on 19.09.17.
  */
 
+import { Tweet } from '../model/tweet'
+
 
 export default class Rest {
 
@@ -10,26 +12,23 @@ export default class Rest {
   constructor(){
   }
 
-  public getUsers(): string {
-
+  public async getTweets() {
     var url : string = this.baseurl + "users"
-
-    console.log("setting up fetch")
-    fetch("http://localhost:8080/tweets").then(
+    var tweets : Tweet[] = [];
+     return fetch("http://localhost:8080/tweets").then(
       function(response){
-        response.text().then(
+          return response.text().then(
           function(body){
-            console.log(body);
             var jsonObj = JSON.parse(body);
-            console.log(jsonObj);
+            for(var i = 0; i < jsonObj.length; i++) {
+              var tweet : Tweet = new Tweet();
+              tweet.username = jsonObj[i].username;
+              tweet.tweetbody = jsonObj[i].body;
+              tweets.push(tweet);
+            }
+            return tweets;
           }
-        )
-      }
+        )}
     )
-
-    console.log("done with the call");
-    return ""
   }
-
-
 }
