@@ -3,9 +3,10 @@
   <h1>
     Welcome to {{title}}!
   </h1>
-  <h2>Here's what some users are talking about:</h2>
-  <ul *ngFor="let tweet of tweets">
-    <ul>{{tweet.username}}: {{tweet.tweetbody}}</ul>
-  </ul>
+  <h2>Here's what some users are talking about</h2>
+  <div *ngFor="let tweet of tweets" class="tweet-container">
+    <div class="username">{{tweet.username}}</div>
+    <div class="tweetbody">{{tweet.tweetbody}}</div>
+  </div>
 </div>
 

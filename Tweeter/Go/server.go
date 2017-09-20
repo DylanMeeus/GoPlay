@@ -10,6 +10,7 @@ import (
 
 
 func main() {
+    SetupDatabase()
     router := mux.NewRouter().StrictSlash(true)
     router.HandleFunc("/users", GetUsers)
     router.HandleFunc("/tweets", GetTweets)

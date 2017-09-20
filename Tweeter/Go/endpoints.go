@@ -13,11 +13,7 @@ func GetUsers(writer http.ResponseWriter, request *http.Request){
 }
 
 func GetTweets(writer http.ResponseWriter, request *http.Request){
-    tweets := Tweets{
-        Tweet{Username: "Dylan", Tweetbody:"Hello world! this is my first tweet!"},
-        Tweet{Username: "Ana", Tweetbody:"Hola Mundo! Esto es mi primero tweet!"},
-    }
+    tweets := DatabaseTweets()
     str, _ := json.Marshal(tweets)
     fmt.Fprint(writer,string(str))
-
 }
