@@ -1,12 +1,12 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>
-  <h2>Here's what some users are talking about</h2>
-  <div *ngFor="let tweet of tweets" class="tweet-container">
-    <div class="username">{{tweet.username}}</div>
-    <div class="tweetbody">{{tweet.tweetbody}}</div>
-  </div>
+
+  <nav>
+    <a routerLink="/home" routerLinkActive="active">Home</a>
+    <a routerLink="/user/profile" routerLinkActive="active">Profile</a>
+    <a routerLink="/user/timeline" routerLinkActive="active">Timeline</a>
+  </nav>
+  <router-outlet></router-outlet>
+
 </div>
 
