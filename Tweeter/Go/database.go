@@ -35,6 +35,10 @@ func SetupDatabase(){
         panic(err)
     }
 
+    statement = `
+        create table followers(userid integer, followinguserid integer);
+    `
+
     fmt.Println("database setup done")
     populateDatabase(db)
 }
@@ -45,6 +49,10 @@ func populateDatabase(db *sql.DB){
     statement := `
         insert into users(name,password) values ("Dylan","Password");
         insert into users(name,password) values ("Ana","Password");
+        insert into users(name,password) values ("Sean","Password");
+        insert into users(name,password) values ("Sander","Password");
+        insert into users(name,password) values ("Dexter","Password");
+        insert into users(name,password) values ("Luna","Password");
     `
     _, err := db.Exec(statement)
     if err != nil {
@@ -56,12 +64,21 @@ func populateDatabase(db *sql.DB){
         insert into tweets(userid, tweet) values (1, "Hello world, this is my first tweet!");
         insert into tweets(userid, tweet) values (2, "Hola mundo, esto es mi primero tweet!");
         insert into tweets(userid, tweet) values (1, "Go is a pretty great language!");
+        insert into tweets(userid, tweet) values (3, "Lorem ipsum dolor sit amet!");
+        insert into tweets(userid, tweet) values (5, "I did not like this feeling of having feelings.");
+        insert into tweets(userid, tweet) values (5, "The mind picks some very bad times to take a walk, doesn't it?.");
     `
 
     _, err = db.Exec(statement)
     if err != nil{
         panic(err)
     }
+
+    statement = `
+        insert into userfollowers(userid, followinguserid) values (1,2);
+        insert into userfollowers(userid, followinguserid) values (1,3);
+        insert into userfollowers(userid, followinguserid) values (1,5);
+    `
 }
 
 
@@ -130,10 +147,7 @@ func DatabaseTweets() Tweets{
 
 
 func getDatabaseUsers() []string{
-    db, err := sql.Open("sqlite3", "./tweeterdb.db")
-    if err != nil {
-        panic(err)
-    }
+    db := openDatabase()
     defer db.Close()
 
     querystring := `
@@ -157,6 +171,25 @@ func getDatabaseUsers() []string{
         usernames = append(usernames,name)
     }
     return usernames
+}
+
+
+// get the tweets from the followers
+func DatabaseGetTweetsFromFollowers(user User){
+    db := openDatabase()
+
+    statement := `
+        select * from tweets where userid in (
+            select tweet from tweets where userid = ?
+        )
+    `
+
+    rows, err := db.Query(statement, user.Id)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(rows)
+    fmt.Println("Done with the query")
 }
 
 

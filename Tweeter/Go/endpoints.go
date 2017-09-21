@@ -34,3 +34,14 @@ func Login(writer http.ResponseWriter, request *http.Request){
     token := DatabaseLogin(user)
     fmt.Fprint(writer, token)
 }
+
+func ProfileTweets(writer http.ResponseWriter, request *http.Request){
+    fmt.Println("testtest")
+    if(request.Method == "OPTIONS"){
+        writer.Header().Add("Access-Control-Allow-Headers", "Bearer")
+    }
+    headers := request.Header
+    fmt.Println("loading profile tweets")
+    fmt.Println(headers)
+    fmt.Fprint(writer,"HELLO!")
+}

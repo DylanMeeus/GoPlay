@@ -13,8 +13,19 @@ func main() {
     SetupDatabase()
     router := mux.NewRouter().StrictSlash(true)
     router.HandleFunc("/users", GetUsers).Methods("GET")
+    router.HandleFunc("/", GetUsers).Methods("GET")
     router.HandleFunc("/tweets", GetTweets).Methods("GET")
     router.HandleFunc("/login", Login).Methods("POST")
-    handler := cors.Default().Handler(router)
+    router.HandleFunc("/profile/tweets", ProfileTweets).Methods("GET","OPTIONS")
+
+    c := cors.New(cors.Options{
+        AllowedMethods: []string{"GET","POST", "OPTIONS"},
+        AllowedOrigins: []string{"*"},
+        AllowCredentials: true,
+        AllowedHeaders: []string{"Content-Type","Bearer","Bearer ","content-type","Origin","Accept"},
+        OptionsPassthrough: true,
+    })
+
+    handler := c.Handler(router)
     log.Fatal(http.ListenAndServe(":8080", handler))
 }
