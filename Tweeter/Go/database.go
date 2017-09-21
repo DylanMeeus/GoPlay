@@ -10,19 +10,18 @@ import (
     _ "github.com/mattn/go-sqlite3"
 )
 
+type jwt string
+
 func SetupDatabase(){
     os.Remove("./tweeterdb.db")
-    db, err := sql.Open("sqlite3", "./tweeterdb.db")
-    if err != nil{
-        panic(err)
-    }
+    db := openDatabase()
     defer db.Close();
 
 
     statement := `
         create table users(id integer not null primary key, name text, password text);
     `
-    _, err = db.Exec(statement)
+    _, err := db.Exec(statement)
     if err != nil{
         fmt.Println(err)
     }
@@ -66,12 +65,44 @@ func populateDatabase(db *sql.DB){
 }
 
 
-func DatabaseTweets() Tweets{
-    var tweets Tweets
-    db, err := sql.Open("sqlite3", "./tweeterdb.db")
+func openDatabase() *sql.DB {
+    db, err := sql.Open("sqlite3","./tweeterdb.db")
     if err != nil {
         panic(err)
     }
+    return db
+}
+
+func DatabaseLogin(user User) jwt {
+    username := user.Username
+    password := user.Password
+    db := openDatabase()
+    defer db.Close()
+    rows, err := db.Query("select * from users where name = ? and password = ?",username,password)
+    if err != nil {
+        panic(err)
+    }
+    defer rows.Close()
+    hasItems := false
+    for rows.Next() {
+        var id int
+        var name string
+        var password string
+        rows.Scan(&id, &name, &password)
+        fmt.Println(name + " " + password)
+        user = User{Id:id, Username:name,Password:password}
+        hasItems = true
+        break
+    }
+    if hasItems {
+        return generateToken(user)
+    }
+    return "failed"
+}
+
+func DatabaseTweets() Tweets{
+    var tweets Tweets
+    db := openDatabase()
     defer db.Close()
 
     querystring := `

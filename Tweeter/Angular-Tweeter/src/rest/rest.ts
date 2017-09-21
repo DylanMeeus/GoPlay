@@ -7,15 +7,15 @@ import { Tweet } from '../model/tweet'
 
 export default class Rest {
 
-  baseurl : string = "localhost:8080/"
+  baseurl : string = "http://localhost:8080/"
 
   constructor(){
   }
 
   public async getTweets() {
-    var url : string = this.baseurl + "users"
+    var url : string = this.baseurl + "tweets"
     var tweets : Tweet[] = [];
-     return fetch("http://localhost:8080/tweets").then(
+     return fetch(url).then(
       function(response){
           return response.text().then(
           function(body){
@@ -29,6 +29,24 @@ export default class Rest {
             return tweets;
           }
         )}
+    )
+  }
+
+  public async login(username : string, password : string){
+    var url : string = this.baseurl + "login";
+    var jsonstring = JSON.stringify({username,password});
+    return fetch(url, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: "POST",
+      body: jsonstring
+    }).then(
+      function(response){
+        return response.text().then((text) =>{
+          return text
+        });
+      }
     )
   }
 }

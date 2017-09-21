@@ -1,5 +1,7 @@
 import {Component, OnInit, NgModule} from '@angular/core';
 import {FormControl, FormGroup, FormBuilder, ReactiveFormsModule} from "@angular/forms";
+import Rest from "../../../rest/rest";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,7 @@ export class LoginComponent implements OnInit {
     password :  new FormControl("password")
   });
 
-  constructor(public fb: FormBuilder) { }
+  constructor(public fb: FormBuilder, public router: Router) { }
 
   ngOnInit() {
   }
@@ -23,7 +25,13 @@ export class LoginComponent implements OnInit {
   doLogin(event){
     var username = this.loginForm.controls.username.value;
     var password = this.loginForm.controls.password.value;
-    console.log(username);
-    console.log(password);
+    var rest : Rest = new Rest();
+    rest.login(username, password).then((token) => {
+      // store the token in local storage
+      if(token != "failed"){
+        localStorage.setItem("userjwt",token);
+        this.router.navigate(["/user/profile"])
+      }
+    });
   }
 }
