@@ -10,7 +10,8 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './user/login/login.component';
 
 import { ReactiveFormsModule } from '@angular/forms';
-import { LogoutComponent } from './user/logout/logout.component'
+import { LogoutComponent } from './user/logout/logout.component';
+import { TweetviewComponent } from './tweets/tweetview/tweetview.component'
 
 const appRoutes: Routes = [
   { path: 'user/profile', component: ProfileComponent },
@@ -28,7 +29,8 @@ const appRoutes: Routes = [
     ProfileComponent,
     HomeComponent,
     LoginComponent,
-    LogoutComponent
+    LogoutComponent,
+    TweetviewComponent
   ],
   imports: [
     BrowserModule,
@@ -39,6 +41,6 @@ const appRoutes: Routes = [
     )
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent, TweetviewComponent]
 })
 export class AppModule { }

@@ -3,8 +3,6 @@
     Welcome to {{title}}!
   </h1>
   <h2>Here's what some users are talking about</h2>
-  <div *ngFor="let tweet of tweets" class="tweet-container">
-    <div class="username">{{tweet.username}}</div>
-    <div class="tweetbody">{{tweet.tweetbody}}</div>
-  </div>
+
+  <tweetview *ngIf="tweets" [tweets]="tweets"></tweetview>
 </div>

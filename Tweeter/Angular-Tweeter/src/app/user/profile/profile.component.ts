@@ -1,12 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, NgModule} from '@angular/core';
 import {Router} from "@angular/router";
 import Rest from "../../../rest/rest";
 import {Tweet} from "../../../model/tweet";
+import {TweetviewComponent} from "../../tweets/tweetview/tweetview.component";
+
+
+@NgModule({
+  imports: [TweetviewComponent]
+})
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
 

@@ -1,3 +1,2 @@
-<div *ngFor="let tweet of tweets">
-  {{tweet.username}} : {{tweet.tweetbody}}
-</div>
+<!-- show the tweets -->
+<tweetview *ngIf="tweets" [tweets]="tweets"></tweetview>
