@@ -57,6 +57,7 @@ func populateDatabase(db *sql.DB){
         insert into users(name,password) values ("Sander","Password");
         insert into users(name,password) values ("Dexter","Password");
         insert into users(name,password) values ("Luna","Password");
+        insert into users(name,password) values ("Chris","Password");
     `
     _, err := db.Exec(statement)
     if err != nil {

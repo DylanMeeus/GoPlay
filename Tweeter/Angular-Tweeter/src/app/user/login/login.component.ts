@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit {
     var password = this.loginForm.controls.password.value;
     var rest : Rest = new Rest();
     rest.login(username, password).then((token) => {
+      console.log(token);
       // store the token in local storage
       if(token != "failed"){
         localStorage.setItem("userjwt",token);

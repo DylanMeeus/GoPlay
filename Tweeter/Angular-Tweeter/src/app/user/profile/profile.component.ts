@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Router} from "@angular/router";
 import Rest from "../../../rest/rest";
+import {Tweet} from "../../../model/tweet";
 
 @Component({
   selector: 'app-profile',
@@ -11,6 +12,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(public router: Router) { }
 
+  tweets : Tweet[]
   ngOnInit() {
     var userjwt = localStorage.getItem("userjwt");
     if(userjwt == null){
@@ -18,11 +20,9 @@ export class ProfileComponent implements OnInit {
       return
     }
 
-    // if we get here, we (normally) have a user JWT
-    console.log(userjwt)
     var rest : Rest = new Rest();
     rest.loadFollowerTweets(userjwt).then((result) => {
-      // pass
+      this.tweets = result
     })
   }
 

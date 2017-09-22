@@ -20,6 +20,7 @@ func GetTweets(writer http.ResponseWriter, request *http.Request){
 }
 
 func Login(writer http.ResponseWriter, request *http.Request){
+    fmt.Println("trying to log in")
     err := request.ParseForm()
     if err != nil{
         panic(err)
@@ -56,6 +57,5 @@ func ProfileTweets(writer http.ResponseWriter, request *http.Request){
     if err != nil {
         panic(err)
     }
-    fmt.Println(string(tweetjson))
-    fmt.Fprint(writer,tweetjson)
+    fmt.Fprint(writer,string(tweetjson))
 }
