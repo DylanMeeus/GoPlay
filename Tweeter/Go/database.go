@@ -39,6 +39,10 @@ func SetupDatabase(){
         create table followers(userid integer, followinguserid integer);
     `
 
+    _, err = db.Exec(statement)
+    if err != nil {
+        panic(err)
+    }
     fmt.Println("database setup done")
     populateDatabase(db)
 }
@@ -75,10 +79,15 @@ func populateDatabase(db *sql.DB){
     }
 
     statement = `
-        insert into userfollowers(userid, followinguserid) values (1,2);
-        insert into userfollowers(userid, followinguserid) values (1,3);
-        insert into userfollowers(userid, followinguserid) values (1,5);
+        insert into followers(userid, followinguserid) values (1,2);
+        insert into followers(userid, followinguserid) values (1,3);
+        insert into followers(userid, followinguserid) values (1,5);
     `
+
+    _, err = db.Exec(statement)
+    if err != nil {
+        panic(err)
+    }
 }
 
 
@@ -175,12 +184,12 @@ func getDatabaseUsers() []string{
 
 
 // get the tweets from the followers
-func DatabaseGetTweetsFromFollowers(user User){
+func DatabaseGetTweetsFromFollowers(user User) Tweets{
     db := openDatabase()
 
     statement := `
-        select * from tweets where userid in (
-            select tweet from tweets where userid = ?
+        select name,tweet from users inner join tweets on users.id = tweets.userid where userid in (
+            select followinguserid from followers where userid = ?
         )
     `
 
@@ -188,8 +197,19 @@ func DatabaseGetTweetsFromFollowers(user User){
     if err != nil {
         panic(err)
     }
-    fmt.Println(rows)
-    fmt.Println("Done with the query")
+
+    var tweets Tweets
+    for rows.Next(){
+        var name string
+        var tweet string
+        err := rows.Scan(&name,&tweet)
+        if err != nil {
+            panic(err)
+        }
+        newTweet := Tweet{Username:name, Tweetbody:tweet}
+        tweets = append(tweets,newTweet)
+    }
+    return tweets
 }
 
 

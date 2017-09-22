@@ -22,7 +22,7 @@ func main() {
         AllowedMethods: []string{"GET","POST", "OPTIONS"},
         AllowedOrigins: []string{"*"},
         AllowCredentials: true,
-        AllowedHeaders: []string{"Content-Type","Bearer","Bearer ","content-type","Origin","Accept"},
+        AllowedHeaders: []string{"Content-Type","Bearer" ,"content-type","Origin","Accept"},
         OptionsPassthrough: true,
     })
 

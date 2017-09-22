@@ -49,4 +49,19 @@ export default class Rest {
       }
     )
   }
+
+  public async loadFollowerTweets(userjwt: string){
+    var url : string = this.baseurl + "profile/tweets";
+    var bearer = JSON.stringify({userjwt});
+    return fetch(url, {
+      headers: {
+        "Content-Type": 'application/text',
+        "Bearer": bearer
+      },
+      method: "GET"
+    }).then((response) =>{
+      console.log(response)
+    });
+
+  }
 }

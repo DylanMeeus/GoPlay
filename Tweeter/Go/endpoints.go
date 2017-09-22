@@ -36,12 +36,26 @@ func Login(writer http.ResponseWriter, request *http.Request){
 }
 
 func ProfileTweets(writer http.ResponseWriter, request *http.Request){
-    fmt.Println("testtest")
     if(request.Method == "OPTIONS"){
         writer.Header().Add("Access-Control-Allow-Headers", "Bearer")
+        return // don't do anything else if it was the option method
     }
-    headers := request.Header
-    fmt.Println("loading profile tweets")
-    fmt.Println(headers)
-    fmt.Fprint(writer,"HELLO!")
+    bearer := request.Header.Get("Bearer")
+
+    type JwtBearer struct {
+        Userjwt jwt
+    }
+    var jwtBearer JwtBearer
+    json.Unmarshal([]byte(bearer),&jwtBearer)
+    user, err := getUserFromToken(jwtBearer.Userjwt)
+    if err != nil{
+        panic(err)
+    }
+    tweets := DatabaseGetTweetsFromFollowers(user)
+    tweetjson, err := json.Marshal(tweets)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(string(tweetjson))
+    fmt.Fprint(writer,tweetjson)
 }
