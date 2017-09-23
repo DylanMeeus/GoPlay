@@ -41,6 +41,50 @@ func ProfileTweets(writer http.ResponseWriter, request *http.Request){
         writer.Header().Add("Access-Control-Allow-Headers", "Bearer")
         return // don't do anything else if it was the option method
     }
+
+    user, err := getUserFromToken(getJwtBearer(request))
+    if err != nil{
+        panic(err)
+    }
+
+    tweets := DatabaseGetTweetsFromFollowers(user)
+    tweetjson, err := json.Marshal(tweets)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Fprint(writer,string(tweetjson))
+}
+
+func SendTweet(writer http.ResponseWriter, request *http.Request){
+    if(request.Method == "OPTIONS"){
+        writer.Header().Add("Acces-Control-Allow-Headers","Bearer")
+        return
+    }
+    fmt.Println("Sending tweet!")
+    user, err := getUserFromToken(getJwtBearer(request))
+    if err != nil{
+        panic(err)
+    }
+
+    err = request.ParseForm()
+    if err != nil {
+        panic(err)
+    }
+
+    body, err := ioutil.ReadAll(request.Body)
+    if err != nil {
+        panic(err)
+    }
+
+    type ContentStruct struct{
+        Content string
+    }
+    var contentStruct ContentStruct
+    json.Unmarshal(body,&contentStruct)
+    DatabaseSendTweet(Tweet{Username:user.Username,Tweetbody:contentStruct.Content})
+}
+
+func getJwtBearer(request *http.Request) jwt{
     bearer := request.Header.Get("Bearer")
 
     type JwtBearer struct {
@@ -48,14 +92,5 @@ func ProfileTweets(writer http.ResponseWriter, request *http.Request){
     }
     var jwtBearer JwtBearer
     json.Unmarshal([]byte(bearer),&jwtBearer)
-    user, err := getUserFromToken(jwtBearer.Userjwt)
-    if err != nil{
-        panic(err)
-    }
-    tweets := DatabaseGetTweetsFromFollowers(user)
-    tweetjson, err := json.Marshal(tweets)
-    if err != nil {
-        panic(err)
-    }
-    fmt.Fprint(writer,string(tweetjson))
+    return jwtBearer.Userjwt
 }

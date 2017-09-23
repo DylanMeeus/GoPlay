@@ -17,6 +17,7 @@ func main() {
     router.HandleFunc("/tweets", GetTweets).Methods("GET")
     router.HandleFunc("/login", Login).Methods("POST", "OPTIONS")
     router.HandleFunc("/profile/tweets", ProfileTweets).Methods("GET","OPTIONS")
+    router.HandleFunc("/profile/sendtweet", SendTweet).Methods("POST", "OPTIONS")
 
     c := cors.New(cors.Options{
         AllowedMethods: []string{"GET","POST", "OPTIONS"},

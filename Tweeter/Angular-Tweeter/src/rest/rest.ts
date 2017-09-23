@@ -72,6 +72,28 @@ export default class Rest {
         return tweets;
       })
     });
+  }
 
+  // Send a tweet for a certain user with some content
+  public async sendTweet(userjwt: string, content: string){
+    if(content == ""){
+      return; // no point in sending an empty tweet
+    }
+
+    var url : string = this.baseurl + "profile/sendtweet";
+    var bearer = JSON.stringify({userjwt});
+    var contentjson = JSON.stringify({content});
+    return fetch(url, {
+      headers: {
+        "Content-Type": 'application/text',
+        "Bearer" : bearer
+      },
+      method: "POST",
+      body: contentjson
+    }).then((response) => {
+      return response.text().then((text) => {
+        console.log(text);
+      })
+    })
   }
 }

@@ -8,6 +8,7 @@ import (
     "fmt"
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
+    "errors"
 )
 
 type jwt string
@@ -19,7 +20,7 @@ func SetupDatabase(){
 
 
     statement := `
-        create table users(id integer not null primary key, name text, password text);
+        create table users(id integer not null primary key, name text unique, password text);
     `
     _, err := db.Exec(statement)
     if err != nil{
@@ -214,7 +215,49 @@ func DatabaseGetTweetsFromFollowers(user User) Tweets{
 }
 
 
+// returns true if it was successful
+func DatabaseSendTweet(tweet Tweet) bool{
+    fmt.Println("Sending a tweet!")
+    user, err := getDatabaseUserByName(tweet.Username)
+    if err != nil{
+        panic(err)
+    }
+    db := openDatabase()
+    statement := "insert into tweets(userid, tweet) values (?,?)"
+    _, err = db.Exec(statement,user.Id,tweet.Tweetbody)
+    if err != nil {
+        // should return false
+        panic(err)
+    }
+    return true
+}
 
+
+func getDatabaseUserByName(username string) (User,error){
+    db := openDatabase()
+    statement := "select * from users where name = ?"
+    rows, err := db.Query(statement, username)
+    if err != nil{
+        panic(err)
+    }
+    defer rows.Close()
+    hasItems := false
+
+    var user User
+    for rows.Next() {
+        var id int
+        var name string
+        var password string
+        rows.Scan(&id, &name, &password)
+        user = User{Id:id, Username:name,Password:password}
+        hasItems = true
+        break
+    }
+    if hasItems {
+        return user, nil
+    }
+    return user, errors.New("user not found")
+}
 
 
 

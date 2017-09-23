@@ -1,2 +1,9 @@
 <!-- show the tweets -->
-<tweetview *ngIf="tweets" [tweets]="tweets"></tweetview>
+<div class="container-fluid profile-tweets">
+  <form [formGroup]="tweetForm" (ngSubmit)="sendTweet($event)">
+    <textarea class="send-tweet" placeholder="What's on your mind?" formControlName="tweetcontent"></textarea>
+    <label class="characters-left">{{charleft}}</label>
+    <input type="submit" value="Tweet!" />
+  </form>
+  <tweetview *ngIf="tweets" [tweets]="tweets"></tweetview>
+</div>
