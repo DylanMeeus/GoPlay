@@ -92,7 +92,11 @@ export default class Rest {
       body: contentjson
     }).then((response) => {
       return response.text().then((text) => {
-        console.log(text);
+        var jsonObj = JSON.parse(text);
+        var tweet : Tweet = new Tweet();
+        tweet.username = jsonObj.username;
+        tweet.tweetbody = jsonObj.body;
+        return tweet
       })
     })
   }

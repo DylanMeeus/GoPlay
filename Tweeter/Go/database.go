@@ -9,16 +9,18 @@ import (
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
     "errors"
+    "time"
 )
 
 type jwt string
 
 func SetupDatabase(){
+    fmt.Println("Cleaning up last database.")
     os.Remove("./tweeterdb.db")
     db := openDatabase()
     defer db.Close();
 
-
+    fmt.Println("Creating database tables.")
     statement := `
         create table users(id integer not null primary key, name text unique, password text);
     `
@@ -28,7 +30,7 @@ func SetupDatabase(){
     }
 
     statement = `
-    create table tweets(id integer not null primary key, userid integer, tweet text);
+    create table tweets(id integer not null primary key, userid integer, tweet varchar(140), sendtime datetime not null);
     `
 
     _, err = db.Exec(statement)
@@ -44,7 +46,7 @@ func SetupDatabase(){
     if err != nil {
         panic(err)
     }
-    fmt.Println("database setup done")
+    fmt.Println("Database tables created.")
     populateDatabase(db)
 }
 
@@ -67,12 +69,12 @@ func populateDatabase(db *sql.DB){
 
 
     statement = `
-        insert into tweets(userid, tweet) values (1, "Hello world, this is my first tweet!");
-        insert into tweets(userid, tweet) values (2, "Hola mundo, esto es mi primero tweet!");
-        insert into tweets(userid, tweet) values (1, "Go is a pretty great language!");
-        insert into tweets(userid, tweet) values (3, "Lorem ipsum dolor sit amet!");
-        insert into tweets(userid, tweet) values (5, "I did not like this feeling of having feelings.");
-        insert into tweets(userid, tweet) values (5, "The mind picks some very bad times to take a walk, doesn't it?.");
+        insert into tweets(userid, tweet, sendtime) values (1, "Hello world, this is my first tweet!", "2017-23-09 10:00:00");
+        insert into tweets(userid, tweet, sendtime) values (2, "Hola mundo, esto es mi primero tweet!", "2017-22-09 10:00:00");
+        insert into tweets(userid, tweet, sendtime) values (1, "Go is a pretty great language!", "2017-21-09 10:00:00");
+        insert into tweets(userid, tweet, sendtime) values (3, "Lorem ipsum dolor sit amet!", "2017-20-09 10:00:00");
+        insert into tweets(userid, tweet, sendtime) values (5, "I did not like this feeling of having feelings.", "2017-20-09 10:00:00");
+        insert into tweets(userid, tweet, sendtime) values (5, "The mind picks some very bad times to take a walk, doesn't it?.", "2017-20-09 09:00:00");
     `
 
     _, err = db.Exec(statement)
@@ -90,6 +92,7 @@ func populateDatabase(db *sql.DB){
     if err != nil {
         panic(err)
     }
+    fmt.Println("Database populated.")
 }
 
 
@@ -134,7 +137,8 @@ func DatabaseTweets() Tweets{
     defer db.Close()
 
     querystring := `
-        select name, tweet from users inner join tweets on users.id = tweets.userid;
+        select name, tweet, sendtime from users inner join tweets on users.id = tweets.userid
+        order by sendtime asc;
     `
 
     rows, err := db.Query(querystring)
@@ -146,7 +150,8 @@ func DatabaseTweets() Tweets{
     for rows.Next() {
         var name string
         var tweet string
-        err = rows.Scan(&name, &tweet)
+        var sendtime time.Time
+        err = rows.Scan(&name, &tweet, &sendtime)
         if err != nil {
             fmt.Println(err)
         }
@@ -190,12 +195,13 @@ func DatabaseGetTweetsFromFollowers(user User) Tweets{
     db := openDatabase()
 
     statement := `
-        select name,tweet from users inner join tweets on users.id = tweets.userid where userid in (
+        select name, tweet, sendtime from users inner join tweets on users.id = tweets.userid where userid in (
             select followinguserid from followers where userid = ?
-        )
+        ) or tweets.userid = ?
+        order by sendtime asc
     `
 
-    rows, err := db.Query(statement, user.Id)
+    rows, err := db.Query(statement, user.Id, user.Id)
     if err != nil {
         panic(err)
     }
@@ -204,7 +210,8 @@ func DatabaseGetTweetsFromFollowers(user User) Tweets{
     for rows.Next(){
         var name string
         var tweet string
-        err := rows.Scan(&name,&tweet)
+        var sendtime time.Time
+        err := rows.Scan(&name,&tweet, &sendtime)
         if err != nil {
             panic(err)
         }
@@ -216,20 +223,22 @@ func DatabaseGetTweetsFromFollowers(user User) Tweets{
 
 
 // returns true if it was successful
-func DatabaseSendTweet(tweet Tweet) bool{
+func DatabaseSendTweet(tweet Tweet) Tweet{
     fmt.Println("Sending a tweet!")
     user, err := getDatabaseUserByName(tweet.Username)
     if err != nil{
         panic(err)
     }
     db := openDatabase()
-    statement := "insert into tweets(userid, tweet) values (?,?)"
-    _, err = db.Exec(statement,user.Id,tweet.Tweetbody)
+    statement := "insert into tweets(userid, tweet, sendtime) values (?,?,?)"
+    // set the time for the tweet
+    tweet.Sendtime = time.Now()
+    _, err = db.Exec(statement,user.Id,tweet.Tweetbody, tweet.Sendtime)
     if err != nil {
         // should return false
         panic(err)
     }
-    return true
+    return tweet
 }
 
 

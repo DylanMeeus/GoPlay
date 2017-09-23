@@ -55,8 +55,14 @@ export class ProfileComponent implements OnInit {
     var jwt = localStorage.getItem("userjwt");
     var rest : Rest = new Rest();
     rest.sendTweet(jwt,tweet).then( (result) => {
-      console.log(result);
-    })
+        // add this tweet to the 'tweets'
+        var newarr = [];
+        newarr.push(result); // this one should be in the front
+        for(var i = 0; i < this.tweets.length; i++){
+          newarr.push(this.tweets[i]);
+        }
+        this.tweets = newarr;
+    });
   }
 
 }

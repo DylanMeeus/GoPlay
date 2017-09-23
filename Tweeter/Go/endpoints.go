@@ -81,7 +81,12 @@ func SendTweet(writer http.ResponseWriter, request *http.Request){
     }
     var contentStruct ContentStruct
     json.Unmarshal(body,&contentStruct)
-    DatabaseSendTweet(Tweet{Username:user.Username,Tweetbody:contentStruct.Content})
+    newTweet := DatabaseSendTweet(Tweet{Username:user.Username,Tweetbody:contentStruct.Content})
+    jsonString, jsonErr := json.Marshal(newTweet)
+    if jsonErr != nil {
+        panic(jsonErr)
+    }
+    fmt.Fprint(writer, string(jsonString))
 }
 
 func getJwtBearer(request *http.Request) jwt{
