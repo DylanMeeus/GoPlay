@@ -50,13 +50,15 @@ export default class Rest {
     )
   }
 
-  public async loadFollowerTweets(userjwt: string){
+  public async loadFollowerTweets(username: string){
     var url : string = this.baseurl + "profile/tweets";
-    var bearer = JSON.stringify({userjwt});
+    var jsonusername = JSON.stringify({username});
+    console.log("loading follower tweets");
+    console.log(jsonusername);
     return fetch(url, {
       headers: {
         "Content-Type": 'application/text',
-        "Bearer": bearer
+        "Username": jsonusername
       },
       method: "GET"
     }).then((response) =>{

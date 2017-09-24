@@ -18,6 +18,7 @@ const appRoutes: Routes = [
   { path: 'user/timeline', component: TimelineComponent },
   { path: 'user/login', component: LoginComponent },
   { path: 'user/logout', component: LogoutComponent },
+  { path: 'user/profile/:user', component: ProfileComponent },
   { path: '**', component: HomeComponent}
 ];
 

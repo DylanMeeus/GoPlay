@@ -1,4 +1,6 @@
 <div *ngFor="let tweet of tweets" class="tweet-container">
-  <div class="username">{{tweet.username}}</div>
+  <div class="username">
+    <a routerLink="/user/profile/{{tweet.username}}">{{tweet.username}}</a>
+  </div>
   <div class="tweetbody">{{tweet.tweetbody}}</div>
 </div>

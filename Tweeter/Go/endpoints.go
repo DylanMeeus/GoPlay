@@ -20,7 +20,6 @@ func GetTweets(writer http.ResponseWriter, request *http.Request){
 }
 
 func Login(writer http.ResponseWriter, request *http.Request){
-    fmt.Println("trying to log in")
     err := request.ParseForm()
     if err != nil{
         panic(err)
@@ -33,20 +32,32 @@ func Login(writer http.ResponseWriter, request *http.Request){
     var user User
     json.Unmarshal(body,&user)
     token := DatabaseLogin(user)
-    fmt.Fprint(writer, token)
+
+    type Tokenuser struct {
+        Username string
+        Token jwt
+    }
+
+    tokenuser := Tokenuser{Username:user.Username, Token: token}
+    loginjson, err := json.Marshal(tokenuser)
+    if err != nil{
+        panic(err)
+    }
+    fmt.Fprint(writer, string(loginjson))
 }
 
 func ProfileTweets(writer http.ResponseWriter, request *http.Request){
     if(request.Method == "OPTIONS"){
-        writer.Header().Add("Access-Control-Allow-Headers", "Bearer")
+        writer.Header().Add("Access-Control-Allow-Headers", "Username")
         return // don't do anything else if it was the option method
     }
 
-    user, err := getUserFromToken(getJwtBearer(request))
+    username := getUsernameFromRequest(request)
+    fmt.Println("username: " + username)
+    user, err := getDatabaseUserByName(username)
     if err != nil{
         panic(err)
     }
-
     tweets := DatabaseGetTweetsFromFollowers(user)
     tweetjson, err := json.Marshal(tweets)
     if err != nil {
@@ -89,6 +100,7 @@ func SendTweet(writer http.ResponseWriter, request *http.Request){
     fmt.Fprint(writer, string(jsonString))
 }
 
+
 func getJwtBearer(request *http.Request) jwt{
     bearer := request.Header.Get("Bearer")
 
@@ -98,4 +110,17 @@ func getJwtBearer(request *http.Request) jwt{
     var jwtBearer JwtBearer
     json.Unmarshal([]byte(bearer),&jwtBearer)
     return jwtBearer.Userjwt
+}
+
+func getUsernameFromRequest(request *http.Request) string{
+    username := request.Header.Get("Username")
+    fmt.Println("getting username from request")
+    fmt.Println(username)
+    type usernameHeader struct{
+        Username string
+    }
+
+    var usernameheader usernameHeader
+    json.Unmarshal([]byte(username), &usernameheader)
+    return usernameheader.Username
 }

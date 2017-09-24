@@ -1,5 +1,5 @@
 import {Component, OnInit, NgModule} from '@angular/core';
-import {Router} from "@angular/router";
+import {Router, ActivatedRoute} from "@angular/router";
 import Rest from "../../../rest/rest";
 import {Tweet} from "../../../model/tweet";
 import {TweetviewComponent} from "../../tweets/tweetview/tweetview.component";
@@ -20,12 +20,12 @@ export class ProfileComponent implements OnInit {
   chartotal: number = 140;
   charleft: number = 140;
   tweets : Tweet[];
-
+  ownprofile: boolean = false;
   public tweetForm = this.fb.group({
     tweetcontent: new FormControl(""),
   });
 
-  constructor(public fb: FormBuilder, public router: Router) {
+  constructor(public fb: FormBuilder, public router: Router, public route: ActivatedRoute) {
     this.tweetForm.valueChanges.subscribe( change =>{
       var text = change.tweetcontent;
       this.charleft = this.chartotal - text.length;
@@ -38,14 +38,22 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    var userjwt = localStorage.getItem("userjwt");
-    if(userjwt == null){
-      this.router.navigate(["user/login"]);
-      return;
-    }
+    this.route.params.subscribe(params =>{
+      // I need to get the current user profile..
+      var username = params['user'];
+      console.log(username);
+      if(username == null){
+        username = localStorage.getItem("username");
+        console.log(username);
+        this.loadProfile(username);
+      }
+    });
+  }
 
+  loadProfile(username: string){
+    console.log("loading profile with: " + username)
     var rest : Rest = new Rest();
-    rest.loadFollowerTweets(userjwt).then((result) => {
+    rest.loadFollowerTweets(username).then((result) => {
       this.tweets = result;
     });
   }
@@ -64,5 +72,4 @@ export class ProfileComponent implements OnInit {
         this.tweets = newarr;
     });
   }
-
 }

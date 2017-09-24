@@ -235,7 +235,6 @@ func DatabaseSendTweet(tweet Tweet) Tweet{
     tweet.Sendtime = time.Now()
     _, err = db.Exec(statement,user.Id,tweet.Tweetbody, tweet.Sendtime)
     if err != nil {
-        // should return false
         panic(err)
     }
     return tweet

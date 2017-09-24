@@ -26,12 +26,16 @@ export class LoginComponent implements OnInit {
     var username = this.loginForm.controls.username.value;
     var password = this.loginForm.controls.password.value;
     var rest : Rest = new Rest();
-    rest.login(username, password).then((token) => {
-      // store the token in local storage
-      if(token != "failed"){
-        localStorage.setItem("userjwt",token);
-        this.router.navigate(["/user/profile"]);
-      }
+    rest.login(username, password).then((json) => {
+        console.log(json);
+        var jsonObj = JSON.parse(json);
+        var user = jsonObj.Username;
+        var token = jsonObj.Token;
+        if(token != "failed"){
+          localStorage.setItem("userjwt",token);
+          localStorage.setItem("username",user);
+          this.router.navigate(["/user/profile"]);
+        }
     });
   }
 }
