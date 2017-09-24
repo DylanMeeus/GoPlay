@@ -41,17 +41,20 @@ export class ProfileComponent implements OnInit {
     this.route.params.subscribe(params =>{
       // I need to get the current user profile..
       var username = params['user'];
-      console.log(username);
       if(username == null){
         username = localStorage.getItem("username");
-        console.log(username);
-        this.loadProfile(username);
+        this.ownprofile = true;
+        // todo: I can navigate to my own profile using /profile/:user too
       }
+      var localstorageUsername = localStorage.getItem("username");
+      if(localstorageUsername == username){
+        this.ownprofile = true;
+      }
+      this.loadProfile(username);
     });
   }
 
   loadProfile(username: string){
-    console.log("loading profile with: " + username)
     var rest : Rest = new Rest();
     rest.loadFollowerTweets(username).then((result) => {
       this.tweets = result;
