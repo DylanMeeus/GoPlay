@@ -1,5 +1,8 @@
 # AngularTweeter
 
+A twitter-clone build with Go/Angular. 
+
+#Standard angular-cli info
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.4.2.
 
 ## Development server
