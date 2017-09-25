@@ -42,9 +42,12 @@ export class ProfileComponent implements OnInit {
       // I need to get the current user profile..
       var username = params['user'];
       if(username == null){
-        username = localStorage.getItem("username");
-        this.ownprofile = true;
-        // todo: I can navigate to my own profile using /profile/:user too
+        var localUsername = localStorage.getItem("username");
+        if(localUsername == null){
+          this.router.navigate(['/login']);
+        }
+        this.loadProfile(localUsername);
+        return;
       }
       var localstorageUsername = localStorage.getItem("username");
       if(localstorageUsername == username){

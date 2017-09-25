@@ -15,4 +15,7 @@ export class TweetviewComponent implements OnInit {
   ngOnInit() {
   }
 
+  viewReplies(event){
+    console.log(event);
+  }
 }

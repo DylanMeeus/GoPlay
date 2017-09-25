@@ -86,6 +86,7 @@ func populateDatabase(db *sql.DB){
         insert into followers(userid, followinguserid) values (1,2);
         insert into followers(userid, followinguserid) values (1,3);
         insert into followers(userid, followinguserid) values (1,5);
+        insert into followers(userid, followinguserid) values (2,1);
     `
 
     _, err = db.Exec(statement)

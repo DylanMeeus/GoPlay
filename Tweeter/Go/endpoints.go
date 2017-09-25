@@ -53,7 +53,6 @@ func ProfileTweets(writer http.ResponseWriter, request *http.Request){
     }
 
     username := getUsernameFromRequest(request)
-    fmt.Println("username: " + username)
     user, err := getDatabaseUserByName(username)
     if err != nil{
         panic(err)
@@ -71,7 +70,6 @@ func SendTweet(writer http.ResponseWriter, request *http.Request){
         writer.Header().Add("Acces-Control-Allow-Headers","Bearer")
         return
     }
-    fmt.Println("Sending tweet!")
     user, err := getUserFromToken(getJwtBearer(request))
     if err != nil{
         panic(err)
@@ -114,8 +112,6 @@ func getJwtBearer(request *http.Request) jwt{
 
 func getUsernameFromRequest(request *http.Request) string{
     username := request.Header.Get("Username")
-    fmt.Println("getting username from request")
-    fmt.Println(username)
     type usernameHeader struct{
         Username string
     }
