@@ -12,6 +12,12 @@ import (
 func main(){
     eval("13+250 - 2")
     eval("3 + 4 * 5 / 2")
+    //reader := bufio.NewReader(os.Stdin)
+    //fmt.Println("Enter equations")
+    //for {
+    //    eq, _ := reader.ReadString('\n')
+    //    eval(eq[0:len(eq)-1])
+    //}
 }
 
 
