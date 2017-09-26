@@ -26,3 +26,33 @@ func (o Operator) String() string{
 func (o Operator) HasPrecedence(other Operator) bool{
     return o.precedence > other.precedence
 }
+
+func (o Operator) calculate(a float64, b float64) float64 {
+    switch o{
+        case operatormap["+"]:
+            return add(a,b)
+        case operatormap["-"]:
+            return subtract(a,b)
+        case operatormap["*"]:
+            return multi(a,b)
+        case operatormap["/"]:
+            return div(a,b)
+    }
+    return 0 // this should probably not be zero
+}
+
+func add(a float64, b float64) float64 {
+    return a + b
+}
+
+func subtract(a float64, b float64) float64 {
+    return a - b
+}
+
+func multi(a float64, b float64) float64{
+    return a * b
+}
+
+func div(a float64, b float64) float64 {
+    return a / b
+}

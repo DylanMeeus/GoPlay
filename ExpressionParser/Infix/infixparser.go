@@ -6,6 +6,7 @@ import (
     "fmt"
     "strings"
     "../Collections"
+    "strconv"
 )
 
 func main(){
@@ -18,7 +19,7 @@ func eval(equation string){
     // II) Solve Reverse Polish Notation
     fmt.Println("Parsing: " + equation)
     eqparts := ShuntingYard(equation)
-    fmt.Println(eqparts)
+    solveRPN(eqparts)
 }
 
 // remove some of the spaces - that is the only cleanup at the moment
@@ -91,4 +92,37 @@ func charIsDigit(char byte) bool{
     zero := "0"[0]
     nine := "9"[0]
     return char >= zero && char <= nine
+}
+
+
+func solveRPN(eq []interface{}) int{
+    fmt.Println(eq)
+
+    // we keep stacking it.. and applying an operator to the stack when we encounter it, and shrink, etc..
+
+    execstack := collections.Stack{}
+    for i := 0; i < len(eq); i++{
+        token := eq[i]
+        operator, isOperator := token.(Operator)
+        number, isNumber := token.(string)
+        if isOperator{
+            as := execstack.Pop().(string)
+            bs := execstack.Pop().(string)
+            a, erra := strconv.ParseFloat(as,64)
+            b, errb := strconv.ParseFloat(bs,64)
+            if erra != nil {
+                panic(erra)
+            }
+            if errb != nil {
+                panic(errb)
+            }
+            calcresult := operator.calculate(a,b)
+            calcstring := strconv.FormatFloat(calcresult, 'f', -1, 64)
+            execstack.Push(calcstring)
+        } else if isNumber{
+            execstack.Push(number)
+        }
+    }
+    fmt.Println(execstack)
+    return 0
 }
