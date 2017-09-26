@@ -11,15 +11,16 @@ import (
 
 func main(){
     eval("13+250 - 2")
+    eval("3 + 4 * 5 / 2")
 }
 
 
 func eval(equation string){
     // I) Apply Shunting-Yard (returns Reverse Polish Notation of equation)
     // II) Solve Reverse Polish Notation
-    fmt.Println("Parsing: " + equation)
     eqparts := ShuntingYard(equation)
-    solveRPN(eqparts)
+    solution := solveRPN(eqparts)
+    fmt.Println(solution)
 }
 
 // remove some of the spaces - that is the only cleanup at the moment
@@ -68,14 +69,19 @@ func ShuntingYard(input string) []interface{}{
         if isNumber(token){
             output = append(output,token)
         } else { // it is an operator
-
             operator := OperatorFromString(token)
+            if !operators.Empty(){
+                for !operators.Empty() && operators.Peek().(Operator).HasPrecedence(operator)  {
+                    topOperator := operators.Pop().(Operator)
+                    output = append(output, topOperator)
+                }
+            }
             operators = append(operators,operator)
         }
     }
 
     // now pop the operators onto output
-    for operators.Empty() {
+    for !operators.Empty() {
         top := operators.Pop()
         output = append(output,top)
     }
@@ -106,8 +112,8 @@ func solveRPN(eq []interface{}) int{
         operator, isOperator := token.(Operator)
         number, isNumber := token.(string)
         if isOperator{
-            as := execstack.Pop().(string)
             bs := execstack.Pop().(string)
+            as := execstack.Pop().(string)
             a, erra := strconv.ParseFloat(as,64)
             b, errb := strconv.ParseFloat(bs,64)
             if erra != nil {
@@ -123,6 +129,11 @@ func solveRPN(eq []interface{}) int{
             execstack.Push(number)
         }
     }
-    fmt.Println(execstack)
-    return 0
+    iresult := execstack.Pop()
+    str := iresult.(string)
+    result, err := strconv.Atoi(str)
+    if err != nil{
+        panic(err)
+    }
+    return result
 }
