@@ -1,4 +1,4 @@
-// Infix parser for the Shunting-yard algorithm
+// Infix parser using the Shunting-yard algorithm
 
 package main
 
@@ -14,45 +14,45 @@ func main(){
 
 // remove some of the spaces - that is the only cleanup at the moment
 func formatInputString(input string) string{
+    spacerune := 32
     return strings.Map(func(r rune) rune{
-        if r == 32{
+        if r == spacerune{
             return -1
         }
         return r
     },input)
 }
 
-// evaluate a string
-func eval(input string) int{
-
-    t := "0123456789"
-
-    for i := 0; i < len(t); i++{
-        fmt.Println(t[i])
-    }
-
-    index := 0
-    input = formatInputString(input)
-    fmt.Println(input)
+func tokenize(input string) []string{
     tokens := []string{}
+    index := 0
     for index < len(input) {
         token := ""
         charvalue := input[index]
-        for charvalue >= 48 && charvalue <= 57 && index+1 < len(input){
-            // it is a number
+        for charIsDigit(charvalue) && index+1 < len(input){ // also make sure it is in the bounds
             token += string(charvalue)
             index++
             charvalue = input[index]
         }
 
-        if token == ""{ // we did not encounter a number
+        if token == ""{
             token = string(charvalue)
             index++
         }
         tokens = append(tokens, token)
     }
+    return tokens
+}
 
+// evaluate a string
+func eval(input string) int{
+    input = formatInputString(input)
+    tokens := tokenize(input)
     fmt.Println(tokens)
     return 0
 }
 
+
+func charIsDigit(char byte) bool{
+    return char >= 48 && char <= 57
+}

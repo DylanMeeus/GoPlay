@@ -1,4 +1,4 @@
-package main
+package collections
 
 
 import (
@@ -7,14 +7,6 @@ import (
 
 type Stack []int
 
-func main(){
-    // for testing
-    stack := Stack{}
-    stack.push(4)
-    stack.push(5)
-    stack.pop()
-    fmt.Println(stack)
-}
 
 func (s *Stack) push(i int){
     *s = append(*s,i)
