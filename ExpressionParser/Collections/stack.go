@@ -1,22 +1,22 @@
 package collections
 
 
-import (
-    "fmt"
-)
-
-type Stack []int
+type Stack []interface{}
 
 
-func (s *Stack) push(i int){
+func (s *Stack) push(i interface{}){
     *s = append(*s,i)
 }
 
-func (s *Stack) pop() int{
+func (s *Stack) peek() interface{} {
+    return (*s)[len(*s)-1]
+}
+
+func (s *Stack) pop() interface{}{
     if len(*s) == 0{
         panic("Can not pop from an empty stack!")
     }
-    last := (*s)[len(*s)-1]
+    last := (*s).peek()
     (*s) = (*s)[0:len(*s)-1]
     return last
 }
