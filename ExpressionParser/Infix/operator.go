@@ -1,4 +1,4 @@
-package main
+package InfixParser
 
 
 var operatormap = map[string] Operator{

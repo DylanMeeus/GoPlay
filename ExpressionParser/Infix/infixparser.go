@@ -1,6 +1,6 @@
 // Infix parser using the Shunting-yard algorithm
 
-package main
+package InfixParser
 
 import (
     "fmt"
@@ -9,24 +9,13 @@ import (
     "strconv"
 )
 
-func main(){
-    eval("13+250 - 2")
-    eval("3 + 4 * 5 / 2")
-    //reader := bufio.NewReader(os.Stdin)
-    //fmt.Println("Enter equations")
-    //for {
-    //    eq, _ := reader.ReadString('\n')
-    //    eval(eq[0:len(eq)-1])
-    //}
-}
 
-
-func eval(equation string){
+func Eval(equation string) float64 {
     // I) Apply Shunting-Yard (returns Reverse Polish Notation of equation)
     // II) Solve Reverse Polish Notation
     eqparts := ShuntingYard(equation)
     solution := solveRPN(eqparts)
-    fmt.Println(solution)
+    return solution
 }
 
 // remove some of the spaces - that is the only cleanup at the moment
@@ -47,10 +36,12 @@ func tokenize(input string) []string{
     for index < len(input) {
         token := ""
         charvalue := input[index]
-        for charIsDigit(charvalue) && index+1 < len(input){ // also make sure it is in the bounds
+        for charIsDigit(charvalue) && index < len(input){ // also make sure it is in the bounds
             token += string(charvalue)
             index++
-            charvalue = input[index]
+            if index < len(input) {
+                charvalue = input[index]
+            }
         }
 
         if token == ""{
@@ -59,6 +50,7 @@ func tokenize(input string) []string{
         }
         tokens = append(tokens, token)
     }
+    fmt.Println(tokens)
     return tokens
 }
 
@@ -107,7 +99,7 @@ func charIsDigit(char byte) bool{
 }
 
 
-func solveRPN(eq []interface{}) int{
+func solveRPN(eq []interface{}) float64{
     fmt.Println(eq)
 
     // we keep stacking it.. and applying an operator to the stack when we encounter it, and shrink, etc..
@@ -137,7 +129,7 @@ func solveRPN(eq []interface{}) int{
     }
     iresult := execstack.Pop()
     str := iresult.(string)
-    result, err := strconv.Atoi(str)
+    result, err := strconv.ParseFloat(str,64)
     if err != nil{
         panic(err)
     }
