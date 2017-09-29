@@ -14,7 +14,9 @@ func Eval(equation string) float64 {
     // I) Apply Shunting-Yard (returns Reverse Polish Notation of equation)
     // II) Solve Reverse Polish Notation
     eqparts := ShuntingYard(equation)
+    fmt.Println("Shunting-Yard completed")
     solution := solveRPN(eqparts)
+    fmt.Println("Solution done")
     return solution
 }
 
@@ -50,7 +52,6 @@ func tokenize(input string) []string{
         }
         tokens = append(tokens, token)
     }
-    fmt.Println(tokens)
     return tokens
 }
 
@@ -68,6 +69,22 @@ func ShuntingYard(input string) []interface{}{
             output = append(output,token)
         } else { // it is an operator
             operator := OperatorFromString(token)
+
+            if operator.symbol == "("{
+                operators = append(operators, operator)
+                continue
+            } else if operator.symbol == ")"{
+                for op := operators.Pop(); op != OperatorFromString("("); {
+                    fmt.Println(op)
+                    output = append(output,op)
+                    if !operators.Empty(){
+                        op = operators.Pop()
+                    }
+                }
+                // op should be ( now
+                continue
+            }
+
             if !operators.Empty(){
                 for !operators.Empty() && operators.Peek().(Operator).HasPrecedence(operator)  {
                     topOperator := operators.Pop().(Operator)
@@ -100,12 +117,12 @@ func charIsDigit(char byte) bool{
 
 
 func solveRPN(eq []interface{}) float64{
-    fmt.Println(eq)
 
     // we keep stacking it.. and applying an operator to the stack when we encounter it, and shrink, etc..
-
     execstack := collections.Stack{}
+    fmt.Println(eq)
     for i := 0; i < len(eq); i++{
+        fmt.Println(i)
         token := eq[i]
         operator, isOperator := token.(Operator)
         number, isNumber := token.(string)
@@ -133,5 +150,6 @@ func solveRPN(eq []interface{}) float64{
     if err != nil{
         panic(err)
     }
+    fmt.Println("Reached result")
     return result
 }

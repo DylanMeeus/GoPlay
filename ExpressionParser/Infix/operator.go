@@ -6,6 +6,8 @@ var operatormap = map[string] Operator{
     "-": Operator{symbol:"-", precedence:2, leftAssociative:true},
     "/": Operator{symbol:"/", precedence:3, leftAssociative:true},
     "*": Operator{symbol:"*", precedence:3, leftAssociative:true},
+    "(": Operator{symbol:"(", precedence:-1, leftAssociative:false},
+    ")": Operator{symbol:")", precedence:-1, leftAssociative:false},
 }
 
 type Operator struct{
