@@ -6,16 +6,14 @@ import (
     "math"
 )
 
+
 func main(){
-    //x := []int{}
-
-    //buildChain(1000000, &chain)
-
     values := map[int] int{}
     s := 0
     for i := 0; i < 1000000; i++{
         chain := []int{}
-        length := buildChain(i, &chain)
+        length := buildChain(i, &chain, &values)
+        values[i] = length
         if length == 60{
             s++
         }
@@ -24,18 +22,26 @@ func main(){
 }
 
 // returns the length of the build chain
-func buildChain(n int, chain *[]int) int{
+func buildChain(n int, chain *[]int, values *map[int]int) int{
     digits := toDigits(n)
     sum := factSum(&digits)
-    if containsNumber(sum,chain){
+
+    // first check the previous chains
+    value, containsValue := (*values)[sum]
+    if containsValue{
+        // current chain + old chain
+        return value + len(*chain)+1
+    }
+
+    if chainContainsNumber(sum,chain){
         return len(*chain)+1
-    } else{
+    } else {
         *chain = append(*chain,sum)
-        return buildChain(sum, chain)}
+        return buildChain(sum, chain,values)}
 
 }
 
-func containsNumber(num int, arr *[]int) bool{
+func chainContainsNumber(num int, arr *[]int) bool{
     for i := range *arr{
         if (*arr)[i] == num{
             return true
