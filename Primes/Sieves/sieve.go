@@ -3,6 +3,7 @@ package Primes
 
 import (
     "math"
+    "fmt"
 )
 
 func Sieve(n int) []int{
@@ -31,6 +32,7 @@ func Sieve(n int) []int{
             output = append(output,i)
         }
     }
+    fmt.Println(len(output))
     return output
 }
 

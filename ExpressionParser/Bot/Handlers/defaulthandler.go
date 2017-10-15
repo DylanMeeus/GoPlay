@@ -1,25 +1,31 @@
 package Handlers
 
 import (
-    "fmt"
     "github.com/bwmarrin/discordgo"
     "strings"
     "../../Infix"
     "strconv"
+    "../../../RomanNumerals"
 )
 
 
-var prefix string = "#calc"
+// prefixes
+var calcprefix string = "#calc" // calculate prefix
+var convprefix string = "#conv" // convert prefix
 
+// handle the incoming message
 func CommandHandler(session *discordgo.Session, message *discordgo.MessageCreate){
-    fmt.Println("Parsing command")
-
     messageContent := strings.TrimSpace(message.Content)
 
-    if strings.HasPrefix(messageContent,prefix){
-        equation := messageContent[len(prefix):]
+    if strings.HasPrefix(messageContent, calcprefix){
+        equation := messageContent[len(calcprefix):]
         result := InfixParser.Eval(equation)
         output := strconv.FormatFloat(result,'f',-1,64)
+        _,_ = session.ChannelMessageSend(message.ChannelID, output)
+    } else if strings.HasPrefix(messageContent, convprefix) {
+        input := messageContent[len(convprefix):]
+        decimal := romannumerals.ParseNumeral(input)
+        output := strconv.Itoa(decimal)
         _,_ = session.ChannelMessageSend(message.ChannelID, output)
     }
 

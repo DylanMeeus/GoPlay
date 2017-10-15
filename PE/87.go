@@ -12,9 +12,11 @@ func main(){
 
     // 7071 is the square root of 50.000.000 which is the max of the sum
     limit := 50000000
+    //max := int(math.Sqrt(float64(limit)))
     primes := Primes.Sieve(7072)
 
-    results := make([]bool,limit)
+    res := []int{}
+    test := make([]bool,limit)
     for double := 0; double < len(primes); double++{
         for triple := 0; triple < len(primes); triple++{
             for quad := 0; quad < len(primes); quad++{
@@ -23,19 +25,20 @@ func main(){
                 c := primes[quad] * primes[quad] * primes[quad] * primes[quad]
                 sum := a + b + c
                 if sum < limit {
-                    results[sum] = true
+                    res = append(res,sum)
+                    test[sum] = true
                 }
             }
         }
     }
 
     sum := 0
-    for i := 0; i < len(results); i++{
-        if results[i]{
+    for i := 0; i < len(test); i++{
+        if test[i]{
             sum++
         }
     }
-    fmt.Println(sum)
+
 }
 
 func contains(arr *[]int, num int) bool{

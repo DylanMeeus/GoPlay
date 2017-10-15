@@ -1,7 +1,6 @@
-package main
+package romannumerals
 
 import (
-    "fmt"
     "strings"
 )
 
@@ -16,20 +15,9 @@ var numerals = map[string] int{
     "M" : 1000,
 }
 
-func main(){
-    fmt.Println(parseNumeral("VI"))
-    fmt.Println(parseNumeral("LXX"))
-    fmt.Println(parseNumeral("MCC"))
-    fmt.Println(parseNumeral("IV"))
-    fmt.Println(parseNumeral("XC"))
-    fmt.Println(parseNumeral("CM"))
-    fmt.Println(parseNumeral("XCV"))
-    fmt.Println(parseNumeral("XCIX"))
-    fmt.Println(parseNumeral("XXX"))
-}
 
-
-func parseNumeral(numeral string) int{
+// parse a roman numeral to a decimal
+func ParseNumeral(numeral string) int{
     tokens := tokenize(numeral)
 
     values := make([]int, 0)
@@ -51,7 +39,6 @@ func parseNumeral(numeral string) int{
     for i := 0; i < len(values); i++{
         sum += values[i]
     }
-    //fmt.Println(values)
     return sum
 }
 
