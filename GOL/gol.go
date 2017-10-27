@@ -2,6 +2,11 @@ package main
 
 import (
     "fmt"
+    "os"
+    "os/exec"
+    "time"
+    "math/rand"
+    "strconv"
 )
 
 
@@ -9,22 +14,34 @@ type Cell struct{
     alive bool // 0 == dead, 1 == alive
 }
 
-const rows = 10
-const cols = 10
+const rows int = 50
+const cols int = 50
+const timeout time.Duration = 500 // time in milliseconds between cycles
 
 func main(){
     cells := make([][]Cell, rows)
     for i := range cells {
         cells[i] = make([]Cell, cols)
     }
-    cells = initField(&cells)
+    cells = initField(&cells, randomBool)
 
-    // todo: make this an infinite loop in the future
-    for i := 0; i < 2; i++{
+    for generation := 0; ; generation++ {
+        clearScreen()
         printGame(&cells)
-        timeStep(&cells)
+        timeStepTime := timeStep(&cells)
+        fmt.Println("generation: " + strconv.Itoa(generation))
+        fmt.Println("generated generation in: " + strconv.Itoa(int(timeStepTime)) + " Microseconds")
+        time.Sleep(timeout * time.Millisecond)
     }
 }
+
+// a function that randomly returns either true or false
+func randomBool() bool{
+    rand.Seed(time.Now().UTC().UnixNano())
+    i := rand.Int31()
+    return i & 1 == 1
+}
+
 
 func shallowCopy(field *[][]Cell) [][]Cell{
     dereferenced := *field
@@ -41,7 +58,8 @@ func shallowCopy(field *[][]Cell) [][]Cell{
 }
 
 // manipulate the field one 'step'
-func timeStep(field *[][]Cell){
+func timeStep(field *[][]Cell) float64{ // alters the array under the pointer, returns time for running method
+    startTime := time.Now()
     dereferenced := *field
     arr := shallowCopy(field)
     for row := 0; row < rows; row++{
@@ -96,12 +114,13 @@ func timeStep(field *[][]Cell){
             }
             newCell := getNewCellState(cell, neighbours, cell.alive)
             arr[row][col] = newCell
-            printGame(&arr)
         }
     }
 
     // change field to the copy
     *field = arr
+
+    return float64(time.Now().Sub(startTime)) / float64(1000)
 }
 
 func getNewCellState(cell Cell, neighbours int, oldstate bool) Cell {
@@ -161,22 +180,20 @@ func countNeighbours(cell *Cell, field *[][]Cell) int{
 
 
 
-func initField(field *[][]Cell) [][]Cell {
+/**
+initialize a field based on a function
+ */
+func initField(field *[][]Cell, result func() bool) [][]Cell {
     // set them all to false
     dereferenced := *field
     for row := 0; row < rows; row++{
         for col := 0; col < cols; col++{
-            dereferenced[row][col].alive = false
+            dereferenced[row][col].alive = result()
         }
     }
-
-    // set some to true for testing
-    dereferenced[5][5].alive = true
-    dereferenced[5][6].alive = true
-    dereferenced[6][5].alive = true
-
     return *field
 }
+
 
 // print the game
 func printGame(gameArea *[][]Cell){
@@ -192,18 +209,11 @@ func printGame(gameArea *[][]Cell){
         }
         fmt.Print("\n")
     }
-    fmt.Print("\n\n\n")
 }
-
-//func runForEachCell(f func()){
-//    for row := 0; row < rows; row++{
-//        for col := 0; col < cols; col++{
-//            field[row][col] = f()
-//        }
-//    }
-//}
 
 // Clear the CLI window for a repaint
 func clearScreen(){
-
+    cmd := exec.Command("clear")
+    cmd.Stdout = os.Stdout
+    cmd.Run()
 }
