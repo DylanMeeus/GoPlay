@@ -20,17 +20,30 @@ func main(){
     cells = initField(&cells)
 
     // todo: make this an infinite loop in the future
-    for i := 0; i < 1; i++{
+    for i := 0; i < 2; i++{
         printGame(&cells)
         timeStep(&cells)
     }
 }
 
+func shallowCopy(field *[][]Cell) [][]Cell{
+    dereferenced := *field
+    arr := make([][]Cell, rows)
+    for i := range arr {
+        arr[i] = make([]Cell, cols)
+    }
+    for row := 0; row < rows; row++ {
+        for col := 0; col < cols; col++ {
+            arr[row][col] = dereferenced[row][col]
+        }
+    }
+    return arr
+}
+
 // manipulate the field one 'step'
 func timeStep(field *[][]Cell){
-    arr := make([][]Cell, rows)
-    copy(arr, *field) // copy field to arr
     dereferenced := *field
+    arr := shallowCopy(field)
     for row := 0; row < rows; row++{
         for col := 0; col < cols; col++{
             cell := dereferenced[row][col]
@@ -81,8 +94,9 @@ func timeStep(field *[][]Cell){
                     neighbours++
                 }
             }
-            newCell := getNewCellState(cell, neighbours)
+            newCell := getNewCellState(cell, neighbours, cell.alive)
             arr[row][col] = newCell
+            printGame(&arr)
         }
     }
 
@@ -90,13 +104,20 @@ func timeStep(field *[][]Cell){
     *field = arr
 }
 
-func getNewCellState(cell Cell, neighbours int) Cell {
-    fmt.Println(neighbours)
+func getNewCellState(cell Cell, neighbours int, oldstate bool) Cell {
     c := Cell{}
     switch neighbours {
-    case 3:
-        c.alive = true
-        break
+    // just the cases for live, death is default
+        case 2:
+            if  oldstate {      // staying alive
+                c.alive = true
+            }
+            break
+        case 3:
+            c.alive = true      // staying alive or being born
+            break
+        default: c.alive = false
+            break
     }
     return c
 }
@@ -171,6 +192,7 @@ func printGame(gameArea *[][]Cell){
         }
         fmt.Print("\n")
     }
+    fmt.Print("\n\n\n")
 }
 
 //func runForEachCell(f func()){
