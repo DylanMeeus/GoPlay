@@ -67,51 +67,36 @@ func timeStep(field *[][]Cell) float64{ // alters the array under the pointer, r
             cell := dereferenced[row][col]
             neighbours := 0
             // init movemenet
-            nextCol := col + 1
-            prevCol := col - 1
-            nextRow := row + 1
-            prevRow := row - 1
 
-            if !isLastColumn(col) {
-                if dereferenced[row][nextCol].alive {
-                    neighbours++
+            startr := func(row int) int{
+                if row > 0{
+                    return row - 1
+                }
+                return row
+            }(row)
+
+            startc := func(col int) int{
+                if col > 0{
+                    return col -1
+                }
+                return col
+            }(col)
+
+            for rowi := startr; rowi <= startr + 2; rowi++{ // start from row-1, to row+1
+                if rowi >= rows {
+                    break
+                }
+                for coli := startc; coli <= startc + 2; coli++{
+                    if coli >= cols || rowi == row && coli == col { // skip the current one!
+
+                    } else {
+                        if dereferenced[rowi][coli].alive {
+                            neighbours++
+                        }
+                    }
                 }
             }
-            if !isLastColumn(col) && !isLastRow(row) {
-                if dereferenced[nextRow][nextCol].alive {
-                    neighbours++
-                }
-            }
-            if !isLastRow(row) {
-                if dereferenced[nextRow][col].alive{
-                    neighbours++
-                }
-            }
-            if !isLastRow(row) && !isFirstColumn(col) {
-                if dereferenced[nextRow][prevCol].alive{
-                    neighbours++
-                }
-            }
-            if !isFirstColumn(col) {
-                if dereferenced[row][prevCol].alive {
-                    neighbours++
-                }
-            }
-            if !isFirstColumn(col) && !isFirstRow(row) {
-                if dereferenced[prevRow][prevCol].alive {
-                    neighbours++
-                }
-            }
-            if !isFirstRow(row) {
-                if dereferenced[prevRow][col].alive {
-                    neighbours++
-                }
-            }
-            if !isFirstRow(row) && !isLastColumn(col) {
-                if dereferenced[prevRow][nextCol].alive {
-                    neighbours++
-                }
-            }
+
             newCell := getNewCellState(cell, neighbours, cell.alive)
             arr[row][col] = newCell
         }
