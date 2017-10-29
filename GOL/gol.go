@@ -16,7 +16,7 @@ type Cell struct{
 
 const rows int = 50
 const cols int = 50
-const timeout time.Duration = 500 // time in milliseconds between cycles
+const timeout time.Duration = 50 // time in milliseconds between cycles
 
 func main(){
     cells := make([][]Cell, rows)
@@ -88,7 +88,7 @@ func timeStep(field *[][]Cell) float64{ // alters the array under the pointer, r
                 }
                 for coli := startc; coli <= startc + 2; coli++{
                     if coli >= cols || rowi == row && coli == col { // skip the current one!
-
+                        continue
                     } else {
                         if dereferenced[rowi][coli].alive {
                             neighbours++
@@ -125,45 +125,6 @@ func getNewCellState(cell Cell, neighbours int, oldstate bool) Cell {
     }
     return c
 }
-
-func isLeftTopCorner(row int, col int) bool {
-    return isFirstRow(row) && isFirstColumn(col)
-}
-
-func isLeftBottomCorner(row int, col int) bool {
-    return isLastRow(row) && isFirstColumn(col)
-}
-
-func isRightTopCorner(row int, col int) bool {
-    return isFirstRow(row) && isLastColumn(col)
-}
-
-func isRightBottomCorner(row int, col int) bool {
-    return isLastRow(row) && isLastColumn(col)
-}
-
-func isFirstRow(row int) bool {
-    return row == 0
-}
-
-func isLastRow(row int) bool {
-    return row == rows-1
-}
-
-func isFirstColumn(col int) bool {
-    return col == 0
-}
-
-func isLastColumn(col int) bool {
-    return col == cols-1
-}
-
-func countNeighbours(cell *Cell, field *[][]Cell) int{
-    neighbours := 0
-    return neighbours
-}
-
-
 
 /**
 initialize a field based on a function
