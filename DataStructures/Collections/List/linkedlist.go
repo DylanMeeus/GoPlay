@@ -59,6 +59,27 @@ func (linkedList *LinkedList) get(index int) *Node{
     return node
 }
 
+/*
+    Remove a node given an index
+    Panic's if the index is not inside the bounds of the list!
+ */
+func (linkedList *LinkedList) remove(index uint){
+    if index == 0 {
+        linkedList.start = linkedList.start.next
+        return
+    }
+    node := linkedList.start
+    for i := uint(0); i < index - 1; i++{
+        if node.next != nil {
+            node = node.next
+        } else {
+            panic("Node index out of range!")
+        }
+    }
+    // now we have the node at the index, we want to chain the n-1'th element, to the n+1'th element.
+    node.next = node.next.next
+}
+
 // CODE TO TEST THE LIST
 
 func main(){
@@ -71,8 +92,20 @@ func main(){
     list.add(5)
 
 
-    fmt.Println(list.get(list.size-1))
-
+    list.printList()
+    list.remove(0)
+    list.printList()
     //fmt.Println(list.start)
 
+}
+
+
+
+// Convenience function to test the list
+func (LinkedList *LinkedList) printList(){
+    node := LinkedList.start
+    for node != nil{
+        fmt.Println(node)
+        node = node.next
+    }
 }
