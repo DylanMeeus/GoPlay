@@ -22,24 +22,23 @@ func (node Node) String() string {
 // CODE FOR THE LIST
 type LinkedList struct{
     size int
-    start *Node
+    head *Node
+    end *Node       // last node in the list
 }
 
 /*
     Create the first node in the list, or iterate until the last node and insert it there.
  */
 func (linkedList *LinkedList) add(value interface{}){
-    if linkedList.start == nil {
-        linkedList.start = &Node{value: value, next: nil}
+    if linkedList.head == nil {
+        linkedList.head = &Node{value: value, next: nil}
+        linkedList.end = linkedList.head
         linkedList.size += 1
     } else {
         newNode := Node{value: value, next : nil}
-        startNode := linkedList.start
-        for startNode.next != nil{
-            startNode = startNode.next
-        }
-        // now startNode is the last node that does not have a _next_ node.
-        startNode.next = &newNode
+        lastNode := linkedList.end
+        lastNode.next = &newNode
+        linkedList.end = &newNode
         linkedList.size += 1
     }
 }
@@ -48,7 +47,7 @@ func (linkedList *LinkedList) add(value interface{}){
     Return the n'th node in the LinkedList
  */
 func (linkedList *LinkedList) get(index int) interface{}{
-    node := linkedList.start
+    node := linkedList.head
     for i := 0; i < index; i++{
         if node.next != nil {
             node = node.next
@@ -65,10 +64,10 @@ func (linkedList *LinkedList) get(index int) interface{}{
  */
 func (linkedList *LinkedList) remove(index uint){
     if index == 0 {
-        linkedList.start = linkedList.start.next
+        linkedList.head = linkedList.head.next
         return
     }
-    node := linkedList.start
+    node := linkedList.head
     for i := uint(0); i < index - 1; i++{
         if node.next != nil {
             node = node.next
@@ -86,16 +85,15 @@ func main(){
     // todo: move this away from main after the collection is done
 
     list := LinkedList{}
-    list.add(1)
-    list.add(2)
-    list.add(3)
-    list.add(5)
 
 
-    list.printList()
-    list.remove(0)
-    list.printList()
-    //fmt.Println(list.start)
+    // perf testing
+
+    for i := 0; i < 10000000; i++{
+        list.add(i)
+    }
+
+    //list.printList()
 
 }
 
@@ -103,7 +101,7 @@ func main(){
 
 // Convenience function to test the list
 func (LinkedList *LinkedList) printList(){
-    node := LinkedList.start
+    node := LinkedList.head
     for node != nil{
         fmt.Println(node)
         node = node.next
