@@ -47,7 +47,7 @@ func (linkedList *LinkedList) add(value interface{}){
 /*
     Return the n'th node in the LinkedList
  */
-func (linkedList *LinkedList) get(index int) *Node{
+func (linkedList *LinkedList) get(index int) interface{}{
     node := linkedList.start
     for i := 0; i < index; i++{
         if node.next != nil {
@@ -56,7 +56,7 @@ func (linkedList *LinkedList) get(index int) *Node{
             panic("Node index out of range!")
         }
     }
-    return node
+    return node.value
 }
 
 /*
