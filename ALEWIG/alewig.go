@@ -56,6 +56,8 @@ func parse(source string){
         tokenLine := tokenLines[i]
         if tokenLine.variableDeclaration {
             // create the variable map
+            // each line should contain 2 tokens, the variable name + datatype
+
         } else {
             // parse the code
         }
@@ -93,7 +95,7 @@ func tokenize(source []string) []TokenLine{
                 token := Token{representation:parts[i]}
                 tokens = append(tokens, token)
             }
-            tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:true})
+            tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:false})
         }
     }
     return tokenLines
