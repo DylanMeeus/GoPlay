@@ -9,6 +9,7 @@ import (
     "io/ioutil"
     "os"
     "strings"
+    "go/ast"
 )
 
 // set up section constants
@@ -37,6 +38,7 @@ type Token struct{
 
 type TokenLine struct{
     tokens []Token
+    variableDeclaration bool               // Does this line contain variables, or code?
 }
 
 
@@ -48,12 +50,21 @@ type TokenLine struct{
 func parse(source string){
     lines := strings.Split(source,"\n")
     lines = preParseFormat(lines)
-    tokenize(lines)
+    tokenLines := tokenize(lines)
+    parsingData := true
+    for i := 0; i < len(tokenLines); i++ {
+        tokenLine := tokenLines[i]
+        if tokenLine.variableDeclaration {
+            // create the variable map
+        } else {
+            // parse the code
+        }
+    }
 }
 
 func tokenize(source []string) []TokenLine{
     parsingData := true    // assume we have a data section
-    tokens := make([]TokenLine, 0)
+    tokenLines := make([]TokenLine, 0)
     for i := 0; i < len(source); i++ {
         line := source[i]
         // parse the actual line if it was not a 'switch context statement' (.code / .data)
@@ -73,13 +84,19 @@ func tokenize(source []string) []TokenLine{
             }
             variableName := Token{representation:parts[0]}
             variableType := Token{representation:parts[1]}
-            tokenLine := TokenLine{tokens:[]Token{variableName, variableType}}
-            tokens = append(tokens, tokenLine)
+            tokenLine := TokenLine{tokens:[]Token{variableName, variableType},variableDeclaration:true}
+            tokenLines = append(tokenLines, tokenLine)
         } else {
-
+            parts := strings.Split(line," ")
+            tokens := make([]Token,0)
+            for i := 0; i < len(parts); i++ {
+                token := Token{representation:parts[i]}
+                tokens = append(tokens, token)
+            }
+            tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:true})
         }
     }
-    return tokens
+    return tokenLines
 }
 
 /*
