@@ -9,7 +9,7 @@ import (
     "io/ioutil"
     "os"
     "strings"
-    "go/ast"
+    "go/types"
 )
 
 // set up section constants
@@ -42,6 +42,11 @@ type TokenLine struct{
 }
 
 
+type Variable struct{
+    datatype types.BasicKind
+    value interface{}
+}
+
 
 /*
     Parse the incoming file, create an internal representations of the code.
@@ -51,16 +56,35 @@ func parse(source string){
     lines := strings.Split(source,"\n")
     lines = preParseFormat(lines)
     tokenLines := tokenize(lines)
-    parsingData := true
+
+    variables := make(map[string]Variable,0)
+
     for i := 0; i < len(tokenLines); i++ {
         tokenLine := tokenLines[i]
         if tokenLine.variableDeclaration {
             // create the variable map
             // each line should contain 2 tokens, the variable name + datatype
-
+            name := tokenLine.tokens[0]
+            dtype:= tokenLine.tokens[1]
+            basicKind, defaultValue := typeFromString(dtype.representation)
+            variable := Variable{datatype:basicKind, value:defaultValue}
+            variables[name.representation] = variable
         } else {
             // parse the code
         }
+    }
+}
+
+
+/*
+    Returns the type from a string, along with it's default value!
+ */
+func typeFromString(typestring string) (types.BasicKind, interface{}) { // only allow basic types?
+    switch strings.TrimSpace(typestring){ // todo: maybe the spaces should be trimmed earlier!
+        case "string":
+            return types.String, ""
+        default:
+            panic("Type not supported")
     }
 }
 
@@ -134,9 +158,17 @@ func deleteEmptyLines(source *[]string) {
 }
 
 func deleteIndentation(source *[]string){
-    for i:= 0; i < len(*source); i++{
+    var spacerune rune
+    spacerune = 32
+
+    for i := 0; i < len(*source); i++ {
         line := (*source)[i]
-        (*source)[i] = strings.TrimSpace(line)
+        line = strings.Map(func(r rune) rune{
+            if r == spacerune{
+                return -1
+            }
+            return r
+        },line)
     }
 }
 
