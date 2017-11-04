@@ -17,6 +17,9 @@ import (
 const codesection string = ".code"
 const datasection string = ".data"
 
+var variables = make(map[string]Variable,0)
+var jumpTable = make(map[string]uint,0)     // jump table indexed by string
+
 type TokenFunction func(*CodeStack, FunctionArgs)
 
 type CodeStack struct{
@@ -30,6 +33,7 @@ var TokenFunctions = map[Token] TokenFunction{
     Token{representation:"push"}: push,
     Token{representation:"print"}: print,
     Token{representation:"pop"}: pop,
+    Token{representation:"assign"}: assign,
 }
 
 func exit(codeStack *CodeStack, args FunctionArgs){
@@ -52,7 +56,25 @@ func pop(codeStack *CodeStack, args FunctionArgs){
  */
 func print(codeStack *CodeStack, args FunctionArgs){
     top := codeStack.Peek()
+    varValue, contains := variables[top.(Token).representation]
+    if contains{
+        top = varValue.value.(string)
+    }
     fmt.Print(top)
+}
+
+/*
+    Assign a value to a variable
+ */
+func assign(codeStack *CodeStack, args FunctionArgs){
+    if len(args) < 2 {
+        panic("Not enough arguments for variable assignment!")
+    }
+    varNameToken := args[0].(Token) // should be the variable name
+    varValueToken := args[1].(Token)
+    variable := variables[varNameToken.representation]
+    variable.value = varValueToken.representation
+    variables[varNameToken.representation] = variable
 }
 
 func main(){
@@ -71,6 +93,10 @@ func main(){
 
 type Token struct{
     representation string       // string representation
+}
+
+func (t Token) String() string {
+    return t.representation
 }
 
 type TokenLine struct{
@@ -94,7 +120,7 @@ func parse(source string){
     lines = preParseFormat(lines)
     tokenLines := tokenize(lines)
 
-    variables := make(map[string]Variable,0)
+
     stack := CodeStack{} // stack containing the values!
     stack.Push(1)
     stack.Push(2)
@@ -121,6 +147,14 @@ func parse(source string){
             function(&stack, args)
         }
     }
+}
+
+/*
+    Create the indexes where we can jump through in the source code.
+ */
+func createJumpTable(tokenLines []TokenLine){
+    // sweep the code, index the jumps!
+
 }
 
 
