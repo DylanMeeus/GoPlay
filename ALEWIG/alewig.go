@@ -17,14 +17,42 @@ import (
 const codesection string = ".code"
 const datasection string = ".data"
 
-type TokenFunction func()
+type TokenFunction func(*CodeStack, FunctionArgs)
+
+type CodeStack struct{
+    collections.Stack
+}
+
+type FunctionArgs []interface{}
 
 var TokenFunctions = map[Token] TokenFunction{
     Token{representation:"exit"}: exit,
+    Token{representation:"push"}: push,
+    Token{representation:"print"}: print,
+    Token{representation:"pop"}: pop,
 }
 
-func exit(){
+func exit(codeStack *CodeStack, args FunctionArgs){
     os.Exit(1)
+}
+
+func push(codeStack *CodeStack, args FunctionArgs){
+    for i := 0; i < len(args); i++ {
+        codeStack.Push(args[i])
+    }
+}
+
+
+func pop(codeStack *CodeStack, args FunctionArgs){
+    codeStack.Pop()
+}
+
+/*
+    Print the top of the stack
+ */
+func print(codeStack *CodeStack, args FunctionArgs){
+    top := codeStack.Peek()
+    fmt.Print(top)
 }
 
 func main(){
@@ -67,7 +95,7 @@ func parse(source string){
     tokenLines := tokenize(lines)
 
     variables := make(map[string]Variable,0)
-    stack := collections.Stack{} // stack containing the values!
+    stack := CodeStack{} // stack containing the values!
     stack.Push(1)
     stack.Push(2)
 
@@ -85,7 +113,12 @@ func parse(source string){
             // parse the code
             token := tokenLine.tokens[0]
             function := TokenFunctions[token]
-            function()
+            // maybe we have some args!
+            args := make([]interface{},0)
+            for i:= 1; i < len(tokenLine.tokens); i++{
+                args = append(args, tokenLine.tokens[i])
+            }
+            function(&stack, args)
         }
     }
 }
@@ -95,7 +128,7 @@ func parse(source string){
     Returns the type from a string, along with it's default value!
  */
 func typeFromString(typestring string) (types.BasicKind, interface{}) { // only allow basic types?
-    switch strings.TrimSpace(typestring){ // todo: maybe the spaces should be trimmed earlier!
+    switch typestring{ // todo: maybe the spaces should be trimmed earlier!
         case "string":
             return types.String, ""
         default:
@@ -123,15 +156,16 @@ func tokenize(source []string) []TokenLine{
             if len(parts) != 2{
                 panic("Could not parse data section!")
             }
-            variableName := Token{representation:parts[0]}
-            variableType := Token{representation:parts[1]}
+            variableName := Token{representation:strings.TrimSpace(parts[0])}
+            variableType := Token{representation:strings.TrimSpace(parts[1])}
             tokenLine := TokenLine{tokens:[]Token{variableName, variableType},variableDeclaration:true}
             tokenLines = append(tokenLines, tokenLine)
         } else {
             parts := strings.Split(line," ")
             tokens := make([]Token,0)
             for i := 0; i < len(parts); i++ {
-                token := Token{representation:strings.TrimSpace(parts[i])}
+                part := parts[i]
+                token := Token{representation:strings.TrimSpace(part)}
                 tokens = append(tokens, token)
             }
             tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:false})
