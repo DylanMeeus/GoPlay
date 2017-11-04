@@ -10,12 +10,22 @@ import (
     "os"
     "strings"
     "go/types"
+    "../DataStructures/Collections/"
 )
 
 // set up section constants
 const codesection string = ".code"
 const datasection string = ".data"
 
+type TokenFunction func()
+
+var TokenFunctions = map[Token] TokenFunction{
+    Token{representation:"exit"}: exit,
+}
+
+func exit(){
+    os.Exit(1)
+}
 
 func main(){
     // todo: implement this with flags, optional linker in the future to native Go
@@ -33,7 +43,6 @@ func main(){
 
 type Token struct{
     representation string       // string representation
-    param          string       // for now just allow one param to be passed between parenthesis
 }
 
 type TokenLine struct{
@@ -58,6 +67,9 @@ func parse(source string){
     tokenLines := tokenize(lines)
 
     variables := make(map[string]Variable,0)
+    stack := collections.Stack{} // stack containing the values!
+    stack.Push(1)
+    stack.Push(2)
 
     for i := 0; i < len(tokenLines); i++ {
         tokenLine := tokenLines[i]
@@ -71,6 +83,9 @@ func parse(source string){
             variables[name.representation] = variable
         } else {
             // parse the code
+            token := tokenLine.tokens[0]
+            function := TokenFunctions[token]
+            function()
         }
     }
 }
@@ -116,7 +131,7 @@ func tokenize(source []string) []TokenLine{
             parts := strings.Split(line," ")
             tokens := make([]Token,0)
             for i := 0; i < len(parts); i++ {
-                token := Token{representation:parts[i]}
+                token := Token{representation:strings.TrimSpace(parts[i])}
                 tokens = append(tokens, token)
             }
             tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:false})
