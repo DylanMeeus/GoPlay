@@ -20,7 +20,7 @@ const datasection string = ".data"
 var variables = make(map[string]Variable,0)
 var jumpTable = make(map[string]uint,0)     // jump table indexed by string
 
-type TokenFunction func(*CodeStack, FunctionArgs)
+type TokenFunction func(*CodeStack, *uint, FunctionArgs)
 
 type CodeStack struct{
     collections.Stack
@@ -34,39 +34,43 @@ var TokenFunctions = map[Token] TokenFunction{
     Token{representation:"print"}: print,
     Token{representation:"pop"}: pop,
     Token{representation:"assign"}: assign,
+    Token{representation:"jmp"}: jmp,
 }
 
-func exit(codeStack *CodeStack, args FunctionArgs){
+func exit(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     os.Exit(1)
 }
 
-func push(codeStack *CodeStack, args FunctionArgs){
+func push(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     for i := 0; i < len(args); i++ {
         codeStack.Push(args[i])
     }
+    (*ptr)++
 }
 
 
-func pop(codeStack *CodeStack, args FunctionArgs){
+func pop(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     codeStack.Pop()
+    (*ptr)++
 }
 
 /*
     Print the top of the stack
  */
-func print(codeStack *CodeStack, args FunctionArgs){
+func print(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     top := codeStack.Peek()
     varValue, contains := variables[top.(Token).representation]
     if contains{
         top = varValue.value.(string)
     }
     fmt.Print(top)
+    (*ptr)++
 }
 
 /*
     Assign a value to a variable
  */
-func assign(codeStack *CodeStack, args FunctionArgs){
+func assign(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     if len(args) < 2 {
         panic("Not enough arguments for variable assignment!")
     }
@@ -75,7 +79,20 @@ func assign(codeStack *CodeStack, args FunctionArgs){
     variable := variables[varNameToken.representation]
     variable.value = varValueToken.representation
     variables[varNameToken.representation] = variable
+    (*ptr)++
 }
+
+func jmp(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+    if  len(args) != 1 {
+        panic("Incorrect arguments passed to jmp statement!")
+    }
+
+    label := args[0].(Token).representation // label token starts with !, need to replace it with :
+    label = ":" + label[1:]
+    newptr := jumpTable[label]
+    *ptr = newptr
+}
+
 
 func main(){
     // todo: implement this with flags, optional linker in the future to native Go
@@ -119,14 +136,14 @@ func parse(source string){
     lines := strings.Split(source,"\n")
     lines = preParseFormat(lines)
     tokenLines := tokenize(lines)
-
+    createJumpTable(tokenLines)
 
     stack := CodeStack{} // stack containing the values!
-    stack.Push(1)
-    stack.Push(2)
 
-    for i := 0; i < len(tokenLines); i++ {
-        tokenLine := tokenLines[i]
+
+    instructionPointer := uint(0)
+    for ;; {
+        tokenLine := tokenLines[instructionPointer]
         if tokenLine.variableDeclaration {
             // create the variable map
             // each line should contain 2 tokens, the variable name + datatype
@@ -135,16 +152,24 @@ func parse(source string){
             basicKind, defaultValue := typeFromString(dtype.representation)
             variable := Variable{datatype:basicKind, value:defaultValue}
             variables[name.representation] = variable
+            instructionPointer++
         } else {
             // parse the code
             token := tokenLine.tokens[0]
+
+            // skip labels
+            if strings.HasPrefix(token.representation,":") {
+                instructionPointer++
+                continue
+            }
+
             function := TokenFunctions[token]
             // maybe we have some args!
             args := make([]interface{},0)
             for i:= 1; i < len(tokenLine.tokens); i++{
                 args = append(args, tokenLine.tokens[i])
             }
-            function(&stack, args)
+            function(&stack, &instructionPointer, args)
         }
     }
 }
@@ -154,7 +179,16 @@ func parse(source string){
  */
 func createJumpTable(tokenLines []TokenLine){
     // sweep the code, index the jumps!
-
+    for i := 0; i < len(tokenLines); i++ {
+        tokenLine := tokenLines[i]
+        tokens := tokenLine.tokens
+        for j := 0; j < len(tokens); j++ {
+            token := tokens[j]
+            if strings.HasPrefix(token.representation,":") {
+                jumpTable[token.representation] = uint(i)
+            }
+        }
+    }
 }
 
 
