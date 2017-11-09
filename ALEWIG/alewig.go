@@ -11,6 +11,7 @@ import (
     "strings"
     "go/types"
     "../DataStructures/Collections/"
+    "strconv"
 )
 
 // set up section constants
@@ -29,12 +30,20 @@ type CodeStack struct{
 type FunctionArgs []interface{}
 
 var TokenFunctions = map[Token] TokenFunction{
-    Token{representation:"exit"}: exit,
-    Token{representation:"push"}: push,
-    Token{representation:"print"}: print,
-    Token{representation:"pop"}: pop,
     Token{representation:"assign"}: assign,
+    Token{representation:"exit"}: exit,
+    Token{representation:"print"}: print,
+
+    // stack operations
+    Token{representation:"push"}: push,
+    Token{representation:"pop"}: pop,
+    Token{representation:"decrement"} : decrement, // -- on top of stack
+    Token{representation:"increment"} : increment, // ++ on top of stack
+
+
+    // jumps
     Token{representation:"jmp"}: jmp,
+    Token{representation:"jnz"}: jnz,
 }
 
 func exit(codeStack *CodeStack, ptr *uint, args FunctionArgs){
@@ -43,6 +52,7 @@ func exit(codeStack *CodeStack, ptr *uint, args FunctionArgs){
 
 func push(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     for i := 0; i < len(args); i++ {
+        // try to resolve variable, otherwise push
         codeStack.Push(args[i])
     }
     (*ptr)++
@@ -54,14 +64,35 @@ func pop(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     (*ptr)++
 }
 
+func decrement(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+    topValue := codeStack.Pop()
+    topValue = resolveToken(topValue)
+    // just panic if someone tries to decrement a non-int
+    topValue = topValue.(int) - 1
+    codeStack.Push(topValue)
+    (*ptr)++
+}
+
+func increment(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+
+}
+
 /*
     Print the top of the stack
  */
 func print(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     top := codeStack.Peek()
-    varValue, contains := variables[top.(Token).representation]
+    top = resolveToken(top)
+    t, instanceof := top.(int)
+    var key string
+    if instanceof {
+        key = strconv.Itoa(t)
+    } else {
+        key = top.(string)
+    }
+    varValue, contains := variables[key]
     if contains{
-        top = varValue.value.(string)
+        top = varValue.value
     }
     fmt.Print(top)
     (*ptr)++
@@ -75,9 +106,9 @@ func assign(codeStack *CodeStack, ptr *uint, args FunctionArgs){
         panic("Not enough arguments for variable assignment!")
     }
     varNameToken := args[0].(Token) // should be the variable name
-    varValueToken := args[1].(Token)
+    valueToken := args[1].(Token)
     variable := variables[varNameToken.representation]
-    variable.value = varValueToken.representation
+    variable.assign(valueToken)
     variables[varNameToken.representation] = variable
     (*ptr)++
 }
@@ -90,7 +121,43 @@ func jmp(codeStack *CodeStack, ptr *uint, args FunctionArgs){
     label := args[0].(Token).representation // label token starts with !, need to replace it with :
     label = ":" + label[1:]
     newptr := jumpTable[label]
-    *ptr = newptr
+    if newptr != 0 {
+        *ptr = newptr
+    } else {
+        (*ptr)++
+    }
+}
+
+func jnz(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+    top := codeStack.Peek()
+    top = resolveToken(top)
+    if top.(int) != 0 {
+        label := args[0].(Token).representation // label token starts with !, need to replace it with :
+        label = ":" + label[1:]
+        newptr := jumpTable[label]
+        *ptr = newptr
+    }
+    // else
+    (*ptr)++
+}
+
+
+/**
+Try to resolve the token as variable if possible, otherwise return the _token representation_ as value.
+ */
+func resolveToken(token interface{}) interface{}{
+
+    actualToken, instanceof := token.(Token)
+    if instanceof {
+        variable, ok := variables[actualToken.representation]
+        if ok {
+            return variable.value
+        }
+        return actualToken.representation
+    } else {
+        return token // can't resolve it because it's not a token!
+    }
+
 }
 
 
@@ -127,6 +194,16 @@ type Variable struct{
     value interface{}
 }
 
+func (v *Variable) assign(token Token){
+    val := token.representation
+    if v.datatype == types.String {
+        v.value = val
+    } else if v.datatype == types.Int {
+        v.value, _ = strconv.Atoi(val)
+    }
+}
+
+
 
 /*
     Parse the incoming file, create an internal representations of the code.
@@ -156,7 +233,6 @@ func parse(source string){
         } else {
             // parse the code
             token := tokenLine.tokens[0]
-
             // skip labels
             if strings.HasPrefix(token.representation,":") {
                 instructionPointer++
@@ -199,6 +275,8 @@ func typeFromString(typestring string) (types.BasicKind, interface{}) { // only 
     switch typestring{ // todo: maybe the spaces should be trimmed earlier!
         case "string":
             return types.String, ""
+        case "int":
+            return types.Int, 0
         default:
             panic("Type not supported")
     }
