@@ -39,11 +39,16 @@ var TokenFunctions = map[Token] TokenFunction{
     Token{representation:"pop"}: pop,
     Token{representation:"decrement"} : decrement, // -- on top of stack
     Token{representation:"increment"} : increment, // ++ on top of stack
-
+    Token{representation:"assignTop"} : assignTop,
 
     // jumps
     Token{representation:"jmp"}: jmp,
     Token{representation:"jnz"}: jnz,
+
+
+    // maths
+    Token{representation:"add"}: add,
+
 }
 
 func exit(codeStack *CodeStack, ptr *uint, args FunctionArgs){
@@ -77,6 +82,17 @@ func increment(codeStack *CodeStack, ptr *uint, args FunctionArgs){
 
 }
 
+func add(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+    first := codeStack.Pop()
+    second := codeStack.Pop()
+    fValue := resolveToken(first)
+    sValue := resolveToken(second)
+    // these need to be ints, otherwise, you're screwed here. (Panics, but no auto-casting!)
+    result := fValue.(int) + sValue.(int)
+    codeStack.Push(result)
+    (*ptr)++
+}
+
 /*
     Print the top of the stack
  */
@@ -106,11 +122,26 @@ func assign(codeStack *CodeStack, ptr *uint, args FunctionArgs){
         panic("Not enough arguments for variable assignment!")
     }
     varNameToken := args[0].(Token) // should be the variable name
-    valueToken := args[1].(Token)
+    valueToken := resolveToken(args[1])
     variable := variables[varNameToken.representation]
     variable.assign(valueToken)
     variables[varNameToken.representation] = variable
     (*ptr)++
+}
+
+/*
+    Assign the top of the stack to a variable
+ */
+func assignTop(codeStack *CodeStack, ptr *uint, args FunctionArgs){
+    if len(args) < 1{
+        panic("not enough arguments!")
+    }
+    top := codeStack.Peek()
+    tValue := resolveToken(top)
+    arguments := make([]interface{},2)
+    arguments[0] = args[0]
+    arguments[1] = tValue
+    assign(codeStack,ptr, arguments)
 }
 
 func jmp(codeStack *CodeStack, ptr *uint, args FunctionArgs){
@@ -194,12 +225,17 @@ type Variable struct{
     value interface{}
 }
 
-func (v *Variable) assign(token Token){
-    val := token.representation
+func (v *Variable) assign(token interface{}){
+    val := resolveToken(token)
     if v.datatype == types.String {
         v.value = val
     } else if v.datatype == types.Int {
-        v.value, _ = strconv.Atoi(val)
+        stringval, instanceof := val.(string)
+        if instanceof{
+            v.value,_ = strconv.Atoi(stringval)
+        } else {
+            v.value = val.(int)
+        }
     }
 }
 
@@ -230,6 +266,7 @@ func parse(source string){
             variable := Variable{datatype:basicKind, value:defaultValue}
             variables[name.representation] = variable
             instructionPointer++
+            fmt.Println(variables)
         } else {
             // parse the code
             token := tokenLine.tokens[0]
