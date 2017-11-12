@@ -3,11 +3,11 @@
 	b: int
 	c: int
 .code
-	assign a "Hello!"
 	assign b 10
 	push b
 	:top
 	print
 	decrement
 	jnz !top
+	jmp !start
 	exit

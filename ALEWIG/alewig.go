@@ -334,6 +334,7 @@ func tokenize(source []string) []TokenLine{
             continue
         }
         if parsingData {
+            // parse instructions under .data
             // split the line based on ":"
             parts := strings.Split(line, ":")
             if len(parts) != 2{
@@ -344,12 +345,34 @@ func tokenize(source []string) []TokenLine{
             tokenLine := TokenLine{tokens:[]Token{variableName, variableType},variableDeclaration:true}
             tokenLines = append(tokenLines, tokenLine)
         } else {
+            // parse instructions under .code
             parts := strings.Split(line," ")
             tokens := make([]Token,0)
+            tokenizingString := false
+            value := ""
             for i := 0; i < len(parts); i++ {
                 part := parts[i]
-                token := Token{representation:strings.TrimSpace(part)}
+                if strings.HasPrefix(part, "\"") {
+                    // parsing a string
+                    tokenizingString = true
+                    value = part[1:]    // take after the "
+                    continue // avoid adding this as a token, and just go to the next loop
+                }
+                if strings.HasSuffix(part, "\""){
+                    value += part[:len(part)-1]
+                    tokenizingString = false
+                }
+                if  tokenizingString{
+                    value += part
+                    continue
+                }
+                if value == "" {
+                    value = part
+                }
+                token := Token{representation:strings.TrimSpace(value)}
                 tokens = append(tokens, token)
+                // reset value
+                value = ""
             }
             tokenLines = append(tokenLines, TokenLine{tokens: tokens, variableDeclaration:false})
         }
@@ -409,6 +432,10 @@ func deleteIndentation(source *[]string){
     }
 }
 
+
+/*
+    Convenience function to print the source code (for testing)
+ */
 func printSource(source []string){
     for i := 0; i < len(source); i++ {
         fmt.Println(source[i])
