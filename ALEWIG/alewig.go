@@ -391,13 +391,18 @@ func deleteEmptyLines(source *[]string) {
 
 func deleteIndentation(source *[]string){
     var spacerune rune
+    var quotationmark rune
     spacerune = 32
-
+    quotationmark = 34
+    inbetweenQuotes := false
     for i := 0; i < len(*source); i++ {
         line := (*source)[i]
         line = strings.Map(func(r rune) rune{
-            if r == spacerune{
+            if r == spacerune && !inbetweenQuotes{
                 return -1
+            }
+            if r == quotationmark {
+                inbetweenQuotes = !inbetweenQuotes
             }
             return r
         },line)
