@@ -5,10 +5,56 @@ import(
     "math"
     )
 
+
+
+
 func main(){
-    distance := getDistance(277678)
-    fmt.Println(int(distance))
+    //distance := getDistance(277678)
+    solve()
 }
+
+type cors struct{
+    x int
+    y int
+}
+
+
+func solve(){
+    // while we have not reached 27768, get next number
+    lastnumber := 0
+    treshold := 277678
+    cormap := make(map[cors]int)
+
+    start := cors{x:0,y:0}
+    cormap[start] = 1
+
+    for i := 1; lastnumber <= treshold;i++ {
+        xCor := int(math.Floor(getX(i)+.5))
+        yCor := int(math.Floor(getY(i)+.5))
+        c := cors{x:xCor, y:yCor}
+        value := neighbourValues(c,&cormap)
+        cormap[c] = value
+        lastnumber = value
+    }
+    fmt.Println(lastnumber)
+}
+
+func neighbourValues(cor cors, cormap *map[cors]int) int{
+    y := cor.y
+    x := cor.x
+    sum := 0
+    for startx := x-1; startx <= x+1; startx++{
+        for starty := y-1; starty <= y+1; starty++{
+            dummycor := cors{x:startx, y:starty}
+            value, ok := (*cormap)[dummycor]
+            if ok {
+                sum += value
+            }
+        }
+    }
+    return sum
+}
+
 
 func getDistance(n int) float64 {
     x := getX(n)
