@@ -1,0 +1,39 @@
+.data
+	a:int
+	b:int
+	c:int
+	n:int
+
+.code
+	assign a 0
+	assign b 1
+	assign c 0
+	assign n 10
+
+	:nextfib
+	push a
+	push b
+	add
+
+	// print the result and save the result in c
+	print
+	assignTop c
+	pop
+
+	// now a becomes b, and b becomes c
+	push b
+	assignTop a
+	pop
+	push c
+	assignTop b
+	pop
+	// print a seperator
+	push " "
+	print
+	pop
+
+	push n
+	decrement
+	assignTop n
+	jnz !nextfib
+	exit

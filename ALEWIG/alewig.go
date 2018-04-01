@@ -342,7 +342,7 @@ func tokenize(source []string) []TokenLine{
             }
             variableName := Token{representation:strings.TrimSpace(parts[0])}
             variableType := Token{representation:strings.TrimSpace(parts[1])}
-            tokenLine := TokenLine{tokens:[]Token{variableName, variableType},variableDeclaration:true}
+            tokeneLine := TokenLine{tokens:[]Token{variableName, variableType},variableDeclaration:true}
             tokenLines = append(tokenLines, tokenLine)
         } else {
             // parse instructions under .code
