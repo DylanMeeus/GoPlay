@@ -5,12 +5,14 @@ import (
     "net/http"
     "encoding/json"
     "strconv"
+    "io/ioutil"
 )
 
 // url for current comic 
 const baseUrl = "https://xkcd.com/"
 const jsonUrl = "info.0.json"
 const currentComic = baseUrl + jsonUrl
+const indexFile = "index.json"
 
 type Comic struct {
     Num int 
@@ -20,7 +22,8 @@ type Comic struct {
 }
 
 func main() {
-    buildIndex()
+    //buildIndex()
+    readIndex()
 }
 
 /*
@@ -36,8 +39,27 @@ func buildIndex() {
         fmt.Println(url)
         comics[i] = fetchComic(url)
     }
+    saveIndex(&comics)
 }
 
+func readIndex() []*Comic {
+    var comics []Comic
+    data, err := ioutil.ReadFile(indexFile)
+    if err != nil {
+        return make([]*Comic,0)
+    }
+    err = json.Unmarshal(data, &comics)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%v\n",comics)
+    return make([]*Comic, 0)
+}
+
+func saveIndex(comics *[]*Comic) {
+    jsonBytes,_ := json.Marshal(comics)
+    ioutil.WriteFile(indexFile,jsonBytes, 0644)
+}
 
 // create an index of all the xkcd comics
 func fetchComic(url string) *Comic {
