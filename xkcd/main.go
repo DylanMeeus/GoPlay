@@ -1,8 +1,6 @@
 package main
 
 import (
-    "bufio"
-    "os"
     "fmt"
     "net/http"
     "encoding/json"
@@ -10,6 +8,7 @@ import (
     "io/ioutil"
     "strings"
     "errors"
+    "log"
 )
 
 // url for current comic 
@@ -22,12 +21,29 @@ type Comic struct {
     Num int 
     Transcript string
     Alt string
+    Img string
     Title string
 }
 
-func main() {
+
+func runServer() {
     comics := getComics()
     wordMap := buildSearchableMap(comics)
+    handler := func (w http.ResponseWriter, r *http.Request) {
+        search := r.URL.Path[1:]
+        bestMatch,err := findBestMatch(&wordMap, search, selectClosestMatch)
+        if err != nil {
+            fmt.Fprint(w, "no comic found!")
+        }
+        fmt.Fprintf(w, "<body><img src=\"" + bestMatch.Img + "\"></body>")
+    }
+    http.HandleFunc("/", handler)
+    log.Fatal(http.ListenAndServe(":8080",nil))
+}
+
+func main() {
+    runServer()
+    /*
     reader := bufio.NewReader(os.Stdin)
     for {
         fmt.Print("enter text: ")
@@ -39,6 +55,7 @@ func main() {
             fmt.Printf("%v\n", bestMatch.Num)
         }
     }
+    */
 }
 
 func selectClosestMatch(matches map[Comic]int, search string) *Comic {
