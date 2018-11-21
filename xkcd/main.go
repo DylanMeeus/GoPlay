@@ -32,7 +32,7 @@ func main() {
     for {
         fmt.Print("enter text: ")
         text,_ := reader.ReadString('\n')
-        bestMatch, err := findBestMatch(&wordMap, text)
+        bestMatch, err := findBestMatch(&wordMap, text, selectClosestMatch)
         if err != nil {
             fmt.Println("No comic found!")
         } else {
@@ -41,24 +41,24 @@ func main() {
     }
 }
 
-func findBestMatch(wordMap *map[string][]Comic, search string) (*Comic, error) {
-    // if no comic is found, then what?
-    // for each word, find all the comics related. 
-    // then find the most common occuring comic (it matches most strings)
-    matchingComics := make(map[Comic]int, 0)
-    search = strings.Replace(search,"\n", "", -1)
-    for _,s := range(strings.Split(search, " ")) {
-        fmt.Print(s)
-        if comics, ok := (*wordMap)[s]; ok {
-            for _,c := range(comics){
-                matchingComics[c]++
-            }
+func selectClosestMatch(matches map[Comic]int, search string) *Comic {
+    // now return the closest matching comic
+    // we prefer the title as matching factor
+    searchTerms := strings.Split(search, " ")
+    for k,_ := range matches {
+        matchesAll := true 
+        for _,term := range searchTerms {
+            matchesAll = matchesAll && strings.Contains(strings.ToLower(k.Title), strings.ToLower(term))
+        }
+        if matchesAll {
+            fmt.Println("title matches all")
+            return &k
         }
     }
-    // now return the most occuring comic
+    // else look for frequency of matches
     var max int
     var frequentComic *Comic
-    for k,v := range(matchingComics) {
+    for k,v := range(matches) {
         if frequentComic == nil {
             frequentComic = &k
         }
@@ -67,8 +67,27 @@ func findBestMatch(wordMap *map[string][]Comic, search string) (*Comic, error) {
             frequentComic = &k
         }
     }
-    if frequentComic != nil {
-        return frequentComic, nil
+    return frequentComic
+}
+
+func findBestMatch(wordMap *map[string][]Comic, 
+                    search string,
+                    selection func(map[Comic]int, string)*Comic) (*Comic, error) {
+    // if no comic is found, then what?
+    // for each word, find all the comics related. 
+    // then find the most common occuring comic (it matches most strings)
+    matchingComics := make(map[Comic]int, 0)
+    search = strings.Replace(search,"\n", "", -1)
+    for _,s := range(strings.Split(search, " ")) {
+        if comics, ok := (*wordMap)[s]; ok {
+            for _,c := range(comics){
+                matchingComics[c]++
+            }
+        }
+    }
+    selected := selectClosestMatch(matchingComics, search) 
+    if selected != nil {
+        return selected, nil
     }
     return nil, errors.New("No comic found!")
 }
@@ -94,6 +113,9 @@ func buildSearchableMap(comics *[]Comic) map[string][]Comic {
         search += c.Title + " "
         search = sanitizeString(strings.ToLower(search))
         for _,s := range strings.Split(search, " ") {
+            if s == " " {
+                continue
+            }
             if slice, ok := wordMap[s]; ok {
                 wordMap[s] = append(slice, c)
             } else {
