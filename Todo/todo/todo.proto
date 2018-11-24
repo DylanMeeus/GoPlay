@@ -1,0 +1,12 @@
+syntax = "proto3";
+package todo;
+
+message Todo {
+    string description = 1;
+    int32 id = 2;
+
+    enum TodoStatus { 
+        TODO = 0;
+        DONE = 1;
+    }
+}
