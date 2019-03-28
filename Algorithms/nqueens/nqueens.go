@@ -11,14 +11,51 @@ const (
 type board [][]bool
 
 func main() {
+    fmt.Println("solving..")
     b := make(board, n)
     for i,_ := range b {
         b[i] = make([]bool,n)
     }
-    b[0][1] = true
-    b[1][0] = true
-    fmt.Println(b)
-    fmt.Printf("%v\n", valid(b))
+    _, solved := (solve(b,0))
+    fmt.Println(solved)
+}
+
+
+func solve(b board, queens int) (bool, *board) {
+    if queens == n && valid(b) {
+        return true, &b
+    }
+    if queens >= n {
+        return false, nil
+    }
+    // place a queen on an empty slot..
+    for r := 0; r < n; r++{
+        for c := 0; c < n; c++ {
+            // we try to place one here, on a copy of the board
+            if b[r][c] == true {
+                continue
+            }
+            copyBoard := deepCopy(b)
+            copyBoard[r][c] = true
+            if s, sb := solve(copyBoard, queens + 1); s {
+                return true, sb
+            }
+        }
+    }
+    return false, nil
+}
+
+
+func deepCopy(b board) board {
+    newb := make(board, n) 
+    for i,_:= range newb {
+        row := make([]bool, n)
+        for j,_ := range row {
+            row[j] = b[i][j]
+        }
+        newb[i] = row
+    }
+    return newb
 }
 
 func (b board) String() (s string) {
@@ -38,7 +75,7 @@ func (b board) String() (s string) {
 // checks if the board is in a valid state
 // this means: no Queens on same row, column, diagonal
 func valid(b board) bool {
-    return validDiagonal(b)
+    return validDiagonal(b) && validHoriVerti(b)
 }
 
 // check that all diagonals have only one queen..
@@ -59,7 +96,8 @@ func validDiagonal(b board) bool {
         }
         startRow, startCol = 0, col
         // check leftward diagonal
-        for startRow < len(b) && startCol > 0 {
+        qd = false // sanity check really :)
+        for startRow < len(b) && startCol >= 0 {
             if b[startRow][startCol] {
                 if qd {
                     return false
@@ -67,6 +105,33 @@ func validDiagonal(b board) bool {
                 qd = true
             }
             startRow += 1
+            startCol -= 1
+        }
+        
+        // and from the bottom..
+        qd = false
+        startRow, startCol = len(b) - 1, col
+        for startRow >= 0 && startCol < len(b) {
+            if b[startRow][startCol] {
+                if qd {
+                    return false
+                }
+                qd = true
+            }
+            startRow -= 1
+            startCol += 1
+        }
+
+        qd = false
+        startRow, startCol = len(b) - 1, col
+        for startRow >= 0 && startCol >= 0 {
+            if b[startRow][startCol] {
+                if qd {
+                    return false
+                }
+                qd = true
+            }
+            startRow -= 1
             startCol -= 1
         }
     }
