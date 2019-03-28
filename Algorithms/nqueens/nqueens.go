@@ -5,7 +5,7 @@ import(
 )
 
 const (
-    n = 8
+    n = 6
 )
 
 type board [][]bool
@@ -30,8 +30,20 @@ func solve(b board, queens int) (bool, *board) {
     }
     // place a queen on an empty slot..
     for r := 0; r < n; r++{
+        // if this row already has a queen, continue..
+        for _,tile := range b[r] {
+            if tile {
+                continue
+            }
+        }
         for c := 0; c < n; c++ {
             // we try to place one here, on a copy of the board
+            // if the column already has a queen, ignore it..
+            for row := 0; row < n; row++ {
+                if b[row][c] {
+                    continue
+                }
+            }
             if b[r][c] == true {
                 continue
             }
