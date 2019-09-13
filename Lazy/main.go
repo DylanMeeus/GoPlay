@@ -5,15 +5,12 @@ import (
 )
 
 type IntGenerator struct {
-	Next   chan int
+	Next   []chan int
 	Result chan int
 }
 
 func NewIntGenerator(size int) IntGenerator {
-	return IntGenerator{
-		Next:   make(chan int, size),
-		Result: make(chan int),
-	}
+	return IntGenerator{Next: []chan int{make(chan int, size)}}
 }
 
 type filterfunc func(i int) bool
@@ -27,16 +24,12 @@ func main() {
 	for i := 0; i < 22; i++ {
 		numbers = append(numbers, i)
 	}
-	res := limit(10, mapi(func(i int) int { return i * i }, filter(func(i int) bool { return i%2 == 0 }, numbers)))
-	fmt.Printf("%v\n", res)
+	//res := limit(10, mapi(square, filter(isEven, numbers)))
 	gen := NewIntGenerator(len(numbers))
-	go sum(gen)
-	for _, n := range numbers {
-		gen.Next <- n
-	}
-	close(gen.Next)
-	i := <-gen.Result
-	fmt.Printf("i %v\n", i)
+	go ranger(numbers, &gen)
+	lazyFilter(isEven, &gen)
+	<-gen.Result
+
 }
 
 func sum(g IntGenerator) {
@@ -46,6 +39,34 @@ func sum(g IntGenerator) {
 		s += n
 	}
 	g.Result <- s
+}
+
+func ranger(input []int, ig *IntGenerator) {
+	myChan := ig.Next[0]
+	for _, i := range input {
+		fmt.Println("pushed data")
+		myChan <- i
+	}
+}
+
+func lazyFilter(f filterfunc, ig *IntGenerator) {
+	myChanIndex := len(ig.Next)
+	if myChanIndex == 0 {
+		panic("We need a source for input")
+	}
+	myChan := ig.Next[myChanIndex-1]
+	nextChan := make(chan int)
+	ig.Next = append(ig.Next, nextChan)
+	fmt.Println("listening")
+	for n := range myChan {
+		fmt.Println("lazily filtering")
+		if f(n) {
+			//			nextChan <- n
+			fmt.Println(n)
+		}
+	}
+	fmt.Println("done filtering")
+	close(nextChan)
 }
 
 func filter(f filterfunc, is []int) []int {
