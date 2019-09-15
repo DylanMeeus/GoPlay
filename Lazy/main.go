@@ -4,13 +4,22 @@ import (
 	"fmt"
 )
 
+type supplier func() int
+
 type IntGenerator struct {
-	Next   []chan int
-	Result chan int
+	Supplier chan int   // Supplier<T>
+	Next     []chan int // bifunc<T,T>
+	Consumer chan int   // Conumser<T>
+	Size     int
 }
 
 func NewIntGenerator(size int) IntGenerator {
-	return IntGenerator{Next: []chan int{make(chan int, size)}}
+	return IntGenerator{
+		Supplier: make(chan int, size),
+		Next:     []chan int{},
+		Supplier: make(chan int, size),
+		Size:     size,
+	}
 }
 
 type filterfunc func(i int) bool
@@ -27,18 +36,20 @@ func main() {
 	//res := limit(10, mapi(square, filter(isEven, numbers)))
 	gen := NewIntGenerator(len(numbers))
 	go ranger(numbers, &gen)
-	lazyFilter(isEven, &gen)
-	<-gen.Result
-
+	go lazyFilter(isEven, &gen)
+	go lazyMap(square, &gen)
+	s := sum(&gen)
+	fmt.Printf("DID WE GET THE RES?? %v\n", s)
 }
 
-func sum(g IntGenerator) {
-	var s int
-	for n := range g.Next {
-		fmt.Println(n)
-		s += n
+// terminator func?
+func sum(ig *IntGenerator) int {
+	myChan := ig.Next[len(ig.Next)-1]
+	sum := 0
+	for n := range myChan {
+		sum += n
 	}
-	g.Result <- s
+	return sum
 }
 
 func ranger(input []int, ig *IntGenerator) {
@@ -47,6 +58,7 @@ func ranger(input []int, ig *IntGenerator) {
 		fmt.Println("pushed data")
 		myChan <- i
 	}
+	close(myChan)
 }
 
 func lazyFilter(f filterfunc, ig *IntGenerator) {
@@ -55,18 +67,32 @@ func lazyFilter(f filterfunc, ig *IntGenerator) {
 		panic("We need a source for input")
 	}
 	myChan := ig.Next[myChanIndex-1]
-	nextChan := make(chan int)
+	nextChan := make(chan int, cap(ig.Next)+10)
 	ig.Next = append(ig.Next, nextChan)
 	fmt.Println("listening")
 	for n := range myChan {
 		fmt.Println("lazily filtering")
 		if f(n) {
-			//			nextChan <- n
-			fmt.Println(n)
+			nextChan <- n
 		}
 	}
 	fmt.Println("done filtering")
+	ig.Result <- 1336
 	close(nextChan)
+}
+
+func lazyMap(f func(int) int, ig *IntGenerator) {
+	myChanIndex := len(ig.Next)
+	myChan := ig.Next[myChanIndex-1]
+	nextChan := make(chan int)
+	ig.Next = append(ig.Next, nextChan)
+	for n := range myChan {
+		fmt.Println("lazily mapping")
+		n = f(n)
+	}
+	fmt.Println("done mapping")
+	close(nextChan)
+
 }
 
 func filter(f filterfunc, is []int) []int {
