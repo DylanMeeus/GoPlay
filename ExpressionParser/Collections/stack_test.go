@@ -1,16 +1,13 @@
 package collections
 
-
 import (
-    "testing"
-    "os"
-    "io"
-    "fmt"
-    "bytes"
+	"io"
+	"os"
+	"testing"
 )
 
 var out io.Writer = os.Stdout
 
-func TestPush(t *testing.T){
+func TestPush(t *testing.T) {
 
 }
