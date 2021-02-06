@@ -1,0 +1,4 @@
+1 2 1
+pizzas: map[0:[onion pepper olive] 1:[mushroom tomato basil] 2:[chicken mushroom pepper] 3:[tomato mushroom basil] 4:[chicken basil]]
+[0 1 2 3 4]
+65
