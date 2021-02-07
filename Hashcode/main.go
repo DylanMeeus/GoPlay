@@ -16,9 +16,57 @@ const (
 	TEAM4 = Team(4)
 )
 
+// IterState will allow us to track the state throughout iterations
+type IterState struct {
+	pz []int
+	s  *state
+}
+
+type StackNode struct {
+	Value *IterState
+	Next  *StackNode
+}
+
+type Stack struct {
+	Top *StackNode
+}
+
+func (s *Stack) Push(is *IterState) {
+	n := &StackNode{Value: is}
+	n.Next = s.Top
+	s.Top = n
+}
+
+func (s *Stack) Pop() *IterState {
+	if s.Top == nil {
+		return nil
+	}
+	val := s.Top.Value
+	s.Top = s.Top.Next
+	return val
+}
+
+func (s *Stack) Empty() bool {
+	return s.Top == nil
+}
+
+func test() {
+	// this proves that the team choice significantly changes the score
+	s := &state{
+		t2s: [][]int{{1, 2}, {3, 4}},
+	}
+	s2 := &state{
+		t4s: [][]int{{1, 2, 3, 4}},
+	}
+	_, _, _, pm := parseInput()
+	fmt.Printf("%v\n", s.score(pm))
+	fmt.Printf("%v\n", s2.score(pm))
+}
+
 func main() {
 	fmt.Println("Starting algorithm")
 	fmt.Printf("%v\n", solve())
+	fmt.Printf("%v\n", solveIterative())
 
 	/*
 		s := &state{}
@@ -151,10 +199,75 @@ func (s *state) score(m map[int][]string) int {
 	return countTeamScore(s.t2s) + countTeamScore(s.t3s) + countTeamScore(s.t4s)
 }
 
-func solve() int {
+func solveIterative() string {
 	nt2, nt3, nt4, pm := parseInput()
 
-	fmt.Printf("%v\n", keys(pm))
+	maxState := state{}
+	var max int
+
+	is := &IterState{
+		pz: keys(pm),
+		s:  &state{},
+	}
+
+	stack := &Stack{}
+	stack.Push(is)
+
+	for !stack.Empty() {
+		// how the fuck do we do this?
+
+		node := stack.Pop()
+		s := node.s
+		pz := node.pz
+
+		guard := len(s.t2s) == nt2 || len(s.t3s) == nt3 || len(s.t4s) == nt4
+
+		if guard || len(pz) == 0 {
+			if score := s.score(pm); score > max {
+				max = score
+				maxState = (*s)
+			}
+		} else {
+			head := pz[0]
+			var tail []int
+			if len(pz) > 1 {
+				tail = pz[1:]
+			}
+
+			if len(s.t2s) <= nt2 {
+				cs := s.clone()
+				cs.add(TEAM2, head)
+				stack.Push(&IterState{
+					s:  cs,
+					pz: tail,
+				})
+			}
+
+			if len(s.t3s) <= nt3 {
+				cs := s.clone()
+				cs.add(TEAM3, head)
+				stack.Push(&IterState{
+					s:  cs,
+					pz: tail,
+				})
+			}
+			if len(s.t4s) <= nt4 {
+				cs := s.clone()
+				cs.add(TEAM4, head)
+				stack.Push(&IterState{
+					s:  cs,
+					pz: tail,
+				})
+			}
+		}
+	}
+
+	fmt.Printf("max score iterative: %v\n", max)
+	return maxState.print()
+}
+
+func solve() int {
+	nt2, nt3, nt4, pm := parseInput()
 
 	var backtrack func(pz []int, s *state)
 
