@@ -24283,14 +24283,22 @@ $packages["."] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	run = function() {
-		var _r, h, w, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; h = $f.h; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var _r, body, canvas, canvasCtx, h, w, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; body = $f.body; canvas = $f.canvas; canvasCtx = $f.canvasCtx; h = $f.h; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		w = $parseFloat($global.innerWidth);
 		h = $parseFloat($global.innerHeight);
 		_r = fmt.Printf("%v %v\n", new sliceType([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
+		body = $global.document.body;
+		canvas = $global.document.createElement($externalize("canvas", $String));
+		canvasCtx = canvas.getContext($externalize("2d", $String));
+		canvas.width = w;
+		canvas.height = h;
+		canvasCtx.fillStyle = $externalize("#000", $String);
+		canvasCtx.fillRect(0, 0, w, h);
+		body.appendChild(canvas);
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f.h = h; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.h = h; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$init = function() {
 		$pkg.$init = function() {};
