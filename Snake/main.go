@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SNAKE_MOVE_INTERVAL = 200
+	SNAKE_MOVE_INTERVAL = 100
 	FOOD_SPAWN_INTERVAL = 1_000
 )
 
@@ -66,6 +66,7 @@ func (p Point) ToCanvasSquare(g *Game) Square {
 type Snake struct {
 	positions []Point
 	velocity  Point
+	length    int
 }
 
 func (s *Snake) move(d direction) {
@@ -181,11 +182,45 @@ func gameLoop(g *Game) {
 		case <-moveLoop:
 			// todo: add snake state here (dead || alive)
 			g.Player.move(DIRECTION)
+			g.foodCollisionDetection()
+			if g.boundsCollisionDetection() {
+				// end game
+			}
 		case <-foodLoop:
 			g.SpawnFood()
 		}
 
 	}
+}
+
+func (g *Game) foodCollisionDetection() {
+	// if the player is on food, the player becomes longer
+	remainingFood := []Food{}
+	for _, f := range g.Foods {
+		if Point(f) == g.Player.positions[0] { // if the head touches the food
+			g.Player.positions = append(g.Player.positions, Point(f))
+			g.Player.length++
+		} else {
+			remainingFood = append(remainingFood, f)
+		}
+	}
+	g.Foods = remainingFood
+}
+
+func (g *Game) boundsCollisionDetection() bool {
+
+	return false
+}
+
+// fun function name, isn't it.
+func (g *Game) snakeEatsSnakeDetection() bool {
+	head := g.Player.positions[0]
+	for _, bodyPart := range g.Player.positions[1:] {
+		if bodyPart == head {
+			return true
+		}
+	}
+	return false
 }
 
 // main render loop
@@ -214,7 +249,6 @@ func renderPlayer(g *Game) {
 }
 
 func renderFood(g *Game) {
-
 	ctx := g.Canvas.Call("getContext", "2d")
 	foodColour := "#d13017" // kinda reddish, maybe like an apple
 	ctx.Set("fillStyle", foodColour)
