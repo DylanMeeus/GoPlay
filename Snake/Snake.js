@@ -14799,12 +14799,34 @@ $packages["github.com/gopherjs/gopherjs/nosync"] = (function() {
 	return $pkg;
 })();
 $packages["time"] = (function() {
-	var $pkg = {}, $init, errors, js, nosync, runtime, syscall, ParseError, Time, Month, Weekday, Duration, Location, zone, zoneTrans, ruleKind, rule, sliceType, sliceType$1, ptrType, sliceType$2, arrayType, sliceType$3, arrayType$1, arrayType$2, ptrType$2, arrayType$3, ptrType$4, ptrType$7, zoneSources, std0x, longDayNames, shortDayNames, shortMonthNames, longMonthNames, atoiError, errBad, errLeadingInt, daysBefore, startNano, utcLoc, utcLoc$24ptr, localLoc, localLoc$24ptr, localOnce, errLocation, badData, x, init, initLocal, itoa, startsWithLowerCase, nextStdChunk, match, lookup, appendInt, atoi, formatNano, quote, isDigit, getnum, getnum3, cutspace, skip, Parse, parse, parseTimeZone, parseGMT, parseSignedOffset, parseNanoseconds, leadingInt, absWeekday, absClock, fmtFrac, fmtInt, lessThanHalf, absDate, daysIn, daysSinceEpoch, runtimeNano, unixTime, Unix, isLeap, norm, Date, div, FixedZone, tzset, tzsetName, tzsetOffset, tzsetRule, tzsetNum, tzruleTime;
+	var $pkg = {}, $init, errors, js, nosync, runtime, syscall, runtimeTimer, ParseError, Ticker, Time, Month, Weekday, Duration, Location, zone, zoneTrans, ruleKind, rule, sliceType, sliceType$1, ptrType, sliceType$2, arrayType, sliceType$3, arrayType$1, arrayType$2, ptrType$2, chanType, arrayType$3, funcType$1, ptrType$3, ptrType$4, chanType$1, ptrType$6, ptrType$7, zoneSources, std0x, longDayNames, shortDayNames, shortMonthNames, longMonthNames, atoiError, errBad, errLeadingInt, daysBefore, startNano, utcLoc, utcLoc$24ptr, localLoc, localLoc$24ptr, localOnce, errLocation, badData, x, init, now, startTimer, stopTimer, modTimer, initLocal, itoa, startsWithLowerCase, nextStdChunk, match, lookup, appendInt, atoi, formatNano, quote, isDigit, getnum, getnum3, cutspace, skip, Parse, parse, parseTimeZone, parseGMT, parseSignedOffset, parseNanoseconds, leadingInt, when, sendTime, NewTicker, Tick, absWeekday, absClock, fmtFrac, fmtInt, lessThanHalf, absDate, daysIn, daysSinceEpoch, runtimeNano, Now, unixTime, Unix, isLeap, norm, Date, div, FixedZone, tzset, tzsetName, tzsetOffset, tzsetRule, tzsetNum, tzruleTime;
 	errors = $packages["errors"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	nosync = $packages["github.com/gopherjs/gopherjs/nosync"];
 	runtime = $packages["runtime"];
 	syscall = $packages["syscall"];
+	runtimeTimer = $pkg.runtimeTimer = $newType(0, $kindStruct, "time.runtimeTimer", true, "time", false, function(i_, when_, period_, f_, arg_, seq_, timeout_, active_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.i = 0;
+			this.when = new $Int64(0, 0);
+			this.period = new $Int64(0, 0);
+			this.f = $throwNilPointerError;
+			this.arg = $ifaceNil;
+			this.seq = 0;
+			this.timeout = null;
+			this.active = false;
+			return;
+		}
+		this.i = i_;
+		this.when = when_;
+		this.period = period_;
+		this.f = f_;
+		this.arg = arg_;
+		this.seq = seq_;
+		this.timeout = timeout_;
+		this.active = active_;
+	});
 	ParseError = $pkg.ParseError = $newType(0, $kindStruct, "time.ParseError", true, "time", true, function(Layout_, Value_, LayoutElem_, ValueElem_, Message_) {
 		this.$val = this;
 		if (arguments.length === 0) {
@@ -14820,6 +14842,16 @@ $packages["time"] = (function() {
 		this.LayoutElem = LayoutElem_;
 		this.ValueElem = ValueElem_;
 		this.Message = Message_;
+	});
+	Ticker = $pkg.Ticker = $newType(0, $kindStruct, "time.Ticker", true, "time", true, function(C_, r_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.C = $chanNil;
+			this.r = new runtimeTimer.ptr(0, new $Int64(0, 0), new $Int64(0, 0), $throwNilPointerError, $ifaceNil, 0, null, false);
+			return;
+		}
+		this.C = C_;
+		this.r = r_;
 	});
 	Time = $pkg.Time = $newType(0, $kindStruct, "time.Time", true, "time", true, function(wall_, ext_, loc_) {
 		this.$val = this;
@@ -14908,11 +14940,67 @@ $packages["time"] = (function() {
 	arrayType$1 = $arrayType($Uint8, 9);
 	arrayType$2 = $arrayType($Uint8, 64);
 	ptrType$2 = $ptrType(Location);
+	chanType = $chanType(Time, false, false);
 	arrayType$3 = $arrayType($Uint8, 32);
+	funcType$1 = $funcType([$emptyInterface, $Uintptr], [], false);
+	ptrType$3 = $ptrType(js.Object);
 	ptrType$4 = $ptrType(ParseError);
+	chanType$1 = $chanType(Time, false, true);
+	ptrType$6 = $ptrType(Ticker);
 	ptrType$7 = $ptrType(Time);
 	init = function() {
 		$unused(Unix(new $Int64(0, 0), new $Int64(0, 0)));
+	};
+	now = function() {
+		var _tmp, _tmp$1, _tmp$2, mono, n, nsec, sec, x$1;
+		sec = new $Int64(0, 0);
+		nsec = 0;
+		mono = new $Int64(0, 0);
+		n = runtimeNano();
+		_tmp = $div64(n, new $Int64(0, 1000000000), false);
+		_tmp$1 = (((x$1 = $div64(n, new $Int64(0, 1000000000), true), x$1.$low + ((x$1.$high >> 31) * 4294967296)) >> 0));
+		_tmp$2 = n;
+		sec = _tmp;
+		nsec = _tmp$1;
+		mono = _tmp$2;
+		return [sec, nsec, mono];
+	};
+	startTimer = function(t) {
+		var diff, t, x$1, x$2;
+		t.active = true;
+		diff = $div64(((x$1 = t.when, x$2 = runtimeNano(), new $Int64(x$1.$high - x$2.$high, x$1.$low - x$2.$low))), new $Int64(0, 1000000), false);
+		if ((diff.$high > 0 || (diff.$high === 0 && diff.$low > 2147483647))) {
+			return;
+		}
+		if ((diff.$high < 0 || (diff.$high === 0 && diff.$low < 0))) {
+			diff = new $Int64(0, 0);
+		}
+		t.timeout = $setTimeout((function() {
+			var x$3, x$4, x$5;
+			t.active = false;
+			if (!((x$3 = t.period, (x$3.$high === 0 && x$3.$low === 0)))) {
+				t.when = (x$4 = t.when, x$5 = t.period, new $Int64(x$4.$high + x$5.$high, x$4.$low + x$5.$low));
+				startTimer(t);
+			}
+			$go(t.f, [t.arg, 0]);
+		}), $externalize(new $Int64(diff.$high + 0, diff.$low + 1), $Int64));
+	};
+	stopTimer = function(t) {
+		var t, wasActive;
+		$global.clearTimeout(t.timeout);
+		wasActive = t.active;
+		t.active = false;
+		return wasActive;
+	};
+	modTimer = function(t, when$1, period, f, arg, seq) {
+		var arg, f, period, seq, t, when$1;
+		stopTimer(t);
+		t.when = when$1;
+		t.period = period;
+		t.f = f;
+		t.arg = arg;
+		t.seq = seq;
+		startTimer(t);
 	};
 	initLocal = function() {
 		var _q, _r, d, min, offset, z;
@@ -16354,6 +16442,60 @@ $packages["time"] = (function() {
 		err = _tmp$8;
 		return [x$1, rem, err];
 	};
+	when = function(d) {
+		var d, t, x$1, x$2;
+		if ((d.$high < 0 || (d.$high === 0 && d.$low <= 0))) {
+			return runtimeNano();
+		}
+		t = (x$1 = runtimeNano(), x$2 = (new $Int64(d.$high, d.$low)), new $Int64(x$1.$high + x$2.$high, x$1.$low + x$2.$low));
+		if ((t.$high < 0 || (t.$high === 0 && t.$low < 0))) {
+			t = new $Int64(2147483647, 4294967295);
+		}
+		return t;
+	};
+	sendTime = function(c, seq) {
+		var _selection, c, seq, $r;
+		/* */ var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _selection = $f._selection; c = $f.c; seq = $f.seq; $r = $f.$r; }
+		_selection = $select([[$assertType(c, chanType), $clone(Now(), Time)], []]);
+		if (_selection[0] === 0) {
+		} else if (_selection[0] === 1) {
+		}
+		/* */ if ($f === undefined) { $f = { $blk: sendTime }; } $f._selection = _selection; $f.c = c; $f.seq = seq; $f.$r = $r; return $f;
+	};
+	NewTicker = function(d) {
+		var c, d, t;
+		if ((d.$high < 0 || (d.$high === 0 && d.$low <= 0))) {
+			$panic(errors.New("non-positive interval for NewTicker"));
+		}
+		c = new $Chan(Time, 1);
+		t = new Ticker.ptr(c, new runtimeTimer.ptr(0, when(d), (new $Int64(d.$high, d.$low)), sendTime, new chanType(c), 0, null, false));
+		startTimer(t.r);
+		return t;
+	};
+	$pkg.NewTicker = NewTicker;
+	Ticker.ptr.prototype.Stop = function() {
+		var t;
+		t = this;
+		stopTimer(t.r);
+	};
+	Ticker.prototype.Stop = function() { return this.$val.Stop(); };
+	Ticker.ptr.prototype.Reset = function(d) {
+		var d, t;
+		t = this;
+		if (t.r.f === $throwNilPointerError) {
+			$panic(new $String("time: Reset called on uninitialized Ticker"));
+		}
+		modTimer(t.r, when(d), (new $Int64(d.$high, d.$low)), t.r.f, t.r.arg, t.r.seq);
+	};
+	Ticker.prototype.Reset = function(d) { return this.$val.Reset(d); };
+	Tick = function(d) {
+		var d;
+		if ((d.$high < 0 || (d.$high === 0 && d.$low <= 0))) {
+			return $chanNil;
+		}
+		return NewTicker(d).C;
+	};
+	$pkg.Tick = Tick;
 	Time.ptr.prototype.nsec = function() {
 		var t, x$1;
 		t = this;
@@ -17049,6 +17191,20 @@ $packages["time"] = (function() {
 	runtimeNano = function() {
 		$throwRuntimeError("native function not implemented: time.runtimeNano");
 	};
+	Now = function() {
+		var _tuple, mono, nsec, sec, x$1, x$2, x$3, x$4, x$5, x$6;
+		_tuple = now();
+		sec = _tuple[0];
+		nsec = _tuple[1];
+		mono = _tuple[2];
+		mono = (x$1 = startNano, new $Int64(mono.$high - x$1.$high, mono.$low - x$1.$low));
+		sec = (x$2 = new $Int64(0, 2682288000), new $Int64(sec.$high + x$2.$high, sec.$low + x$2.$low));
+		if (!((x$3 = $shiftRightUint64((new $Uint64(sec.$high, sec.$low)), 33), (x$3.$high === 0 && x$3.$low === 0)))) {
+			return new Time.ptr((new $Uint64(0, nsec)), new $Int64(sec.$high + 13, sec.$low + 3618733952), $pkg.Local);
+		}
+		return new Time.ptr((x$4 = (x$5 = $shiftLeft64((new $Uint64(sec.$high, sec.$low)), 30), new $Uint64(2147483648 | x$5.$high, (0 | x$5.$low) >>> 0)), x$6 = (new $Uint64(0, nsec)), new $Uint64(x$4.$high | x$6.$high, (x$4.$low | x$6.$low) >>> 0)), mono, $pkg.Local);
+	};
+	$pkg.Now = Now;
 	unixTime = function(sec, nsec) {
 		var nsec, sec;
 		return new Time.ptr((new $Uint64(0, nsec)), new $Int64(sec.$high + 14, sec.$low + 2006054656), $pkg.Local);
@@ -18204,13 +18360,16 @@ $packages["time"] = (function() {
 	};
 	Location.prototype.lookupName = function(name, unix) { return this.$val.lookupName(name, unix); };
 	ptrType$4.methods = [{prop: "Error", name: "Error", pkg: "", typ: $funcType([], [$String], false)}];
+	ptrType$6.methods = [{prop: "Stop", name: "Stop", pkg: "", typ: $funcType([], [], false)}, {prop: "Reset", name: "Reset", pkg: "", typ: $funcType([Duration], [], false)}];
 	Time.methods = [{prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Format", name: "Format", pkg: "", typ: $funcType([$String], [$String], false)}, {prop: "AppendFormat", name: "AppendFormat", pkg: "", typ: $funcType([sliceType$3, $String], [sliceType$3], false)}, {prop: "After", name: "After", pkg: "", typ: $funcType([Time], [$Bool], false)}, {prop: "Before", name: "Before", pkg: "", typ: $funcType([Time], [$Bool], false)}, {prop: "Equal", name: "Equal", pkg: "", typ: $funcType([Time], [$Bool], false)}, {prop: "IsZero", name: "IsZero", pkg: "", typ: $funcType([], [$Bool], false)}, {prop: "abs", name: "abs", pkg: "time", typ: $funcType([], [$Uint64], false)}, {prop: "locabs", name: "locabs", pkg: "time", typ: $funcType([], [$String, $Int, $Uint64], false)}, {prop: "Date", name: "Date", pkg: "", typ: $funcType([], [$Int, Month, $Int], false)}, {prop: "Year", name: "Year", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Month", name: "Month", pkg: "", typ: $funcType([], [Month], false)}, {prop: "Day", name: "Day", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Weekday", name: "Weekday", pkg: "", typ: $funcType([], [Weekday], false)}, {prop: "ISOWeek", name: "ISOWeek", pkg: "", typ: $funcType([], [$Int, $Int], false)}, {prop: "Clock", name: "Clock", pkg: "", typ: $funcType([], [$Int, $Int, $Int], false)}, {prop: "Hour", name: "Hour", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Minute", name: "Minute", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Second", name: "Second", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Nanosecond", name: "Nanosecond", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "YearDay", name: "YearDay", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Add", name: "Add", pkg: "", typ: $funcType([Duration], [Time], false)}, {prop: "Sub", name: "Sub", pkg: "", typ: $funcType([Time], [Duration], false)}, {prop: "AddDate", name: "AddDate", pkg: "", typ: $funcType([$Int, $Int, $Int], [Time], false)}, {prop: "date", name: "date", pkg: "time", typ: $funcType([$Bool], [$Int, Month, $Int, $Int], false)}, {prop: "UTC", name: "UTC", pkg: "", typ: $funcType([], [Time], false)}, {prop: "Local", name: "Local", pkg: "", typ: $funcType([], [Time], false)}, {prop: "In", name: "In", pkg: "", typ: $funcType([ptrType$2], [Time], false)}, {prop: "Location", name: "Location", pkg: "", typ: $funcType([], [ptrType$2], false)}, {prop: "Zone", name: "Zone", pkg: "", typ: $funcType([], [$String, $Int], false)}, {prop: "Unix", name: "Unix", pkg: "", typ: $funcType([], [$Int64], false)}, {prop: "UnixNano", name: "UnixNano", pkg: "", typ: $funcType([], [$Int64], false)}, {prop: "MarshalBinary", name: "MarshalBinary", pkg: "", typ: $funcType([], [sliceType$3, $error], false)}, {prop: "GobEncode", name: "GobEncode", pkg: "", typ: $funcType([], [sliceType$3, $error], false)}, {prop: "MarshalJSON", name: "MarshalJSON", pkg: "", typ: $funcType([], [sliceType$3, $error], false)}, {prop: "MarshalText", name: "MarshalText", pkg: "", typ: $funcType([], [sliceType$3, $error], false)}, {prop: "Truncate", name: "Truncate", pkg: "", typ: $funcType([Duration], [Time], false)}, {prop: "Round", name: "Round", pkg: "", typ: $funcType([Duration], [Time], false)}];
 	ptrType$7.methods = [{prop: "nsec", name: "nsec", pkg: "time", typ: $funcType([], [$Int32], false)}, {prop: "sec", name: "sec", pkg: "time", typ: $funcType([], [$Int64], false)}, {prop: "unixSec", name: "unixSec", pkg: "time", typ: $funcType([], [$Int64], false)}, {prop: "addSec", name: "addSec", pkg: "time", typ: $funcType([$Int64], [], false)}, {prop: "setLoc", name: "setLoc", pkg: "time", typ: $funcType([ptrType$2], [], false)}, {prop: "stripMono", name: "stripMono", pkg: "time", typ: $funcType([], [], false)}, {prop: "setMono", name: "setMono", pkg: "time", typ: $funcType([$Int64], [], false)}, {prop: "mono", name: "mono", pkg: "time", typ: $funcType([], [$Int64], false)}, {prop: "UnmarshalBinary", name: "UnmarshalBinary", pkg: "", typ: $funcType([sliceType$3], [$error], false)}, {prop: "GobDecode", name: "GobDecode", pkg: "", typ: $funcType([sliceType$3], [$error], false)}, {prop: "UnmarshalJSON", name: "UnmarshalJSON", pkg: "", typ: $funcType([sliceType$3], [$error], false)}, {prop: "UnmarshalText", name: "UnmarshalText", pkg: "", typ: $funcType([sliceType$3], [$error], false)}];
 	Month.methods = [{prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}];
 	Weekday.methods = [{prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}];
 	Duration.methods = [{prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Nanoseconds", name: "Nanoseconds", pkg: "", typ: $funcType([], [$Int64], false)}, {prop: "Microseconds", name: "Microseconds", pkg: "", typ: $funcType([], [$Int64], false)}, {prop: "Milliseconds", name: "Milliseconds", pkg: "", typ: $funcType([], [$Int64], false)}, {prop: "Seconds", name: "Seconds", pkg: "", typ: $funcType([], [$Float64], false)}, {prop: "Minutes", name: "Minutes", pkg: "", typ: $funcType([], [$Float64], false)}, {prop: "Hours", name: "Hours", pkg: "", typ: $funcType([], [$Float64], false)}, {prop: "Truncate", name: "Truncate", pkg: "", typ: $funcType([Duration], [Duration], false)}, {prop: "Round", name: "Round", pkg: "", typ: $funcType([Duration], [Duration], false)}];
 	ptrType$2.methods = [{prop: "get", name: "get", pkg: "time", typ: $funcType([], [ptrType$2], false)}, {prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}, {prop: "lookup", name: "lookup", pkg: "time", typ: $funcType([$Int64], [$String, $Int, $Int64, $Int64], false)}, {prop: "lookupFirstZone", name: "lookupFirstZone", pkg: "time", typ: $funcType([], [$Int], false)}, {prop: "firstZoneUsed", name: "firstZoneUsed", pkg: "time", typ: $funcType([], [$Bool], false)}, {prop: "lookupName", name: "lookupName", pkg: "time", typ: $funcType([$String, $Int64], [$Int, $Bool], false)}];
+	runtimeTimer.init("time", [{prop: "i", name: "i", embedded: false, exported: false, typ: $Int32, tag: ""}, {prop: "when", name: "when", embedded: false, exported: false, typ: $Int64, tag: ""}, {prop: "period", name: "period", embedded: false, exported: false, typ: $Int64, tag: ""}, {prop: "f", name: "f", embedded: false, exported: false, typ: funcType$1, tag: ""}, {prop: "arg", name: "arg", embedded: false, exported: false, typ: $emptyInterface, tag: ""}, {prop: "seq", name: "seq", embedded: false, exported: false, typ: $Uintptr, tag: ""}, {prop: "timeout", name: "timeout", embedded: false, exported: false, typ: ptrType$3, tag: ""}, {prop: "active", name: "active", embedded: false, exported: false, typ: $Bool, tag: ""}]);
 	ParseError.init("", [{prop: "Layout", name: "Layout", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "Value", name: "Value", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "LayoutElem", name: "LayoutElem", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "ValueElem", name: "ValueElem", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "Message", name: "Message", embedded: false, exported: true, typ: $String, tag: ""}]);
+	Ticker.init("time", [{prop: "C", name: "C", embedded: false, exported: true, typ: chanType$1, tag: ""}, {prop: "r", name: "r", embedded: false, exported: false, typ: runtimeTimer, tag: ""}]);
 	Time.init("time", [{prop: "wall", name: "wall", embedded: false, exported: false, typ: $Uint64, tag: ""}, {prop: "ext", name: "ext", embedded: false, exported: false, typ: $Int64, tag: ""}, {prop: "loc", name: "loc", embedded: false, exported: false, typ: ptrType$2, tag: ""}]);
 	Location.init("time", [{prop: "name", name: "name", embedded: false, exported: false, typ: $String, tag: ""}, {prop: "zone", name: "zone", embedded: false, exported: false, typ: sliceType, tag: ""}, {prop: "tx", name: "tx", embedded: false, exported: false, typ: sliceType$1, tag: ""}, {prop: "extend", name: "extend", embedded: false, exported: false, typ: $String, tag: ""}, {prop: "cacheStart", name: "cacheStart", embedded: false, exported: false, typ: $Int64, tag: ""}, {prop: "cacheEnd", name: "cacheEnd", embedded: false, exported: false, typ: $Int64, tag: ""}, {prop: "cacheZone", name: "cacheZone", embedded: false, exported: false, typ: ptrType, tag: ""}]);
 	zone.init("time", [{prop: "name", name: "name", embedded: false, exported: false, typ: $String, tag: ""}, {prop: "offset", name: "offset", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "isDST", name: "isDST", embedded: false, exported: false, typ: $Bool, tag: ""}]);
@@ -24271,10 +24430,51 @@ $packages["fmt"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, sliceType, main, run;
+	var $pkg = {}, $init, fmt, js, time, Point, Snake, Game, sliceType, sliceType$1, ptrType, main, setupGame, run, loop, render;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
+	time = $packages["time"];
+	Point = $pkg.Point = $newType(0, $kindStruct, "main.Point", true, ".", true, function(x_, y_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.x = 0;
+			this.y = 0;
+			return;
+		}
+		this.x = x_;
+		this.y = y_;
+	});
+	Snake = $pkg.Snake = $newType(0, $kindStruct, "main.Snake", true, ".", true, function(positions_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.positions = sliceType$1.nil;
+			return;
+		}
+		this.positions = positions_;
+	});
+	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(Score_, Player_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Canvas_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.Score = 0;
+			this.Player = new Snake.ptr(sliceType$1.nil);
+			this.TileWidth = 0;
+			this.TileHeight = 0;
+			this.TileRows = 0;
+			this.TileColumns = 0;
+			this.Canvas = null;
+			return;
+		}
+		this.Score = Score_;
+		this.Player = Player_;
+		this.TileWidth = TileWidth_;
+		this.TileHeight = TileHeight_;
+		this.TileRows = TileRows_;
+		this.TileColumns = TileColumns_;
+		this.Canvas = Canvas_;
+	});
 	sliceType = $sliceType($emptyInterface);
+	sliceType$1 = $sliceType(Point);
+	ptrType = $ptrType(js.Object);
 	main = function() {
 		var $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -24282,11 +24482,15 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
-	run = function() {
-		var _r, body, canvas, canvasCtx, h, w, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; body = $f.body; canvas = $f.canvas; canvasCtx = $f.canvasCtx; h = $f.h; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+	setupGame = function() {
+		var _r, _tmp, _tmp$1, body, canvas, canvasCtx, columns, h, rows, w, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; body = $f.body; canvas = $f.canvas; canvasCtx = $f.canvasCtx; columns = $f.columns; h = $f.h; rows = $f.rows; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		w = $parseFloat($global.innerWidth);
 		h = $parseFloat($global.innerHeight);
+		_tmp = 10;
+		_tmp$1 = 10;
+		rows = _tmp;
+		columns = _tmp$1;
 		_r = fmt.Printf("%v %v\n", new sliceType([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		body = $global.document.body;
@@ -24297,20 +24501,74 @@ $packages["."] = (function() {
 		canvasCtx.fillStyle = $externalize("#000", $String);
 		canvasCtx.fillRect(0, 0, w, h);
 		body.appendChild(canvas);
-		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.h = h; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
+		$s = -1; return new Game.ptr(0, new Snake.ptr(sliceType$1.nil), w / (rows), h / (columns), rows, columns, canvas);
+		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
+	run = function() {
+		var _r, _r$1, _selection, fps, g, gameloop, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _selection = $f._selection; fps = $f.fps; g = $f.g; gameloop = $f.gameloop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		_r = setupGame(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		g = _r;
+		fps = time.Tick(new time.Duration(0, 16666666));
+		gameloop = time.Tick(new time.Duration(0, 100000000));
+		/* while (true) { */ case 2:
+			_r$1 = $select([[fps], [gameloop]]); /* */ $s = 4; case 4: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+			_selection = _r$1;
+			if (_selection[0] === 0) {
+				render(g);
+			} else if (_selection[0] === 1) {
+				loop(g);
+			}
+		/* } */ $s = 2; continue; case 3:
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.fps = fps; $f.g = g; $f.gameloop = gameloop; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	loop = function(g) {
+		var g;
+	};
+	render = function(g) {
+		var _r, _tmp, _tmp$1, blue, c, ctx, g, green, r, tileStartX, tileStartY;
+		ctx = g.Canvas.getContext($externalize("2d", $String));
+		blue = "#0000ff";
+		green = "#00ff00";
+		r = 0;
+		while (true) {
+			if (!(r < g.TileRows)) { break; }
+			c = 0;
+			while (true) {
+				if (!(c < g.TileColumns)) { break; }
+				if ((_r = c % 2, _r === _r ? _r : $throwRuntimeError("integer divide by zero")) === 0) {
+					ctx.fillStyle = $externalize(blue, $String);
+				} else {
+					ctx.fillStyle = $externalize(green, $String);
+				}
+				tileStartX = (c) * g.TileWidth;
+				tileStartY = (r) * g.TileHeight;
+				ctx.fillRect(tileStartX, tileStartY, (g.TileWidth), (g.TileHeight));
+				c = c + (1) >> 0;
+			}
+			_tmp = green;
+			_tmp$1 = blue;
+			blue = _tmp;
+			green = _tmp$1;
+			r = r + (1) >> 0;
+		}
+	};
+	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
+	Snake.init(".", [{prop: "positions", name: "positions", embedded: false, exported: false, typ: sliceType$1, tag: ""}]);
+	Game.init("", [{prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Player", name: "Player", embedded: false, exported: true, typ: Snake, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		$r = fmt.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = js.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		/* */ if ($pkg === $mainPkg) { $s = 3; continue; }
-		/* */ $s = 4; continue;
-		/* if ($pkg === $mainPkg) { */ case 3:
-			$r = main(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = time.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* */ if ($pkg === $mainPkg) { $s = 4; continue; }
+		/* */ $s = 5; continue;
+		/* if ($pkg === $mainPkg) { */ case 4:
+			$r = main(); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			$mainFinished = true;
-		/* } */ case 4:
+		/* } */ case 5:
 		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.$init = $init;
