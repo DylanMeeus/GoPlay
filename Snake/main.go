@@ -2,18 +2,51 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/gopherjs/gopherjs/js"
 )
 
-func main() {
-	run()
+const (
+	SNAKE_MOVE_INTERVAL = 200
+	FOOD_SPAWN_INTERVAL = 1_000
+)
+
+type direction int
+
+func (d direction) ToVelocity() Point {
+	switch d {
+	case UP:
+		return Point{0, -1}
+	case DOWN:
+		return Point{0, 1}
+	case LEFT:
+		return Point{-1, 0}
+	case RIGHT:
+		return Point{1, 0}
+	default:
+		return Point{0, 1}
+
+	}
 }
+
+const (
+	UP direction = iota
+	DOWN
+	LEFT
+	RIGHT
+)
+
+var (
+	DIRECTION = direction(RIGHT)
+)
 
 type Point struct {
 	x, y int
 }
+
+type Food Point
 
 type Square struct {
 	x, y, w, h float64
@@ -35,8 +68,9 @@ type Snake struct {
 	velocity  Point
 }
 
-func (s *Snake) move() {
+func (s *Snake) move(d direction) {
 	// take one from the tail, and stick it in the front?
+	s.velocity = d.ToVelocity()
 	head := s.positions[0]
 	//tail := s.positions[len(s.positions)-1]
 	//fmt.Printf("%v\n", tail)
@@ -49,6 +83,7 @@ func (s *Snake) move() {
 type Game struct {
 	Score       int
 	Player      Snake
+	Foods       []Food // yeah okay, foods is not the plural, but it makes it clear it's a slice :-)
 	TileWidth   float64
 	TileHeight  float64
 	TileRows    int
@@ -56,6 +91,16 @@ type Game struct {
 	Width       float64
 	Height      float64
 	Canvas      *js.Object
+}
+
+// SpawnFood selects a random location to spawn food
+func (g *Game) SpawnFood() {
+	maxX := g.TileColumns
+	maxY := g.TileRows
+	// TODO: make sure the player is not on the food already
+
+	x, y := rand.Intn(maxX), rand.Intn(maxY)
+	g.Foods = append(g.Foods, Food{x, y})
 }
 
 func setupGame() *Game {
@@ -78,6 +123,9 @@ func setupGame() *Game {
 	// render the background
 	canvasCtx.Call("fillRect", 0, 0, w, h)
 
+	// attach event listener for keypresses
+	js.Global.Get("document").Call("addEventListener", "keydown", keyPressEvent, true)
+
 	// Call runs a function against the object
 	body.Call("appendChild", canvas)
 	return &Game{
@@ -96,50 +144,55 @@ func setupGame() *Game {
 	}
 }
 
+func keyPressEvent(e *js.Object) {
+	fmt.Println(e.Get("keyCode"))
+	switch e.Get("keyCode").String() {
+	case "65": // left
+		DIRECTION = LEFT
+	case "68": // right
+		DIRECTION = RIGHT
+	case "87": // up
+		DIRECTION = UP
+	case "83": // down
+		DIRECTION = DOWN
+	}
+}
+
 func run() {
 	g := setupGame()
+	go gameLoop(g)
 
 	fps := time.Tick(1 * time.Second / 60)
-	gameloop := time.Tick(100 * time.Millisecond)
-
 	for {
 		select {
 		case <-fps:
 			render(g)
-		case <-gameloop:
-			loop(g)
 		}
 	}
 
 }
 
 // main game loop
-func loop(g *Game) {
-	g.Player.move()
+func gameLoop(g *Game) {
+	moveLoop := time.Tick(SNAKE_MOVE_INTERVAL * time.Millisecond)
+	foodLoop := time.Tick(FOOD_SPAWN_INTERVAL * time.Millisecond)
+	for {
+		select {
+		case <-moveLoop:
+			// todo: add snake state here (dead || alive)
+			g.Player.move(DIRECTION)
+		case <-foodLoop:
+			g.SpawnFood()
+		}
+
+	}
 }
 
 // main render loop
 func render(g *Game) {
 	renderBackground(g)
 	renderPlayer(g)
-	/*
-		ctx := g.Canvas.Call("getContext", "2d")
-		blue := "#0000ff"
-		green := "#00ff00"
-		for r := 0; r < g.TileRows; r++ {
-			for c := 0; c < g.TileColumns; c++ {
-				if c%2 == 0 {
-					ctx.Set("fillStyle", blue)
-				} else {
-					ctx.Set("fillStyle", green)
-				}
-				tileStartX := float64(c) * g.TileWidth
-				tileStartY := float64(r) * g.TileHeight
-				ctx.Call("fillRect", tileStartX, tileStartY, float64(g.TileWidth), float64(g.TileHeight))
-			}
-			blue, green = green, blue
-		}
-	*/
+	renderFood(g)
 }
 
 func renderBackground(g *Game) {
@@ -158,4 +211,21 @@ func renderPlayer(g *Game) {
 		ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 	}
 
+}
+
+func renderFood(g *Game) {
+
+	ctx := g.Canvas.Call("getContext", "2d")
+	foodColour := "#d13017" // kinda reddish, maybe like an apple
+	ctx.Set("fillStyle", foodColour)
+
+	for _, food := range g.Foods {
+		sq := Point(food).ToCanvasSquare(g)
+		ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
+	}
+
+}
+
+func main() {
+	run()
 }
