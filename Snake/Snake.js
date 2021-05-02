@@ -24430,7 +24430,7 @@ $packages["fmt"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, time, Point, Snake, Game, sliceType, sliceType$1, ptrType, main, setupGame, run, loop, render;
+	var $pkg = {}, $init, fmt, js, time, Point, Square, Snake, Game, sliceType, sliceType$1, ptrType, ptrType$1, ptrType$2, main, setupGame, run, loop, render, renderBackground, renderPlayer;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	time = $packages["time"];
@@ -24444,23 +24444,41 @@ $packages["."] = (function() {
 		this.x = x_;
 		this.y = y_;
 	});
-	Snake = $pkg.Snake = $newType(0, $kindStruct, "main.Snake", true, ".", true, function(positions_) {
+	Square = $pkg.Square = $newType(0, $kindStruct, "main.Square", true, ".", true, function(x_, y_, w_, h_) {
 		this.$val = this;
 		if (arguments.length === 0) {
-			this.positions = sliceType$1.nil;
+			this.x = 0;
+			this.y = 0;
+			this.w = 0;
+			this.h = 0;
+			return;
+		}
+		this.x = x_;
+		this.y = y_;
+		this.w = w_;
+		this.h = h_;
+	});
+	Snake = $pkg.Snake = $newType(0, $kindStruct, "main.Snake", true, ".", true, function(positions_, velocity_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.positions = sliceType.nil;
+			this.velocity = new Point.ptr(0, 0);
 			return;
 		}
 		this.positions = positions_;
+		this.velocity = velocity_;
 	});
-	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(Score_, Player_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Canvas_) {
+	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(Score_, Player_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Width_, Height_, Canvas_) {
 		this.$val = this;
 		if (arguments.length === 0) {
 			this.Score = 0;
-			this.Player = new Snake.ptr(sliceType$1.nil);
+			this.Player = new Snake.ptr(sliceType.nil, new Point.ptr(0, 0));
 			this.TileWidth = 0;
 			this.TileHeight = 0;
 			this.TileRows = 0;
 			this.TileColumns = 0;
+			this.Width = 0;
+			this.Height = 0;
 			this.Canvas = null;
 			return;
 		}
@@ -24470,11 +24488,15 @@ $packages["."] = (function() {
 		this.TileHeight = TileHeight_;
 		this.TileRows = TileRows_;
 		this.TileColumns = TileColumns_;
+		this.Width = Width_;
+		this.Height = Height_;
 		this.Canvas = Canvas_;
 	});
-	sliceType = $sliceType($emptyInterface);
-	sliceType$1 = $sliceType(Point);
-	ptrType = $ptrType(js.Object);
+	sliceType = $sliceType(Point);
+	sliceType$1 = $sliceType($emptyInterface);
+	ptrType = $ptrType(Game);
+	ptrType$1 = $ptrType(Snake);
+	ptrType$2 = $ptrType(js.Object);
 	main = function() {
 		var $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -24482,16 +24504,33 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
+	Point.ptr.prototype.ToCanvasSquare = function(g) {
+		var g, p, x, y;
+		p = this;
+		x = (p.x) * g.TileWidth;
+		y = (p.y) * g.TileHeight;
+		return new Square.ptr(x, y, g.TileWidth, g.TileHeight);
+	};
+	Point.prototype.ToCanvasSquare = function(g) { return this.$val.ToCanvasSquare(g); };
+	Snake.ptr.prototype.move = function() {
+		var head, newHead, s, x;
+		s = this;
+		head = $clone((x = s.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point);
+		newHead = new Point.ptr(head.x + s.velocity.x >> 0, head.y + s.velocity.y >> 0);
+		s.positions = $appendSlice(new sliceType([$clone(newHead, Point)]), s.positions);
+		s.positions = $subslice(s.positions, 0, (s.positions.$length - 1 >> 0));
+	};
+	Snake.prototype.move = function() { return this.$val.move(); };
 	setupGame = function() {
 		var _r, _tmp, _tmp$1, body, canvas, canvasCtx, columns, h, rows, w, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; body = $f.body; canvas = $f.canvas; canvasCtx = $f.canvasCtx; columns = $f.columns; h = $f.h; rows = $f.rows; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		w = $parseFloat($global.innerWidth);
 		h = $parseFloat($global.innerHeight);
-		_tmp = 10;
-		_tmp$1 = 10;
+		_tmp = 50;
+		_tmp$1 = 50;
 		rows = _tmp;
 		columns = _tmp$1;
-		_r = fmt.Printf("%v %v\n", new sliceType([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = fmt.Printf("%v %v\n", new sliceType$1([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		body = $global.document.body;
 		canvas = $global.document.createElement($externalize("canvas", $String));
@@ -24501,7 +24540,7 @@ $packages["."] = (function() {
 		canvasCtx.fillStyle = $externalize("#000", $String);
 		canvasCtx.fillRect(0, 0, w, h);
 		body.appendChild(canvas);
-		$s = -1; return new Game.ptr(0, new Snake.ptr(sliceType$1.nil), w / (rows), h / (columns), rows, columns, canvas);
+		$s = -1; return new Game.ptr(0, new Snake.ptr(new sliceType([new Point.ptr(5, 5)]), new Point.ptr(1, 0)), w / (rows), h / (columns), rows, columns, w, h, canvas);
 		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	run = function() {
@@ -24525,38 +24564,39 @@ $packages["."] = (function() {
 	};
 	loop = function(g) {
 		var g;
+		g.Player.move();
 	};
 	render = function(g) {
-		var _r, _tmp, _tmp$1, blue, c, ctx, g, green, r, tileStartX, tileStartY;
+		var g;
+		renderBackground(g);
+		renderPlayer(g);
+	};
+	renderBackground = function(g) {
+		var ctx, g;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
-		blue = "#0000ff";
-		green = "#00ff00";
-		r = 0;
+		ctx.fillStyle = $externalize("#000", $String);
+		ctx.fillRect(0, 0, g.Width, g.Height);
+	};
+	renderPlayer = function(g) {
+		var _i, _ref, ctx, g, point, sq;
+		ctx = g.Canvas.getContext($externalize("2d", $String));
+		ctx.fillStyle = $externalize("white", $String);
+		_ref = g.Player.positions;
+		_i = 0;
 		while (true) {
-			if (!(r < g.TileRows)) { break; }
-			c = 0;
-			while (true) {
-				if (!(c < g.TileColumns)) { break; }
-				if ((_r = c % 2, _r === _r ? _r : $throwRuntimeError("integer divide by zero")) === 0) {
-					ctx.fillStyle = $externalize(blue, $String);
-				} else {
-					ctx.fillStyle = $externalize(green, $String);
-				}
-				tileStartX = (c) * g.TileWidth;
-				tileStartY = (r) * g.TileHeight;
-				ctx.fillRect(tileStartX, tileStartY, (g.TileWidth), (g.TileHeight));
-				c = c + (1) >> 0;
-			}
-			_tmp = green;
-			_tmp$1 = blue;
-			blue = _tmp;
-			green = _tmp$1;
-			r = r + (1) >> 0;
+			if (!(_i < _ref.$length)) { break; }
+			point = $clone(((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]), Point);
+			sq = $clone($clone(point, Point).ToCanvasSquare(g), Square);
+			ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
+			_i++;
 		}
 	};
+	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType], [Square], false)}];
+	ptrType$1.methods = [{prop: "move", name: "move", pkg: ".", typ: $funcType([], [], false)}];
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
-	Snake.init(".", [{prop: "positions", name: "positions", embedded: false, exported: false, typ: sliceType$1, tag: ""}]);
-	Game.init("", [{prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Player", name: "Player", embedded: false, exported: true, typ: Snake, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
+	Square.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "w", name: "w", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "h", name: "h", embedded: false, exported: false, typ: $Float64, tag: ""}]);
+	Snake.init(".", [{prop: "positions", name: "positions", embedded: false, exported: false, typ: sliceType, tag: ""}, {prop: "velocity", name: "velocity", embedded: false, exported: false, typ: Point, tag: ""}]);
+	Game.init("", [{prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Player", name: "Player", embedded: false, exported: true, typ: Snake, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType$2, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
