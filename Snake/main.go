@@ -9,8 +9,15 @@ import (
 )
 
 const (
-	SNAKE_MOVE_INTERVAL = 100
-	FOOD_SPAWN_INTERVAL = 1_000
+	SNAKE_MOVE_INTERVAL = 50
+)
+
+type GameState int
+
+const (
+	RUNNING GameState = iota
+	GAME_OVER
+	PAUSE
 )
 
 type direction int
@@ -82,16 +89,17 @@ func (s *Snake) move(d direction) {
 }
 
 type Game struct {
-	Score       int
-	Player      Snake
-	Foods       []Food // yeah okay, foods is not the plural, but it makes it clear it's a slice :-)
-	TileWidth   float64
-	TileHeight  float64
-	TileRows    int
-	TileColumns int
-	Width       float64
-	Height      float64
-	Canvas      *js.Object
+	CurrentState GameState
+	Score        int
+	Player       Snake
+	Food         Food
+	TileWidth    float64
+	TileHeight   float64
+	TileRows     int
+	TileColumns  int
+	Width        float64
+	Height       float64
+	Canvas       *js.Object
 }
 
 // SpawnFood selects a random location to spawn food
@@ -101,7 +109,7 @@ func (g *Game) SpawnFood() {
 	// TODO: make sure the player is not on the food already
 
 	x, y := rand.Intn(maxX), rand.Intn(maxY)
-	g.Foods = append(g.Foods, Food{x, y})
+	g.Food = Food{x, y}
 }
 
 func setupGame() *Game {
@@ -134,14 +142,15 @@ func setupGame() *Game {
 			positions: []Point{{5, 5}},
 			velocity:  Point{1, 0},
 		},
-		Canvas:      canvas,
-		TileWidth:   w / float64(rows),
-		TileHeight:  h / float64(columns),
-		TileRows:    rows,
-		TileColumns: columns,
-		Width:       w,
-		Height:      h,
-		Score:       0,
+		Canvas:       canvas,
+		TileWidth:    w / float64(rows),
+		TileHeight:   h / float64(columns),
+		TileRows:     rows,
+		TileColumns:  columns,
+		Width:        w,
+		Height:       h,
+		Score:        0,
+		CurrentState: RUNNING,
 	}
 }
 
@@ -161,6 +170,7 @@ func keyPressEvent(e *js.Object) {
 
 func run() {
 	g := setupGame()
+	g.SpawnFood()
 	go gameLoop(g)
 
 	fps := time.Tick(1 * time.Second / 60)
@@ -176,40 +186,35 @@ func run() {
 // main game loop
 func gameLoop(g *Game) {
 	moveLoop := time.Tick(SNAKE_MOVE_INTERVAL * time.Millisecond)
-	foodLoop := time.Tick(FOOD_SPAWN_INTERVAL * time.Millisecond)
 	for {
-		select {
-		case <-moveLoop:
-			// todo: add snake state here (dead || alive)
-			g.Player.move(DIRECTION)
-			g.foodCollisionDetection()
-			if g.boundsCollisionDetection() {
-				// end game
+		switch g.CurrentState {
+		case RUNNING:
+			select {
+			case <-moveLoop:
+				// todo: add snake state here (dead || alive)
+				g.Player.move(DIRECTION)
+				g.foodCollisionDetection()
+				if g.boundsCollisionDetection() {
+					// end game
+					g.CurrentState = GAME_OVER
+				}
 			}
-		case <-foodLoop:
-			g.SpawnFood()
 		}
-
 	}
 }
 
 func (g *Game) foodCollisionDetection() {
 	// if the player is on food, the player becomes longer
-	remainingFood := []Food{}
-	for _, f := range g.Foods {
-		if Point(f) == g.Player.positions[0] { // if the head touches the food
-			g.Player.positions = append(g.Player.positions, Point(f))
-			g.Player.length++
-		} else {
-			remainingFood = append(remainingFood, f)
-		}
+	if Point(g.Food) == g.Player.positions[0] { // if the head touches the food
+		g.Player.positions = append(g.Player.positions, Point(g.Food))
+		g.Player.length++
+		g.SpawnFood()
 	}
-	g.Foods = remainingFood
 }
 
 func (g *Game) boundsCollisionDetection() bool {
-
-	return false
+	x, y := g.Player.positions[0].x, g.Player.positions[0].y
+	return (x < 0 || x >= g.TileColumns || y < 0 || y > g.TileColumns)
 }
 
 // fun function name, isn't it.
@@ -253,10 +258,8 @@ func renderFood(g *Game) {
 	foodColour := "#d13017" // kinda reddish, maybe like an apple
 	ctx.Set("fillStyle", foodColour)
 
-	for _, food := range g.Foods {
-		sq := Point(food).ToCanvasSquare(g)
-		ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
-	}
+	sq := Point(g.Food).ToCanvasSquare(g)
+	ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 
 }
 

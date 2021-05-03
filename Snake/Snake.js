@@ -25119,11 +25119,12 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, time, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, sliceType$2, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderBackground, renderPlayer, renderFood, main;
+	var $pkg = {}, $init, fmt, js, rand, time, GameState, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderBackground, renderPlayer, renderFood, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
 	time = $packages["time"];
+	GameState = $pkg.GameState = $newType(4, $kindInt, "main.GameState", true, ".", true, null);
 	direction = $pkg.direction = $newType(4, $kindInt, "main.direction", true, ".", false, null);
 	Point = $pkg.Point = $newType(0, $kindStruct, "main.Point", true, ".", true, function(x_, y_) {
 		this.$val = this;
@@ -25171,12 +25172,13 @@ $packages["."] = (function() {
 		this.velocity = velocity_;
 		this.length = length_;
 	});
-	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(Score_, Player_, Foods_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Width_, Height_, Canvas_) {
+	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(CurrentState_, Score_, Player_, Food_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Width_, Height_, Canvas_) {
 		this.$val = this;
 		if (arguments.length === 0) {
+			this.CurrentState = 0;
 			this.Score = 0;
 			this.Player = new Snake.ptr(sliceType.nil, new Point.ptr(0, 0), 0);
-			this.Foods = sliceType$2.nil;
+			this.Food = new Food.ptr(0, 0);
 			this.TileWidth = 0;
 			this.TileHeight = 0;
 			this.TileRows = 0;
@@ -25186,9 +25188,10 @@ $packages["."] = (function() {
 			this.Canvas = null;
 			return;
 		}
+		this.CurrentState = CurrentState_;
 		this.Score = Score_;
 		this.Player = Player_;
-		this.Foods = Foods_;
+		this.Food = Food_;
 		this.TileWidth = TileWidth_;
 		this.TileHeight = TileHeight_;
 		this.TileRows = TileRows_;
@@ -25201,7 +25204,6 @@ $packages["."] = (function() {
 	sliceType$1 = $sliceType($emptyInterface);
 	ptrType = $ptrType(js.Object);
 	funcType = $funcType([ptrType], [], false);
-	sliceType$2 = $sliceType(Food);
 	ptrType$1 = $ptrType(Game);
 	ptrType$2 = $ptrType(Snake);
 	direction.prototype.ToVelocity = function() {
@@ -25251,7 +25253,7 @@ $packages["."] = (function() {
 		_tmp$1 = _r$1;
 		x = _tmp;
 		y = _tmp$1;
-		g.Foods = $append(g.Foods, new Food.ptr(x, y));
+		Food.copy(g.Food, new Food.ptr(x, y));
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.SpawnFood }; } $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.g = g; $f.maxX = maxX; $f.maxY = maxY; $f.x = x; $f.y = y; $f.$s = $s; $f.$r = $r; return $f;
 	};
@@ -25276,7 +25278,7 @@ $packages["."] = (function() {
 		canvasCtx.fillRect(0, 0, w, h);
 		$global.document.addEventListener($externalize("keydown", $String), $externalize(keyPressEvent, funcType), $externalize(true, $Bool));
 		body.appendChild(canvas);
-		$s = -1; return new Game.ptr(0, new Snake.ptr(new sliceType([new Point.ptr(5, 5)]), new Point.ptr(1, 0), 0), sliceType$2.nil, w / (rows), h / (columns), rows, columns, w, h, canvas);
+		$s = -1; return new Game.ptr(0, 0, new Snake.ptr(new sliceType([new Point.ptr(5, 5)]), new Point.ptr(1, 0), 0), new Food.ptr(0, 0), w / (rows), h / (columns), rows, columns, w, h, canvas);
 		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	keyPressEvent = function(e) {
@@ -25302,60 +25304,70 @@ $packages["."] = (function() {
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _selection = $f._selection; fps = $f.fps; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		_r = setupGame(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		g = _r;
+		$r = g.SpawnFood(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$go(gameLoop, [g]);
 		fps = time.Tick(new time.Duration(0, 16666666));
-		/* while (true) { */ case 2:
-			_r$1 = $select([[fps]]); /* */ $s = 4; case 4: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+		/* while (true) { */ case 3:
+			_r$1 = $select([[fps]]); /* */ $s = 5; case 5: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 			_selection = _r$1;
 			if (_selection[0] === 0) {
 				render(g);
 			}
-		/* } */ $s = 2; continue; case 3:
+		/* } */ $s = 3; continue; case 4:
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.fps = fps; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	gameLoop = function(g) {
-		var _r, _selection, foodLoop, g, moveLoop, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _selection = $f._selection; foodLoop = $f.foodLoop; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		moveLoop = time.Tick(new time.Duration(0, 100000000));
-		foodLoop = time.Tick(new time.Duration(0, 1000000000));
+		var _1, _r, _selection, g, moveLoop, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; _r = $f._r; _selection = $f._selection; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		moveLoop = time.Tick(new time.Duration(0, 50000000));
 		/* while (true) { */ case 1:
-			_r = $select([[moveLoop], [foodLoop]]); /* */ $s = 3; case 3: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-			_selection = _r;
-			/* */ if (_selection[0] === 0) { $s = 4; continue; }
-			/* */ if (_selection[0] === 1) { $s = 5; continue; }
-			/* */ $s = 6; continue;
-			/* if (_selection[0] === 0) { */ case 4:
-				g.Player.move($pkg.DIRECTION);
-				g.collisionDetection();
-				$s = 6; continue;
-			/* } else if (_selection[0] === 1) { */ case 5:
-				$r = g.SpawnFood(); /* */ $s = 7; case 7: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-			/* } */ case 6:
+				_1 = g.CurrentState;
+				/* */ if (_1 === (0)) { $s = 4; continue; }
+				/* */ $s = 5; continue;
+				/* if (_1 === (0)) { */ case 4:
+					_r = $select([[moveLoop]]); /* */ $s = 6; case 6: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+					_selection = _r;
+					/* */ if (_selection[0] === 0) { $s = 7; continue; }
+					/* */ $s = 8; continue;
+					/* if (_selection[0] === 0) { */ case 7:
+						g.Player.move($pkg.DIRECTION);
+						$r = g.foodCollisionDetection(); /* */ $s = 9; case 9: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+						if (g.boundsCollisionDetection()) {
+							g.CurrentState = 1;
+						}
+					/* } */ case 8:
+				/* } */ case 5:
+			case 3:
 		/* } */ $s = 1; continue; case 2:
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._r = _r; $f._selection = _selection; $f.foodLoop = foodLoop; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._selection = _selection; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
 	};
-	Game.ptr.prototype.collisionDetection = function() {
-		var _i, _ref, f, g, remainingFood, x;
+	Game.ptr.prototype.foodCollisionDetection = function() {
+		var g, x, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; x = $f.x; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		g = this;
-		remainingFood = new sliceType$2([]);
-		_ref = g.Foods;
-		_i = 0;
-		while (true) {
-			if (!(_i < _ref.$length)) { break; }
-			f = $clone(((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]), Food);
-			if ($equal(($clone(f, Point)), (x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point)) {
-				g.Player.positions = $append(g.Player.positions, ($clone(f, Point)));
-				g.Player.length = g.Player.length + (1) >> 0;
-			} else {
-				remainingFood = $append(remainingFood, f);
-			}
-			_i++;
-		}
-		g.Foods = remainingFood;
+		/* */ if ($equal(($clone(g.Food, Point)), (x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point)) { $s = 1; continue; }
+		/* */ $s = 2; continue;
+		/* if ($equal(($clone(g.Food, Point)), (x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point)) { */ case 1:
+			g.Player.positions = $append(g.Player.positions, ($clone(g.Food, Point)));
+			g.Player.length = g.Player.length + (1) >> 0;
+			$r = g.SpawnFood(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* } */ case 2:
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.foodCollisionDetection }; } $f.g = g; $f.x = x; $f.$s = $s; $f.$r = $r; return $f;
 	};
-	Game.prototype.collisionDetection = function() { return this.$val.collisionDetection(); };
+	Game.prototype.foodCollisionDetection = function() { return this.$val.foodCollisionDetection(); };
+	Game.ptr.prototype.boundsCollisionDetection = function() {
+		var _tmp, _tmp$1, g, x, x$1, x$2, y;
+		g = this;
+		_tmp = (x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])).x;
+		_tmp$1 = (x$1 = g.Player.positions, (0 >= x$1.$length ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + 0])).y;
+		x$2 = _tmp;
+		y = _tmp$1;
+		return x$2 < 0 || x$2 >= g.TileColumns || y < 0 || y > g.TileColumns;
+	};
+	Game.prototype.boundsCollisionDetection = function() { return this.$val.boundsCollisionDetection(); };
 	render = function(g) {
 		var g;
 		renderBackground(g);
@@ -25383,19 +25395,12 @@ $packages["."] = (function() {
 		}
 	};
 	renderFood = function(g) {
-		var _i, _ref, ctx, food, foodColour, g, sq;
+		var ctx, foodColour, g, sq;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		foodColour = "#d13017";
 		ctx.fillStyle = $externalize(foodColour, $String);
-		_ref = g.Foods;
-		_i = 0;
-		while (true) {
-			if (!(_i < _ref.$length)) { break; }
-			food = $clone(((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]), Food);
-			sq = $clone($clone(($clone(food, Point)), Point).ToCanvasSquare(g), Square);
-			ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
-			_i++;
-		}
+		sq = $clone($clone(($clone(g.Food, Point)), Point).ToCanvasSquare(g), Square);
+		ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
 	};
 	main = function() {
 		var $s, $r;
@@ -25407,12 +25412,12 @@ $packages["."] = (function() {
 	direction.methods = [{prop: "ToVelocity", name: "ToVelocity", pkg: "", typ: $funcType([], [Point], false)}];
 	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$1], [Square], false)}];
 	ptrType$2.methods = [{prop: "move", name: "move", pkg: ".", typ: $funcType([direction], [], false)}];
-	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "collisionDetection", name: "collisionDetection", pkg: ".", typ: $funcType([], [], false)}];
+	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "foodCollisionDetection", name: "foodCollisionDetection", pkg: ".", typ: $funcType([], [], false)}, {prop: "boundsCollisionDetection", name: "boundsCollisionDetection", pkg: ".", typ: $funcType([], [$Bool], false)}, {prop: "snakeEatsSnakeDetection", name: "snakeEatsSnakeDetection", pkg: ".", typ: $funcType([], [$Bool], false)}];
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	Food.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	Square.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "w", name: "w", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "h", name: "h", embedded: false, exported: false, typ: $Float64, tag: ""}]);
 	Snake.init(".", [{prop: "positions", name: "positions", embedded: false, exported: false, typ: sliceType, tag: ""}, {prop: "velocity", name: "velocity", embedded: false, exported: false, typ: Point, tag: ""}, {prop: "length", name: "length", embedded: false, exported: false, typ: $Int, tag: ""}]);
-	Game.init("", [{prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Player", name: "Player", embedded: false, exported: true, typ: Snake, tag: ""}, {prop: "Foods", name: "Foods", embedded: false, exported: true, typ: sliceType$2, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
+	Game.init("", [{prop: "CurrentState", name: "CurrentState", embedded: false, exported: true, typ: GameState, tag: ""}, {prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Player", name: "Player", embedded: false, exported: true, typ: Snake, tag: ""}, {prop: "Food", name: "Food", embedded: false, exported: true, typ: Food, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
