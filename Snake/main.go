@@ -10,6 +10,7 @@ import (
 
 const (
 	SNAKE_MOVE_INTERVAL = 50
+	FOOD_VALUE          = 1000
 )
 
 type GameState int
@@ -193,11 +194,11 @@ func gameLoop(g *Game) {
 			case <-moveLoop:
 				// todo: add snake state here (dead || alive)
 				g.Player.move(DIRECTION)
-				g.foodCollisionDetection()
-				if g.boundsCollisionDetection() {
+				if g.boundsCollisionDetection() || g.snakeEatsSnakeDetection() {
 					// end game
 					g.CurrentState = GAME_OVER
 				}
+				g.foodCollisionDetection()
 			}
 		default:
 			// clear the buffers
@@ -211,6 +212,7 @@ func (g *Game) foodCollisionDetection() {
 	if Point(g.Food) == g.Player.positions[0] { // if the head touches the food
 		g.Player.positions = append(g.Player.positions, Point(g.Food))
 		g.Player.length++
+		g.Score += FOOD_VALUE
 		g.SpawnFood()
 	}
 }
@@ -244,12 +246,27 @@ func render(g *Game) {
 func renderGameOver(g *Game) {
 	fmt.Println("rendering game over screen")
 	renderBackground(g)
+
+	ctx := g.Canvas.Call("getContext", "2d")
+	ctx.Set("font", "50px Arial")
+	ctx.Set("fillStyle", "#fff")
+	centreX, centreY := g.Width/2, g.Height/2
+	ctx.Call("fillText", fmt.Sprintf("Game Over! %v points", g.Score), centreX, centreY)
+	ctx.Call("fillText", "Press space to continue!", centreX, centreY+50)
 }
 
 func renderRunning(g *Game) {
 	renderBackground(g)
 	renderPlayer(g)
 	renderFood(g)
+	renderScore(g)
+}
+
+func renderScore(g *Game) {
+	ctx := g.Canvas.Call("getContext", "2d")
+	ctx.Set("font", "20px Arial")
+	ctx.Set("fillStyle", "#fff")
+	ctx.Call("fillText", fmt.Sprintf("Score: %v", g.Score), 10, 50)
 }
 
 func renderBackground(g *Game) {

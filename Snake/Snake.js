@@ -22019,7 +22019,7 @@ $packages["os"] = (function() {
 	return $pkg;
 })();
 $packages["fmt"] = (function() {
-	var $pkg = {}, $init, errors, fmtsort, io, math, os, reflect, strconv, sync, utf8, fmtFlags, fmt, State, Formatter, Stringer, GoStringer, buffer, pp, scanError, ss, ssave, sliceType, ptrType, ptrType$1, arrayType, arrayType$1, sliceType$1, sliceType$2, arrayType$2, ptrType$2, ptrType$5, ptrType$26, funcType, ppFree, space, ssFree, complexError, boolError, newPrinter, Fprintf, Printf, Fprintln, Println, getField, tooLarge, parsenum, intFromArg, parseArgNumber, isSpace, notSpace, indexRune;
+	var $pkg = {}, $init, errors, fmtsort, io, math, os, reflect, strconv, sync, utf8, fmtFlags, fmt, State, Formatter, Stringer, GoStringer, buffer, pp, scanError, ss, ssave, sliceType, ptrType, ptrType$1, arrayType, arrayType$1, sliceType$1, sliceType$2, arrayType$2, ptrType$2, ptrType$5, ptrType$26, funcType, ppFree, space, ssFree, complexError, boolError, newPrinter, Fprintf, Printf, Sprintf, Fprintln, Println, getField, tooLarge, parsenum, intFromArg, parseArgNumber, isSpace, notSpace, indexRune;
 	errors = $packages["errors"];
 	fmtsort = $packages["internal/fmtsort"];
 	io = $packages["io"];
@@ -22822,6 +22822,18 @@ $packages["fmt"] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: Printf }; } $f._r = _r; $f._tuple = _tuple; $f.a = a; $f.err = err; $f.format = format; $f.n = n; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.Printf = Printf;
+	Sprintf = function(format, a) {
+		var _r, a, format, p, s, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; a = $f.a; format = $f.format; p = $f.p; s = $f.s; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		_r = newPrinter(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		p = _r;
+		$r = p.doPrintf(format, a); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		s = ($bytesToString(p.buf));
+		p.free();
+		$s = -1; return s;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Sprintf }; } $f._r = _r; $f.a = a; $f.format = format; $f.p = p; $f.s = s; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	$pkg.Sprintf = Sprintf;
 	Fprintln = function(w, a) {
 		var _r, _r$1, _tuple, a, err, n, p, w, x, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _tuple = $f._tuple; a = $f.a; err = $f.err; n = $f.n; p = $f.p; w = $f.w; x = $f.x; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25119,7 +25131,7 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, time, GameState, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderBackground, renderPlayer, renderFood, main;
+	var $pkg = {}, $init, fmt, js, rand, time, GameState, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderPlayer, renderFood, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
@@ -25334,10 +25346,10 @@ $packages["."] = (function() {
 					/* */ $s = 9; continue;
 					/* if (_selection[0] === 0) { */ case 8:
 						g.Player.move($pkg.DIRECTION);
-						$r = g.foodCollisionDetection(); /* */ $s = 10; case 10: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-						if (g.boundsCollisionDetection()) {
+						if (g.boundsCollisionDetection() || g.snakeEatsSnakeDetection()) {
 							g.CurrentState = 1;
 						}
+						$r = g.foodCollisionDetection(); /* */ $s = 10; case 10: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 					/* } */ case 9:
 					$s = 6; continue;
 				/* } else { */ case 5:
@@ -25358,6 +25370,7 @@ $packages["."] = (function() {
 		/* if ($equal(($clone(g.Food, Point)), (x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point)) { */ case 1:
 			g.Player.positions = $append(g.Player.positions, ($clone(g.Food, Point)));
 			g.Player.length = g.Player.length + (1) >> 0;
+			g.Score = g.Score + (1000) >> 0;
 			$r = g.SpawnFood(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		/* } */ case 2:
 		$s = -1; return;
@@ -25374,6 +25387,23 @@ $packages["."] = (function() {
 		return x$2 < 0 || x$2 >= g.TileColumns || y < 0 || y > g.TileColumns;
 	};
 	Game.prototype.boundsCollisionDetection = function() { return this.$val.boundsCollisionDetection(); };
+	Game.ptr.prototype.snakeEatsSnakeDetection = function() {
+		var _i, _ref, bodyPart, g, head, x;
+		g = this;
+		head = $clone((x = g.Player.positions, (0 >= x.$length ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + 0])), Point);
+		_ref = $subslice(g.Player.positions, 1);
+		_i = 0;
+		while (true) {
+			if (!(_i < _ref.$length)) { break; }
+			bodyPart = $clone(((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]), Point);
+			if ($equal(bodyPart, head, Point)) {
+				return true;
+			}
+			_i++;
+		}
+		return false;
+	};
+	Game.prototype.snakeEatsSnakeDetection = function() { return this.$val.snakeEatsSnakeDetection(); };
 	render = function(g) {
 		var _1, g, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25381,29 +25411,54 @@ $packages["."] = (function() {
 			/* */ if (_1 === (0)) { $s = 2; continue; }
 			/* */ $s = 3; continue;
 			/* if (_1 === (0)) { */ case 2:
-				renderRunning(g);
+				$r = renderRunning(g); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 				$s = 4; continue;
 			/* } else { */ case 3:
-				$r = renderGameOver(g); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+				$r = renderGameOver(g); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			/* } */ case 4:
 		case 1:
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: render }; } $f._1 = _1; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	renderGameOver = function(g) {
-		var _r, g, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var _r, _r$1, _tmp, _tmp$1, centreX, centreY, ctx, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; centreX = $f.centreX; centreY = $f.centreY; ctx = $f.ctx; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		_r = fmt.Println(new sliceType$1([new $String("rendering game over screen")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		renderBackground(g);
+		ctx = g.Canvas.getContext($externalize("2d", $String));
+		ctx.font = $externalize("50px Arial", $String);
+		ctx.fillStyle = $externalize("#fff", $String);
+		_tmp = g.Width / 2;
+		_tmp$1 = g.Height / 2;
+		centreX = _tmp;
+		centreY = _tmp$1;
+		_r$1 = fmt.Sprintf("Game Over! %v points", new sliceType$1([new $Int(g.Score)])); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+		ctx.fillText($externalize(_r$1, $String), centreX, centreY);
+		ctx.fillText($externalize("Press space to continue!", $String), centreX, centreY + 50);
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: renderGameOver }; } $f._r = _r; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: renderGameOver }; } $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.centreX = centreX; $f.centreY = centreY; $f.ctx = ctx; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	renderRunning = function(g) {
-		var g;
+		var g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		renderBackground(g);
 		renderPlayer(g);
 		renderFood(g);
+		$r = renderScore(g); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: renderRunning }; } $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	renderScore = function(g) {
+		var _r, ctx, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; ctx = $f.ctx; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		ctx = g.Canvas.getContext($externalize("2d", $String));
+		ctx.font = $externalize("20px Arial", $String);
+		ctx.fillStyle = $externalize("#fff", $String);
+		_r = fmt.Sprintf("Score: %v", new sliceType$1([new $Int(g.Score)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		ctx.fillText($externalize(_r, $String), 10, 50);
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: renderScore }; } $f._r = _r; $f.ctx = ctx; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	renderBackground = function(g) {
 		var ctx, g;
