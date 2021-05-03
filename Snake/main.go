@@ -199,6 +199,9 @@ func gameLoop(g *Game) {
 					g.CurrentState = GAME_OVER
 				}
 			}
+		default:
+			// clear the buffers
+			_ = <-moveLoop
 		}
 	}
 }
@@ -230,6 +233,20 @@ func (g *Game) snakeEatsSnakeDetection() bool {
 
 // main render loop
 func render(g *Game) {
+	switch g.CurrentState {
+	case RUNNING:
+		renderRunning(g)
+	default:
+		renderGameOver(g)
+	}
+}
+
+func renderGameOver(g *Game) {
+	fmt.Println("rendering game over screen")
+	renderBackground(g)
+}
+
+func renderRunning(g *Game) {
 	renderBackground(g)
 	renderPlayer(g)
 	renderFood(g)

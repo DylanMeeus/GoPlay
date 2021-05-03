@@ -25119,7 +25119,7 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, time, GameState, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderBackground, renderPlayer, renderFood, main;
+	var $pkg = {}, $init, fmt, js, rand, time, GameState, direction, Point, Food, Square, Snake, Game, sliceType, sliceType$1, ptrType, funcType, ptrType$1, ptrType$2, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderBackground, renderPlayer, renderFood, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
@@ -25310,38 +25310,44 @@ $packages["."] = (function() {
 		/* while (true) { */ case 3:
 			_r$1 = $select([[fps]]); /* */ $s = 5; case 5: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 			_selection = _r$1;
-			if (_selection[0] === 0) {
-				render(g);
-			}
+			/* */ if (_selection[0] === 0) { $s = 6; continue; }
+			/* */ $s = 7; continue;
+			/* if (_selection[0] === 0) { */ case 6:
+				$r = render(g); /* */ $s = 8; case 8: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+			/* } */ case 7:
 		/* } */ $s = 3; continue; case 4:
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.fps = fps; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	gameLoop = function(g) {
-		var _1, _r, _selection, g, moveLoop, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; _r = $f._r; _selection = $f._selection; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var _1, _r, _r$1, _selection, g, moveLoop, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; _r = $f._r; _r$1 = $f._r$1; _selection = $f._selection; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		moveLoop = time.Tick(new time.Duration(0, 50000000));
 		/* while (true) { */ case 1:
 				_1 = g.CurrentState;
 				/* */ if (_1 === (0)) { $s = 4; continue; }
 				/* */ $s = 5; continue;
 				/* if (_1 === (0)) { */ case 4:
-					_r = $select([[moveLoop]]); /* */ $s = 6; case 6: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+					_r = $select([[moveLoop]]); /* */ $s = 7; case 7: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 					_selection = _r;
-					/* */ if (_selection[0] === 0) { $s = 7; continue; }
-					/* */ $s = 8; continue;
-					/* if (_selection[0] === 0) { */ case 7:
+					/* */ if (_selection[0] === 0) { $s = 8; continue; }
+					/* */ $s = 9; continue;
+					/* if (_selection[0] === 0) { */ case 8:
 						g.Player.move($pkg.DIRECTION);
-						$r = g.foodCollisionDetection(); /* */ $s = 9; case 9: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+						$r = g.foodCollisionDetection(); /* */ $s = 10; case 10: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 						if (g.boundsCollisionDetection()) {
 							g.CurrentState = 1;
 						}
-					/* } */ case 8:
-				/* } */ case 5:
+					/* } */ case 9:
+					$s = 6; continue;
+				/* } else { */ case 5:
+					_r$1 = $recv(moveLoop); /* */ $s = 11; case 11: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+					$unused(_r$1[0]);
+				/* } */ case 6:
 			case 3:
 		/* } */ $s = 1; continue; case 2:
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._selection = _selection; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	Game.ptr.prototype.foodCollisionDetection = function() {
 		var g, x, $s, $r;
@@ -25369,6 +25375,31 @@ $packages["."] = (function() {
 	};
 	Game.prototype.boundsCollisionDetection = function() { return this.$val.boundsCollisionDetection(); };
 	render = function(g) {
+		var _1, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+			_1 = g.CurrentState;
+			/* */ if (_1 === (0)) { $s = 2; continue; }
+			/* */ $s = 3; continue;
+			/* if (_1 === (0)) { */ case 2:
+				renderRunning(g);
+				$s = 4; continue;
+			/* } else { */ case 3:
+				$r = renderGameOver(g); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+			/* } */ case 4:
+		case 1:
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: render }; } $f._1 = _1; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	renderGameOver = function(g) {
+		var _r, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		_r = fmt.Println(new sliceType$1([new $String("rendering game over screen")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r;
+		renderBackground(g);
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: renderGameOver }; } $f._r = _r; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	renderRunning = function(g) {
 		var g;
 		renderBackground(g);
 		renderPlayer(g);
