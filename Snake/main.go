@@ -47,7 +47,8 @@ const (
 )
 
 var (
-	DIRECTION = direction(RIGHT)
+	DIRECTION        = direction(RIGHT)
+	SPACEBAR_PRESSED = false
 )
 
 type Point struct {
@@ -140,7 +141,7 @@ func setupGame() *Game {
 	body.Call("appendChild", canvas)
 	return &Game{
 		Player: Snake{
-			positions: []Point{{5, 5}},
+			positions: []Point{{5, 5}, {4, 5}},
 			velocity:  Point{1, 0},
 		},
 		Canvas:       canvas,
@@ -159,13 +160,23 @@ func keyPressEvent(e *js.Object) {
 	fmt.Println(e.Get("keyCode"))
 	switch e.Get("keyCode").String() {
 	case "65": // left
-		DIRECTION = LEFT
+		if DIRECTION != RIGHT {
+			DIRECTION = LEFT
+		}
 	case "68": // right
-		DIRECTION = RIGHT
+		if DIRECTION != LEFT {
+			DIRECTION = RIGHT
+		}
 	case "87": // up
-		DIRECTION = UP
+		if DIRECTION != DOWN {
+			DIRECTION = UP
+		}
 	case "83": // down
-		DIRECTION = DOWN
+		if DIRECTION != UP {
+			DIRECTION = DOWN
+		}
+	case "32":
+		SPACEBAR_PRESSED = true
 	}
 }
 
@@ -200,10 +211,27 @@ func gameLoop(g *Game) {
 				}
 				g.foodCollisionDetection()
 			}
+		case GAME_OVER:
+			_ = <-moveLoop
+			g.pauseScreenLoop()
 		default:
 			// clear the buffers
 			_ = <-moveLoop
 		}
+	}
+}
+
+func (g *Game) resetGame() {
+	g.Canvas.Call("remove")
+	DIRECTION = RIGHT
+	run()
+}
+
+func (g *Game) pauseScreenLoop() {
+	if SPACEBAR_PRESSED {
+		SPACEBAR_PRESSED = false
+		g.resetGame()
+
 	}
 }
 
@@ -267,6 +295,7 @@ func renderScore(g *Game) {
 	ctx.Set("font", "20px Arial")
 	ctx.Set("fillStyle", "#fff")
 	ctx.Call("fillText", fmt.Sprintf("Score: %v", g.Score), 10, 50)
+	ctx.Call("fillText", "use WASD to move", 10, 75)
 }
 
 func renderBackground(g *Game) {

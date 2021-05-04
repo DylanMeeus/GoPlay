@@ -25290,7 +25290,7 @@ $packages["."] = (function() {
 		canvasCtx.fillRect(0, 0, w, h);
 		$global.document.addEventListener($externalize("keydown", $String), $externalize(keyPressEvent, funcType), $externalize(true, $Bool));
 		body.appendChild(canvas);
-		$s = -1; return new Game.ptr(0, 0, new Snake.ptr(new sliceType([new Point.ptr(5, 5)]), new Point.ptr(1, 0), 0), new Food.ptr(0, 0), w / (rows), h / (columns), rows, columns, w, h, canvas);
+		$s = -1; return new Game.ptr(0, 0, new Snake.ptr(new sliceType([new Point.ptr(5, 5), new Point.ptr(4, 5)]), new Point.ptr(1, 0), 0), new Food.ptr(0, 0), w / (rows), h / (columns), rows, columns, w, h, canvas);
 		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	keyPressEvent = function(e) {
@@ -25300,13 +25300,23 @@ $packages["."] = (function() {
 		_r;
 		_1 = $internalize(e.keyCode, $String);
 		if (_1 === ("65")) {
-			$pkg.DIRECTION = 2;
+			if (!(($pkg.DIRECTION === 3))) {
+				$pkg.DIRECTION = 2;
+			}
 		} else if (_1 === ("68")) {
-			$pkg.DIRECTION = 3;
+			if (!(($pkg.DIRECTION === 2))) {
+				$pkg.DIRECTION = 3;
+			}
 		} else if (_1 === ("87")) {
-			$pkg.DIRECTION = 0;
+			if (!(($pkg.DIRECTION === 1))) {
+				$pkg.DIRECTION = 0;
+			}
 		} else if (_1 === ("83")) {
-			$pkg.DIRECTION = 1;
+			if (!(($pkg.DIRECTION === 0))) {
+				$pkg.DIRECTION = 1;
+			}
+		} else if (_1 === ("32")) {
+			$pkg.SPACEBAR_PRESSED = true;
 		}
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: keyPressEvent }; } $f._1 = _1; $f._r = _r; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
@@ -25332,35 +25342,66 @@ $packages["."] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: run }; } $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.fps = fps; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	gameLoop = function(g) {
-		var _1, _r, _r$1, _selection, g, moveLoop, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; _r = $f._r; _r$1 = $f._r$1; _selection = $f._selection; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var _1, _r, _r$1, _r$2, _selection, g, moveLoop, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _1 = $f._1; _r = $f._r; _r$1 = $f._r$1; _r$2 = $f._r$2; _selection = $f._selection; g = $f.g; moveLoop = $f.moveLoop; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		moveLoop = time.Tick(new time.Duration(0, 50000000));
 		/* while (true) { */ case 1:
 				_1 = g.CurrentState;
 				/* */ if (_1 === (0)) { $s = 4; continue; }
-				/* */ $s = 5; continue;
+				/* */ if (_1 === (1)) { $s = 5; continue; }
+				/* */ $s = 6; continue;
 				/* if (_1 === (0)) { */ case 4:
-					_r = $select([[moveLoop]]); /* */ $s = 7; case 7: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+					_r = $select([[moveLoop]]); /* */ $s = 8; case 8: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 					_selection = _r;
-					/* */ if (_selection[0] === 0) { $s = 8; continue; }
-					/* */ $s = 9; continue;
-					/* if (_selection[0] === 0) { */ case 8:
+					/* */ if (_selection[0] === 0) { $s = 9; continue; }
+					/* */ $s = 10; continue;
+					/* if (_selection[0] === 0) { */ case 9:
 						g.Player.move($pkg.DIRECTION);
 						if (g.boundsCollisionDetection() || g.snakeEatsSnakeDetection()) {
 							g.CurrentState = 1;
 						}
-						$r = g.foodCollisionDetection(); /* */ $s = 10; case 10: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-					/* } */ case 9:
-					$s = 6; continue;
-				/* } else { */ case 5:
-					_r$1 = $recv(moveLoop); /* */ $s = 11; case 11: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+						$r = g.foodCollisionDetection(); /* */ $s = 11; case 11: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+					/* } */ case 10:
+					$s = 7; continue;
+				/* } else if (_1 === (1)) { */ case 5:
+					_r$1 = $recv(moveLoop); /* */ $s = 12; case 12: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 					$unused(_r$1[0]);
-				/* } */ case 6:
+					$r = g.pauseScreenLoop(); /* */ $s = 13; case 13: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+					$s = 7; continue;
+				/* } else { */ case 6:
+					_r$2 = $recv(moveLoop); /* */ $s = 14; case 14: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+					$unused(_r$2[0]);
+				/* } */ case 7:
 			case 3:
 		/* } */ $s = 1; continue; case 2:
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._selection = _selection; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._selection = _selection; $f.g = g; $f.moveLoop = moveLoop; $f.$s = $s; $f.$r = $r; return $f;
 	};
+	Game.ptr.prototype.resetGame = function() {
+		var g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		g = this;
+		g.Canvas.remove();
+		$pkg.DIRECTION = 3;
+		$r = run(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.resetGame }; } $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Game.prototype.resetGame = function() { return this.$val.resetGame(); };
+	Game.ptr.prototype.pauseScreenLoop = function() {
+		var g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		g = this;
+		/* */ if ($pkg.SPACEBAR_PRESSED) { $s = 1; continue; }
+		/* */ $s = 2; continue;
+		/* if ($pkg.SPACEBAR_PRESSED) { */ case 1:
+			$pkg.SPACEBAR_PRESSED = false;
+			$r = g.resetGame(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* } */ case 2:
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.pauseScreenLoop }; } $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Game.prototype.pauseScreenLoop = function() { return this.$val.pauseScreenLoop(); };
 	Game.ptr.prototype.foodCollisionDetection = function() {
 		var g, x, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; x = $f.x; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25457,6 +25498,7 @@ $packages["."] = (function() {
 		ctx.fillStyle = $externalize("#fff", $String);
 		_r = fmt.Sprintf("Score: %v", new sliceType$1([new $Int(g.Score)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		ctx.fillText($externalize(_r, $String), 10, 50);
+		ctx.fillText($externalize("use WASD to move", $String), 10, 75);
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: renderScore }; } $f._r = _r; $f.ctx = ctx; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
@@ -25498,7 +25540,7 @@ $packages["."] = (function() {
 	direction.methods = [{prop: "ToVelocity", name: "ToVelocity", pkg: "", typ: $funcType([], [Point], false)}];
 	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$1], [Square], false)}];
 	ptrType$2.methods = [{prop: "move", name: "move", pkg: ".", typ: $funcType([direction], [], false)}];
-	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "foodCollisionDetection", name: "foodCollisionDetection", pkg: ".", typ: $funcType([], [], false)}, {prop: "boundsCollisionDetection", name: "boundsCollisionDetection", pkg: ".", typ: $funcType([], [$Bool], false)}, {prop: "snakeEatsSnakeDetection", name: "snakeEatsSnakeDetection", pkg: ".", typ: $funcType([], [$Bool], false)}];
+	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}, {prop: "foodCollisionDetection", name: "foodCollisionDetection", pkg: ".", typ: $funcType([], [], false)}, {prop: "boundsCollisionDetection", name: "boundsCollisionDetection", pkg: ".", typ: $funcType([], [$Bool], false)}, {prop: "snakeEatsSnakeDetection", name: "snakeEatsSnakeDetection", pkg: ".", typ: $funcType([], [$Bool], false)}];
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	Food.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	Square.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "w", name: "w", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "h", name: "h", embedded: false, exported: false, typ: $Float64, tag: ""}]);
@@ -25512,6 +25554,7 @@ $packages["."] = (function() {
 		$r = rand.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = time.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.DIRECTION = 3;
+		$pkg.SPACEBAR_PRESSED = false;
 		/* */ if ($pkg === $mainPkg) { $s = 5; continue; }
 		/* */ $s = 6; continue;
 		/* if ($pkg === $mainPkg) { */ case 5:
