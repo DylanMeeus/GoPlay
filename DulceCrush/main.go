@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	SNAKE_MOVE_INTERVAL = 50
-	FOOD_VALUE          = 1000
+	// POLLING_INTERVAL to check for user input??
+	POLLING_INTERVAL = 100
 )
 
 type GameState int
@@ -21,41 +21,13 @@ const (
 	PAUSE
 )
 
-type direction int
-
-func (d direction) ToVelocity() Point {
-	switch d {
-	case UP:
-		return Point{0, -1}
-	case DOWN:
-		return Point{0, 1}
-	case LEFT:
-		return Point{-1, 0}
-	case RIGHT:
-		return Point{1, 0}
-	default:
-		return Point{0, 1}
-
-	}
-}
-
-const (
-	UP direction = iota
-	DOWN
-	LEFT
-	RIGHT
-)
-
 var (
-	DIRECTION        = direction(RIGHT)
 	SPACEBAR_PRESSED = false
 )
 
 type Point struct {
 	x, y int
 }
-
-type Food Point
 
 type Square struct {
 	x, y, w, h float64
@@ -72,29 +44,9 @@ func (p Point) ToCanvasSquare(g *Game) Square {
 	}
 }
 
-type Snake struct {
-	positions []Point
-	velocity  Point
-	length    int
-}
-
-func (s *Snake) move(d direction) {
-	// take one from the tail, and stick it in the front?
-	s.velocity = d.ToVelocity()
-	head := s.positions[0]
-	//tail := s.positions[len(s.positions)-1]
-	//fmt.Printf("%v\n", tail)
-	newHead := Point{head.x + s.velocity.x, head.y + s.velocity.y}
-
-	s.positions = append([]Point{newHead}, s.positions...)
-	s.positions = s.positions[:len(s.positions)-1]
-}
-
 type Game struct {
 	CurrentState GameState
 	Score        int
-	Player       Snake
-	Food         Food
 	TileWidth    float64
 	TileHeight   float64
 	TileRows     int
@@ -111,7 +63,7 @@ func (g *Game) SpawnFood() {
 	// TODO: make sure the player is not on the food already
 
 	x, y := rand.Intn(maxX), rand.Intn(maxY)
-	g.Food = Food{x, y}
+	_, _ = x, y
 }
 
 func setupGame() *Game {
@@ -140,10 +92,6 @@ func setupGame() *Game {
 	// Call runs a function against the object
 	body.Call("appendChild", canvas)
 	return &Game{
-		Player: Snake{
-			positions: []Point{{5, 5}, {4, 5}},
-			velocity:  Point{1, 0},
-		},
 		Canvas:       canvas,
 		TileWidth:    w / float64(rows),
 		TileHeight:   h / float64(columns),
@@ -158,27 +106,9 @@ func setupGame() *Game {
 
 func keyPressEvent(e *js.Object) {
 	fmt.Println(e.Get("keyCode"))
-	switch e.Get("keyCode").String() {
-	case "65": // left
-		if DIRECTION != RIGHT {
-			DIRECTION = LEFT
-		}
-	case "68": // right
-		if DIRECTION != LEFT {
-			DIRECTION = RIGHT
-		}
-	case "87": // up
-		if DIRECTION != DOWN {
-			DIRECTION = UP
-		}
-	case "83": // down
-		if DIRECTION != UP {
-			DIRECTION = DOWN
-		}
-	case "32":
-		SPACEBAR_PRESSED = true
-	}
 }
+
+// TODO: mouse events
 
 func run() {
 	g := setupGame()
@@ -197,26 +127,20 @@ func run() {
 
 // main game loop
 func gameLoop(g *Game) {
-	moveLoop := time.Tick(SNAKE_MOVE_INTERVAL * time.Millisecond)
+	actionLoop := time.Tick(POLLING_INTERVAL * time.Millisecond)
 	for {
 		switch g.CurrentState {
 		case RUNNING:
 			select {
-			case <-moveLoop:
+			case <-actionLoop:
 				// todo: add snake state here (dead || alive)
-				g.Player.move(DIRECTION)
-				if g.boundsCollisionDetection() || g.snakeEatsSnakeDetection() {
-					// end game
-					g.CurrentState = GAME_OVER
-				}
-				g.foodCollisionDetection()
 			}
 		case GAME_OVER:
-			_ = <-moveLoop
+			_ = <-actionLoop
 			g.pauseScreenLoop()
 		default:
 			// clear the buffers
-			_ = <-moveLoop
+			_ = <-actionLoop
 		}
 	}
 }
