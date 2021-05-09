@@ -72,6 +72,11 @@ func (c *ClickBuffer) Len() (count int) {
 	return
 }
 
+// Empty the buffer by resetting to default zero values
+func (c *ClickBuffer) Empty() {
+	c[0], c[1] = PixelPoint{}, PixelPoint{}
+}
+
 type Square struct {
 	x, y, w, h float64
 }
@@ -213,6 +218,7 @@ func gameLoop(g *Game) {
 		case RUNNING:
 			select {
 			case <-actionLoop:
+				g.processInputBuffer()
 				// todo: add snake state here (dead || alive)
 			}
 		case GAME_OVER:
@@ -223,6 +229,15 @@ func gameLoop(g *Game) {
 			_ = <-actionLoop
 		}
 	}
+}
+
+// proccesInputBuffer checks the input buffer
+// and takes appropriate actions
+func (g *Game) processInputBuffer() {
+	if clickBuffer.Len() == 2 {
+		clickBuffer.Empty()
+	}
+	fmt.Printf("buf: %v\n", clickBuffer)
 }
 
 func (g *Game) resetGame() {

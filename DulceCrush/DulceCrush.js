@@ -25493,6 +25493,32 @@ $packages["."] = (function() {
 		}
 	};
 	$ptrType(ClickBuffer).prototype.Push = function(p) { return (new ClickBuffer(this.$get())).Push(p); };
+	ClickBuffer.prototype.Len = function() {
+		var _i, _ref, c, count, p;
+		count = 0;
+		c = this.$val;
+		_ref = c;
+		_i = 0;
+		while (true) {
+			if (!(_i < 2)) { break; }
+			p = $clone((_ref.nilCheck, ((_i < 0 || _i >= _ref.length) ? ($throwRuntimeError("index out of range"), undefined) : _ref[_i])), PixelPoint);
+			if (!($equal(p, (new PixelPoint.ptr(0, 0)), PixelPoint))) {
+				count = count + (1) >> 0;
+			}
+			_i++;
+		}
+		return count;
+	};
+	$ptrType(ClickBuffer).prototype.Len = function() { return (new ClickBuffer(this.$get())).Len(); };
+	ClickBuffer.prototype.Empty = function() {
+		var _tmp, _tmp$1, c;
+		c = this.$val;
+		_tmp = new PixelPoint.ptr(0, 0);
+		_tmp$1 = new PixelPoint.ptr(0, 0);
+		PixelPoint.copy((c.nilCheck, c[0]), _tmp);
+		PixelPoint.copy((c.nilCheck, c[1]), _tmp$1);
+	};
+	$ptrType(ClickBuffer).prototype.Empty = function() { return (new ClickBuffer(this.$get())).Empty(); };
 	Point.ptr.prototype.ToCanvasSquare = function(g) {
 		var g, p, x, y;
 		p = this;
@@ -25633,16 +25659,19 @@ $packages["."] = (function() {
 				/* if (_1 === (0)) { */ case 4:
 					_r = $select([[actionLoop]]); /* */ $s = 8; case 8: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 					_selection = _r;
-					if (_selection[0] === 0) {
-					}
+					/* */ if (_selection[0] === 0) { $s = 9; continue; }
+					/* */ $s = 10; continue;
+					/* if (_selection[0] === 0) { */ case 9:
+						$r = g.processInputBuffer(); /* */ $s = 11; case 11: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+					/* } */ case 10:
 					$s = 7; continue;
 				/* } else if (_1 === (1)) { */ case 5:
-					_r$1 = $recv(actionLoop); /* */ $s = 9; case 9: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+					_r$1 = $recv(actionLoop); /* */ $s = 12; case 12: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 					$unused(_r$1[0]);
 					g.pauseScreenLoop();
 					$s = 7; continue;
 				/* } else { */ case 6:
-					_r$2 = $recv(actionLoop); /* */ $s = 10; case 10: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+					_r$2 = $recv(actionLoop); /* */ $s = 13; case 13: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 					$unused(_r$2[0]);
 				/* } */ case 7:
 			case 3:
@@ -25650,6 +25679,19 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._selection = _selection; $f.actionLoop = actionLoop; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
+	Game.ptr.prototype.processInputBuffer = function() {
+		var _r, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		g = this;
+		if (new ptrType$1(clickBuffer).Len() === 2) {
+			new ptrType$1(clickBuffer).Empty();
+		}
+		_r = fmt.Printf("buf: %v\n", new sliceType$2([new ClickBuffer(clickBuffer)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r;
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.processInputBuffer }; } $f._r = _r; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Game.prototype.processInputBuffer = function() { return this.$val.processInputBuffer(); };
 	Game.ptr.prototype.resetGame = function() {
 		var g;
 		g = this;
@@ -25752,8 +25794,8 @@ $packages["."] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$2], [Square], false)}];
-	ptrType$1.methods = [{prop: "Push", name: "Push", pkg: "", typ: $funcType([PixelPoint], [], false)}];
-	ptrType$2.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
+	ptrType$1.methods = [{prop: "Push", name: "Push", pkg: "", typ: $funcType([PixelPoint], [], false)}, {prop: "Len", name: "Len", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Empty", name: "Empty", pkg: "", typ: $funcType([], [], false)}];
+	ptrType$2.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "processInputBuffer", name: "processInputBuffer", pkg: ".", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
 	Board.init(sliceType);
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	PixelPoint.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
