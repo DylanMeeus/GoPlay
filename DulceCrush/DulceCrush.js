@@ -25131,16 +25131,42 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, time, GameState, Game, sliceType, ptrType, funcType, ptrType$1, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderPlayer, main;
+	var $pkg = {}, $init, fmt, js, rand, time, GameState, Board, Point, Square, Game, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, NewBoard, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
 	time = $packages["time"];
 	GameState = $pkg.GameState = $newType(4, $kindInt, "main.GameState", true, ".", true, null);
-	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(CurrentState_, Score_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Width_, Height_, Canvas_) {
+	Board = $pkg.Board = $newType(12, $kindSlice, "main.Board", true, ".", true, null);
+	Point = $pkg.Point = $newType(0, $kindStruct, "main.Point", true, ".", true, function(x_, y_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.x = 0;
+			this.y = 0;
+			return;
+		}
+		this.x = x_;
+		this.y = y_;
+	});
+	Square = $pkg.Square = $newType(0, $kindStruct, "main.Square", true, ".", true, function(x_, y_, w_, h_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.x = 0;
+			this.y = 0;
+			this.w = 0;
+			this.h = 0;
+			return;
+		}
+		this.x = x_;
+		this.y = y_;
+		this.w = w_;
+		this.h = h_;
+	});
+	Game = $pkg.Game = $newType(0, $kindStruct, "main.Game", true, ".", true, function(CurrentState_, Board_, Score_, TileWidth_, TileHeight_, TileRows_, TileColumns_, Width_, Height_, Canvas_) {
 		this.$val = this;
 		if (arguments.length === 0) {
 			this.CurrentState = 0;
+			this.Board = Board.nil;
 			this.Score = 0;
 			this.TileWidth = 0;
 			this.TileHeight = 0;
@@ -25152,6 +25178,7 @@ $packages["."] = (function() {
 			return;
 		}
 		this.CurrentState = CurrentState_;
+		this.Board = Board_;
 		this.Score = Score_;
 		this.TileWidth = TileWidth_;
 		this.TileHeight = TileHeight_;
@@ -25161,10 +25188,20 @@ $packages["."] = (function() {
 		this.Height = Height_;
 		this.Canvas = Canvas_;
 	});
-	sliceType = $sliceType($emptyInterface);
+	sliceType = $sliceType($Int);
+	sliceType$1 = $sliceType(sliceType);
+	sliceType$2 = $sliceType($emptyInterface);
 	ptrType = $ptrType(js.Object);
 	funcType = $funcType([ptrType], [], false);
 	ptrType$1 = $ptrType(Game);
+	Point.ptr.prototype.ToCanvasSquare = function(g) {
+		var g, p, x, y;
+		p = this;
+		x = (p.x) * g.TileWidth;
+		y = (p.y) * g.TileHeight;
+		return new Square.ptr(x, y, g.TileWidth, g.TileHeight);
+	};
+	Point.prototype.ToCanvasSquare = function(g) { return this.$val.ToCanvasSquare(g); };
 	Game.ptr.prototype.SpawnFood = function() {
 		var _r, _r$1, _tmp, _tmp$1, _tmp$2, _tmp$3, g, maxX, maxY, x, y, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tmp$2 = $f._tmp$2; _tmp$3 = $f._tmp$3; g = $f.g; maxX = $f.maxX; maxY = $f.maxY; x = $f.x; y = $f.y; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25183,16 +25220,49 @@ $packages["."] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.SpawnFood }; } $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tmp$2 = _tmp$2; $f._tmp$3 = _tmp$3; $f.g = g; $f.maxX = maxX; $f.maxY = maxY; $f.x = x; $f.y = y; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	Game.prototype.SpawnFood = function() { return this.$val.SpawnFood(); };
+	NewBoard = function(rows, columns) {
+		var b, columns, i, rows;
+		b = $makeSlice(sliceType$1, rows);
+		i = 0;
+		while (true) {
+			if (!(i < b.$length)) { break; }
+			((i < 0 || i >= b.$length) ? ($throwRuntimeError("index out of range"), undefined) : b.$array[b.$offset + i] = $makeSlice(sliceType, columns));
+			i = i + (1) >> 0;
+		}
+		return $subslice(new Board(b.$array), b.$offset, b.$offset + b.$length);
+	};
+	$pkg.NewBoard = NewBoard;
+	Game.ptr.prototype.PopulateBoard = function() {
+		var _r, candy, g, i, j, x, x$1, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; candy = $f.candy; g = $f.g; i = $f.i; j = $f.j; x = $f.x; x$1 = $f.x$1; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		g = this;
+		i = 0;
+		/* while (true) { */ case 1:
+			/* if (!(i < g.TileRows)) { break; } */ if(!(i < g.TileRows)) { $s = 2; continue; }
+			j = 0;
+			/* while (true) { */ case 3:
+				/* if (!(j < g.TileColumns)) { break; } */ if(!(j < g.TileColumns)) { $s = 4; continue; }
+				_r = rand.Intn($pkg.CandyN); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+				candy = _r;
+				(x = (x$1 = g.Board, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i])), ((j < 0 || j >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + j] = candy));
+				j = j + (1) >> 0;
+			/* } */ $s = 3; continue; case 4:
+			i = i + (1) >> 0;
+		/* } */ $s = 1; continue; case 2:
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.PopulateBoard }; } $f._r = _r; $f.candy = candy; $f.g = g; $f.i = i; $f.j = j; $f.x = x; $f.x$1 = x$1; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Game.prototype.PopulateBoard = function() { return this.$val.PopulateBoard(); };
 	setupGame = function() {
 		var _r, _tmp, _tmp$1, body, canvas, canvasCtx, columns, h, rows, w, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; body = $f.body; canvas = $f.canvas; canvasCtx = $f.canvasCtx; columns = $f.columns; h = $f.h; rows = $f.rows; w = $f.w; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		w = $parseFloat($global.innerWidth);
 		h = $parseFloat($global.innerHeight);
-		_tmp = 50;
-		_tmp$1 = 50;
+		_tmp = 9;
+		_tmp$1 = 9;
 		rows = _tmp;
 		columns = _tmp$1;
-		_r = fmt.Printf("%v %v\n", new sliceType([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = fmt.Printf("%v %v\n", new sliceType$2([new $Float64(w), new $Float64(h)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		body = $global.document.body;
 		canvas = $global.document.createElement($externalize("canvas", $String));
@@ -25203,13 +25273,13 @@ $packages["."] = (function() {
 		canvasCtx.fillRect(0, 0, w, h);
 		$global.document.addEventListener($externalize("keydown", $String), $externalize(keyPressEvent, funcType), $externalize(true, $Bool));
 		body.appendChild(canvas);
-		$s = -1; return new Game.ptr(0, 0, w / (rows), h / (columns), rows, columns, w, h, canvas);
+		$s = -1; return new Game.ptr(0, NewBoard(rows, columns), 0, w / (rows), h / (columns), rows, columns, w, h, canvas);
 		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	keyPressEvent = function(e) {
 		var _r, e, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = fmt.Println(new sliceType([new $jsObjectPtr(e.keyCode)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = fmt.Println(new sliceType$2([new $jsObjectPtr(e.keyCode)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: keyPressEvent }; } $f._r = _r; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
@@ -25219,7 +25289,7 @@ $packages["."] = (function() {
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _selection = $f._selection; fps = $f.fps; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		_r = setupGame(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		g = _r;
-		$r = g.SpawnFood(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = g.PopulateBoard(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$go(gameLoop, [g]);
 		fps = time.Tick(new time.Duration(0, 16666666));
 		/* while (true) { */ case 3:
@@ -25296,7 +25366,7 @@ $packages["."] = (function() {
 	renderGameOver = function(g) {
 		var _r, _r$1, _tmp, _tmp$1, centreX, centreY, ctx, g, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; centreX = $f.centreX; centreY = $f.centreY; ctx = $f.ctx; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		_r = fmt.Println(new sliceType([new $String("rendering game over screen")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = fmt.Println(new sliceType$2([new $String("rendering game over screen")])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		_r;
 		renderBackground(g);
 		ctx = g.Canvas.getContext($externalize("2d", $String));
@@ -25306,7 +25376,7 @@ $packages["."] = (function() {
 		_tmp$1 = g.Height / 2;
 		centreX = _tmp;
 		centreY = _tmp$1;
-		_r$1 = fmt.Sprintf("Game Over! %v points", new sliceType([new $Int(g.Score)])); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+		_r$1 = fmt.Sprintf("Game Over! %v points", new sliceType$2([new $Int(g.Score)])); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 		ctx.fillText($externalize(_r$1, $String), centreX, centreY);
 		ctx.fillText($externalize("Press space to continue!", $String), centreX, centreY + 50);
 		$s = -1; return;
@@ -25316,7 +25386,7 @@ $packages["."] = (function() {
 		var g, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		renderBackground(g);
-		renderPlayer(g);
+		renderBoard(g);
 		$r = renderScore(g); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: renderRunning }; } $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
@@ -25327,7 +25397,7 @@ $packages["."] = (function() {
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.font = $externalize("20px Arial", $String);
 		ctx.fillStyle = $externalize("#fff", $String);
-		_r = fmt.Sprintf("Score: %v", new sliceType([new $Int(g.Score)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r = fmt.Sprintf("Score: %v", new sliceType$2([new $Int(g.Score)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
 		ctx.fillText($externalize(_r, $String), 10, 50);
 		ctx.fillText($externalize("use WASD to move", $String), 10, 75);
 		$s = -1; return;
@@ -25339,10 +25409,23 @@ $packages["."] = (function() {
 		ctx.fillStyle = $externalize("#000", $String);
 		ctx.fillRect(0, 0, g.Width, g.Height);
 	};
-	renderPlayer = function(g) {
-		var ctx, g;
+	renderBoard = function(g) {
+		var _entry, ctx, g, i, j, sq, x, x$1;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.fillStyle = $externalize("white", $String);
+		i = 0;
+		while (true) {
+			if (!(i < g.TileRows)) { break; }
+			j = 0;
+			while (true) {
+				if (!(j < g.TileColumns)) { break; }
+				sq = $clone(new Point.ptr(i, j).ToCanvasSquare(g), Square);
+				ctx.fillStyle = $externalize((_entry = $pkg.CandyImage[$Int.keyFor((x = (x$1 = g.Board, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i])), ((j < 0 || j >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + j])))], _entry !== undefined ? _entry.v : ""), $String);
+				ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
+				j = j + (1) >> 0;
+			}
+			i = i + (1) >> 0;
+		}
 	};
 	main = function() {
 		var $s, $r;
@@ -25351,8 +25434,12 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
-	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
-	Game.init("", [{prop: "CurrentState", name: "CurrentState", embedded: false, exported: true, typ: GameState, tag: ""}, {prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
+	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$1], [Square], false)}];
+	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
+	Board.init(sliceType);
+	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
+	Square.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "w", name: "w", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "h", name: "h", embedded: false, exported: false, typ: $Float64, tag: ""}]);
+	Game.init("", [{prop: "CurrentState", name: "CurrentState", embedded: false, exported: true, typ: GameState, tag: ""}, {prop: "Board", name: "Board", embedded: false, exported: true, typ: Board, tag: ""}, {prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25361,6 +25448,8 @@ $packages["."] = (function() {
 		$r = rand.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = time.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
+		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 0, v: "red" }, { k: 1, v: "green" }, { k: 2, v: "blue" }, { k: 3, v: "white" }, { k: 4, v: "yellow" }, { k: 5, v: "orange" }]);
+		$pkg.CandyN = $keys($pkg.CandyImage).length;
 		/* */ if ($pkg === $mainPkg) { $s = 5; continue; }
 		/* */ $s = 6; continue;
 		/* if ($pkg === $mainPkg) { */ case 5:

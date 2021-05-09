@@ -25,6 +25,22 @@ var (
 	SPACEBAR_PRESSED = false
 )
 
+var (
+	// TODO: associate the candies with images instead of colours
+	CandyImage = map[int]string{
+		0: "red",
+		1: "green",
+		2: "blue",
+		3: "white",
+		4: "yellow",
+		5: "orange",
+	}
+
+	CandyN = len(CandyImage)
+)
+
+type Board [][]int
+
 type Point struct {
 	x, y int
 }
@@ -46,6 +62,7 @@ func (p Point) ToCanvasSquare(g *Game) Square {
 
 type Game struct {
 	CurrentState GameState
+	Board        Board
 	Score        int
 	TileWidth    float64
 	TileHeight   float64
@@ -66,10 +83,30 @@ func (g *Game) SpawnFood() {
 	_, _ = x, y
 }
 
+func NewBoard(rows, columns int) Board {
+	b := make([][]int, rows)
+
+	for i := 0; i < len(b); i++ {
+		b[i] = make([]int, columns)
+	}
+
+	return b
+}
+
+// Randomize enters random candies in the board
+func (g *Game) PopulateBoard() {
+	for i := 0; i < g.TileRows; i++ {
+		for j := 0; j < g.TileColumns; j++ {
+			candy := rand.Intn(CandyN)
+			g.Board[i][j] = candy
+		}
+	}
+}
+
 func setupGame() *Game {
 	w := js.Global.Get("innerWidth").Float()
 	h := js.Global.Get("innerHeight").Float()
-	rows, columns := 50, 50
+	rows, columns := 9, 9
 
 	fmt.Printf("%v %v\n", w, h)
 
@@ -93,6 +130,7 @@ func setupGame() *Game {
 	body.Call("appendChild", canvas)
 	return &Game{
 		Canvas:       canvas,
+		Board:        NewBoard(rows, columns),
 		TileWidth:    w / float64(rows),
 		TileHeight:   h / float64(columns),
 		TileRows:     rows,
@@ -112,7 +150,7 @@ func keyPressEvent(e *js.Object) {
 
 func run() {
 	g := setupGame()
-	g.SpawnFood()
+	g.PopulateBoard()
 	go gameLoop(g)
 
 	fps := time.Tick(1 * time.Second / 60)
@@ -180,7 +218,7 @@ func renderGameOver(g *Game) {
 
 func renderRunning(g *Game) {
 	renderBackground(g)
-	renderPlayer(g)
+	renderBoard(g)
 	renderScore(g)
 }
 
@@ -198,17 +236,18 @@ func renderBackground(g *Game) {
 	ctx.Call("fillRect", 0, 0, g.Width, g.Height)
 }
 
-func renderPlayer(g *Game) {
+func renderBoard(g *Game) {
 
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("fillStyle", "white")
 
-	/*
-		for _, point := range g.Player.positions {
-			sq := point.ToCanvasSquare(g)
+	for i := 0; i < g.TileRows; i++ {
+		for j := 0; j < g.TileColumns; j++ {
+			sq := Point{i, j}.ToCanvasSquare(g)
+			ctx.Set("fillStyle", CandyImage[g.Board[i][j]])
 			ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 		}
-	*/
+	}
 
 }
 
