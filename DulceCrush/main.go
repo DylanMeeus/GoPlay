@@ -146,43 +146,14 @@ func gameLoop(g *Game) {
 }
 
 func (g *Game) resetGame() {
-	g.Canvas.Call("remove")
-	DIRECTION = RIGHT
-	run()
+	// TODO: implement me
 }
 
 func (g *Game) pauseScreenLoop() {
 	if SPACEBAR_PRESSED {
 		SPACEBAR_PRESSED = false
 		g.resetGame()
-
 	}
-}
-
-func (g *Game) foodCollisionDetection() {
-	// if the player is on food, the player becomes longer
-	if Point(g.Food) == g.Player.positions[0] { // if the head touches the food
-		g.Player.positions = append(g.Player.positions, Point(g.Food))
-		g.Player.length++
-		g.Score += FOOD_VALUE
-		g.SpawnFood()
-	}
-}
-
-func (g *Game) boundsCollisionDetection() bool {
-	x, y := g.Player.positions[0].x, g.Player.positions[0].y
-	return (x < 0 || x >= g.TileColumns || y < 0 || y > g.TileColumns)
-}
-
-// fun function name, isn't it.
-func (g *Game) snakeEatsSnakeDetection() bool {
-	head := g.Player.positions[0]
-	for _, bodyPart := range g.Player.positions[1:] {
-		if bodyPart == head {
-			return true
-		}
-	}
-	return false
 }
 
 // main render loop
@@ -210,7 +181,6 @@ func renderGameOver(g *Game) {
 func renderRunning(g *Game) {
 	renderBackground(g)
 	renderPlayer(g)
-	renderFood(g)
 	renderScore(g)
 }
 
@@ -233,20 +203,12 @@ func renderPlayer(g *Game) {
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("fillStyle", "white")
 
-	for _, point := range g.Player.positions {
-		sq := point.ToCanvasSquare(g)
-		ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
-	}
-
-}
-
-func renderFood(g *Game) {
-	ctx := g.Canvas.Call("getContext", "2d")
-	foodColour := "#d13017" // kinda reddish, maybe like an apple
-	ctx.Set("fillStyle", foodColour)
-
-	sq := Point(g.Food).ToCanvasSquare(g)
-	ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
+	/*
+		for _, point := range g.Player.positions {
+			sq := point.ToCanvasSquare(g)
+			ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
+		}
+	*/
 
 }
 
