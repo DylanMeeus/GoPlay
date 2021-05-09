@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/gopherjs/gopherjs/js"
@@ -23,6 +24,8 @@ const (
 
 var (
 	SPACEBAR_PRESSED = false
+	// global buffer for handling player clicks
+	clickBuffer = ClickBuffer{}
 )
 
 var (
@@ -41,8 +44,32 @@ var (
 
 type Board [][]int
 
+// Point identifies a logical location on the board (81 tiles per game)
 type Point struct {
 	x, y int
+}
+
+// PixelPoint identifies a point by the pixel coordinates
+type PixelPoint Point
+
+type ClickBuffer [2]PixelPoint
+
+// Push an element to the pixel buffer
+func (c *ClickBuffer) Push(p PixelPoint) {
+	if c[0] == (PixelPoint{}) {
+		c[0] = p
+	} else {
+		c[1] = p
+	}
+}
+
+func (c *ClickBuffer) Len() (count int) {
+	for _, p := range c {
+		if p != (PixelPoint{}) {
+			count++
+		}
+	}
+	return
 }
 
 type Square struct {
@@ -58,6 +85,12 @@ func (p Point) ToCanvasSquare(g *Game) Square {
 		w: g.TileWidth,
 		h: g.TileHeight,
 	}
+}
+
+// CoordinatesToPoint returns the point located at the coordinates
+func CoordinatesToPoint(x, y int, g *Game) Point {
+
+	return Point{}
 }
 
 type Game struct {
@@ -125,6 +158,7 @@ func setupGame() *Game {
 
 	// attach event listener for keypresses
 	js.Global.Get("document").Call("addEventListener", "keydown", keyPressEvent, true)
+	js.Global.Get("document").Call("addEventListener", "click", mouseClickEvent, true)
 
 	// Call runs a function against the object
 	body.Call("appendChild", canvas)
@@ -140,6 +174,14 @@ func setupGame() *Game {
 		Score:        0,
 		CurrentState: RUNNING,
 	}
+}
+
+func mouseClickEvent(e *js.Object) {
+	clickX, clickY := e.Get("pageX").String(), e.Get("pageY").String()
+	x, _ := strconv.Atoi(clickX)
+	y, _ := strconv.Atoi(clickY)
+	clickBuffer.Push(PixelPoint{x, y})
+	fmt.Printf("%v\n", clickBuffer)
 }
 
 func keyPressEvent(e *js.Object) {

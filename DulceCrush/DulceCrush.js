@@ -5475,12 +5475,24 @@ $packages["unicode/utf8"] = (function() {
 	return $pkg;
 })();
 $packages["strconv"] = (function() {
-	var $pkg = {}, $init, errors, bytealg, math, bits, utf8, decimal, leftCheat, extFloat, floatInfo, decimalSlice, sliceType$3, sliceType$4, sliceType$5, arrayType$1, sliceType$6, arrayType$2, arrayType$3, ptrType$1, arrayType$4, arrayType$5, ptrType$2, ptrType$3, ptrType$4, optimize, leftcheats, powersOfTen, uint64pow10, float32info, float32info$24ptr, float64info, float64info$24ptr, isPrint16, isNotPrint16, isPrint32, isNotPrint32, isGraphic, lower, digitZero, trim, rightShift, prefixIsLessThan, leftShift, shouldRoundUp, frexp10Many, adjustLastDigitFixed, adjustLastDigit, AppendFloat, genericFtoa, bigFtoa, formatDigits, roundShortest, fmtE, fmtF, fmtB, fmtX, min, max, FormatInt, Itoa, small, formatBits, isPowerOfTwo, appendQuotedWith, appendQuotedRuneWith, appendEscapedRune, AppendQuote, AppendQuoteToASCII, AppendQuoteRune, AppendQuoteRuneToASCII, CanBackquote, unhex, UnquoteChar, Unquote, contains, bsearch16, bsearch32, IsPrint, isInGraphicList;
+	var $pkg = {}, $init, errors, bytealg, math, bits, utf8, NumError, decimal, leftCheat, extFloat, floatInfo, decimalSlice, sliceType$3, sliceType$4, sliceType$5, ptrType, arrayType$1, sliceType$6, arrayType$2, arrayType$3, ptrType$1, arrayType$4, arrayType$5, ptrType$2, ptrType$3, ptrType$4, optimize, leftcheats, powersOfTen, uint64pow10, float32info, float32info$24ptr, float64info, float64info$24ptr, isPrint16, isNotPrint16, isPrint32, isNotPrint32, isGraphic, lower, syntaxError, rangeError, baseError, bitSizeError, ParseUint, ParseInt, Atoi, underscoreOK, digitZero, trim, rightShift, prefixIsLessThan, leftShift, shouldRoundUp, frexp10Many, adjustLastDigitFixed, adjustLastDigit, AppendFloat, genericFtoa, bigFtoa, formatDigits, roundShortest, fmtE, fmtF, fmtB, fmtX, min, max, FormatInt, Itoa, small, formatBits, isPowerOfTwo, quoteWith, appendQuotedWith, appendQuotedRuneWith, appendEscapedRune, Quote, AppendQuote, AppendQuoteToASCII, AppendQuoteRune, AppendQuoteRuneToASCII, CanBackquote, unhex, UnquoteChar, Unquote, contains, bsearch16, bsearch32, IsPrint, isInGraphicList;
 	errors = $packages["errors"];
 	bytealg = $packages["internal/bytealg"];
 	math = $packages["math"];
 	bits = $packages["math/bits"];
 	utf8 = $packages["unicode/utf8"];
+	NumError = $pkg.NumError = $newType(0, $kindStruct, "strconv.NumError", true, "strconv", true, function(Func_, Num_, Err_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.Func = "";
+			this.Num = "";
+			this.Err = $ifaceNil;
+			return;
+		}
+		this.Func = Func_;
+		this.Num = Num_;
+		this.Err = Err_;
+	});
 	decimal = $pkg.decimal = $newType(0, $kindStruct, "strconv.decimal", true, "strconv", false, function(d_, nd_, dp_, neg_, trunc_) {
 		this.$val = this;
 		if (arguments.length === 0) {
@@ -5548,6 +5560,7 @@ $packages["strconv"] = (function() {
 	sliceType$3 = $sliceType(leftCheat);
 	sliceType$4 = $sliceType($Uint16);
 	sliceType$5 = $sliceType($Uint32);
+	ptrType = $ptrType(NumError);
 	arrayType$1 = $arrayType($Uint8, 800);
 	sliceType$6 = $sliceType($Uint8);
 	arrayType$2 = $arrayType($Uint8, 24);
@@ -5561,6 +5574,257 @@ $packages["strconv"] = (function() {
 	lower = function(c) {
 		var c;
 		return (c | 32) >>> 0;
+	};
+	NumError.ptr.prototype.Error = function() {
+		var _r, e, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; e = $f.e; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		e = this;
+		_r = e.Err.Error(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		$s = -1; return "strconv." + e.Func + ": " + "parsing " + Quote(e.Num) + ": " + _r;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: NumError.ptr.prototype.Error }; } $f._r = _r; $f.e = e; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	NumError.prototype.Error = function() { return this.$val.Error(); };
+	NumError.ptr.prototype.Unwrap = function() {
+		var e;
+		e = this;
+		return e.Err;
+	};
+	NumError.prototype.Unwrap = function() { return this.$val.Unwrap(); };
+	syntaxError = function(fn, str) {
+		var fn, str;
+		return new NumError.ptr(fn, str, $pkg.ErrSyntax);
+	};
+	rangeError = function(fn, str) {
+		var fn, str;
+		return new NumError.ptr(fn, str, $pkg.ErrRange);
+	};
+	baseError = function(fn, str, base) {
+		var base, fn, str;
+		return new NumError.ptr(fn, str, errors.New("invalid base " + Itoa(base)));
+	};
+	bitSizeError = function(fn, str, bitSize) {
+		var bitSize, fn, str;
+		return new NumError.ptr(fn, str, errors.New("invalid bit size " + Itoa(bitSize)));
+	};
+	ParseUint = function(s, base, bitSize) {
+		var _1, _i, _ref, base, base0, bitSize, c, cutoff, d, maxVal, n, n1, s, s0, underscores, x, x$1, x$2;
+		if (s === "") {
+			return [new $Uint64(0, 0), syntaxError("ParseUint", s)];
+		}
+		base0 = base === 0;
+		s0 = s;
+		if (2 <= base && base <= 36) {
+		} else if ((base === 0)) {
+			base = 10;
+			if (s.charCodeAt(0) === 48) {
+				if (s.length >= 3 && (lower(s.charCodeAt(1)) === 98)) {
+					base = 2;
+					s = $substring(s, 2);
+				} else if (s.length >= 3 && (lower(s.charCodeAt(1)) === 111)) {
+					base = 8;
+					s = $substring(s, 2);
+				} else if (s.length >= 3 && (lower(s.charCodeAt(1)) === 120)) {
+					base = 16;
+					s = $substring(s, 2);
+				} else {
+					base = 8;
+					s = $substring(s, 1);
+				}
+			}
+		} else {
+			return [new $Uint64(0, 0), baseError("ParseUint", s0, base)];
+		}
+		if (bitSize === 0) {
+			bitSize = 32;
+		} else if (bitSize < 0 || bitSize > 64) {
+			return [new $Uint64(0, 0), bitSizeError("ParseUint", s0, bitSize)];
+		}
+		cutoff = new $Uint64(0, 0);
+		_1 = base;
+		if (_1 === (10)) {
+			cutoff = new $Uint64(429496729, 2576980378);
+		} else if (_1 === (16)) {
+			cutoff = new $Uint64(268435456, 0);
+		} else {
+			cutoff = (x = $div64(new $Uint64(4294967295, 4294967295), (new $Uint64(0, base)), false), new $Uint64(x.$high + 0, x.$low + 1));
+		}
+		maxVal = (x$1 = $shiftLeft64(new $Uint64(0, 1), ((bitSize >>> 0))), new $Uint64(x$1.$high - 0, x$1.$low - 1));
+		underscores = false;
+		n = new $Uint64(0, 0);
+		_ref = (new sliceType$6($stringToBytes(s)));
+		_i = 0;
+		while (true) {
+			if (!(_i < _ref.$length)) { break; }
+			c = ((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]);
+			d = 0;
+			if ((c === 95) && base0) {
+				underscores = true;
+				_i++;
+				continue;
+			} else if (48 <= c && c <= 57) {
+				d = c - 48 << 24 >>> 24;
+			} else if (97 <= lower(c) && lower(c) <= 122) {
+				d = (lower(c) - 97 << 24 >>> 24) + 10 << 24 >>> 24;
+			} else {
+				return [new $Uint64(0, 0), syntaxError("ParseUint", s0)];
+			}
+			if (d >= ((base << 24 >>> 24))) {
+				return [new $Uint64(0, 0), syntaxError("ParseUint", s0)];
+			}
+			if ((n.$high > cutoff.$high || (n.$high === cutoff.$high && n.$low >= cutoff.$low))) {
+				return [maxVal, rangeError("ParseUint", s0)];
+			}
+			n = $mul64(n, ((new $Uint64(0, base))));
+			n1 = (x$2 = (new $Uint64(0, d)), new $Uint64(n.$high + x$2.$high, n.$low + x$2.$low));
+			if ((n1.$high < n.$high || (n1.$high === n.$high && n1.$low < n.$low)) || (n1.$high > maxVal.$high || (n1.$high === maxVal.$high && n1.$low > maxVal.$low))) {
+				return [maxVal, rangeError("ParseUint", s0)];
+			}
+			n = n1;
+			_i++;
+		}
+		if (underscores && !underscoreOK(s0)) {
+			return [new $Uint64(0, 0), syntaxError("ParseUint", s0)];
+		}
+		return [n, $ifaceNil];
+	};
+	$pkg.ParseUint = ParseUint;
+	ParseInt = function(s, base, bitSize) {
+		var _tmp, _tmp$1, _tmp$2, _tmp$3, _tmp$4, _tmp$5, _tmp$6, _tmp$7, _tmp$8, _tmp$9, _tuple, base, bitSize, cutoff, err, i, n, neg, s, s0, un, x, x$1;
+		i = new $Int64(0, 0);
+		err = $ifaceNil;
+		if (s === "") {
+			_tmp = new $Int64(0, 0);
+			_tmp$1 = syntaxError("ParseInt", s);
+			i = _tmp;
+			err = _tmp$1;
+			return [i, err];
+		}
+		s0 = s;
+		neg = false;
+		if (s.charCodeAt(0) === 43) {
+			s = $substring(s, 1);
+		} else if (s.charCodeAt(0) === 45) {
+			neg = true;
+			s = $substring(s, 1);
+		}
+		un = new $Uint64(0, 0);
+		_tuple = ParseUint(s, base, bitSize);
+		un = _tuple[0];
+		err = _tuple[1];
+		if (!($interfaceIsEqual(err, $ifaceNil)) && !($interfaceIsEqual($assertType(err, ptrType).Err, $pkg.ErrRange))) {
+			$assertType(err, ptrType).Func = "ParseInt";
+			$assertType(err, ptrType).Num = s0;
+			_tmp$2 = new $Int64(0, 0);
+			_tmp$3 = err;
+			i = _tmp$2;
+			err = _tmp$3;
+			return [i, err];
+		}
+		if (bitSize === 0) {
+			bitSize = 32;
+		}
+		cutoff = ($shiftLeft64(new $Uint64(0, 1), (((bitSize - 1 >> 0) >>> 0))));
+		if (!neg && (un.$high > cutoff.$high || (un.$high === cutoff.$high && un.$low >= cutoff.$low))) {
+			_tmp$4 = ((x = new $Uint64(cutoff.$high - 0, cutoff.$low - 1), new $Int64(x.$high, x.$low)));
+			_tmp$5 = rangeError("ParseInt", s0);
+			i = _tmp$4;
+			err = _tmp$5;
+			return [i, err];
+		}
+		if (neg && (un.$high > cutoff.$high || (un.$high === cutoff.$high && un.$low > cutoff.$low))) {
+			_tmp$6 = (x$1 = (new $Int64(cutoff.$high, cutoff.$low)), new $Int64(-x$1.$high, -x$1.$low));
+			_tmp$7 = rangeError("ParseInt", s0);
+			i = _tmp$6;
+			err = _tmp$7;
+			return [i, err];
+		}
+		n = (new $Int64(un.$high, un.$low));
+		if (neg) {
+			n = new $Int64(-n.$high, -n.$low);
+		}
+		_tmp$8 = n;
+		_tmp$9 = $ifaceNil;
+		i = _tmp$8;
+		err = _tmp$9;
+		return [i, err];
+	};
+	$pkg.ParseInt = ParseInt;
+	Atoi = function(s) {
+		var _i, _ref, _tuple, _tuple$1, ch, err, i64, n, nerr, ok, s, s0, sLen;
+		sLen = s.length;
+		if (true && (0 < sLen && sLen < 10) || false && (0 < sLen && sLen < 19)) {
+			s0 = s;
+			if ((s.charCodeAt(0) === 45) || (s.charCodeAt(0) === 43)) {
+				s = $substring(s, 1);
+				if (s.length < 1) {
+					return [0, new NumError.ptr("Atoi", s0, $pkg.ErrSyntax)];
+				}
+			}
+			n = 0;
+			_ref = (new sliceType$6($stringToBytes(s)));
+			_i = 0;
+			while (true) {
+				if (!(_i < _ref.$length)) { break; }
+				ch = ((_i < 0 || _i >= _ref.$length) ? ($throwRuntimeError("index out of range"), undefined) : _ref.$array[_ref.$offset + _i]);
+				ch = ch - (48) << 24 >>> 24;
+				if (ch > 9) {
+					return [0, new NumError.ptr("Atoi", s0, $pkg.ErrSyntax)];
+				}
+				n = ($imul(n, 10)) + ((ch >> 0)) >> 0;
+				_i++;
+			}
+			if (s0.charCodeAt(0) === 45) {
+				n = -n;
+			}
+			return [n, $ifaceNil];
+		}
+		_tuple = ParseInt(s, 10, 0);
+		i64 = _tuple[0];
+		err = _tuple[1];
+		_tuple$1 = $assertType(err, ptrType, true);
+		nerr = _tuple$1[0];
+		ok = _tuple$1[1];
+		if (ok) {
+			nerr.Func = "Atoi";
+		}
+		return [(((i64.$low + ((i64.$high >> 31) * 4294967296)) >> 0)), err];
+	};
+	$pkg.Atoi = Atoi;
+	underscoreOK = function(s) {
+		var hex, i, s, saw;
+		saw = 94;
+		i = 0;
+		if (s.length >= 1 && ((s.charCodeAt(0) === 45) || (s.charCodeAt(0) === 43))) {
+			s = $substring(s, 1);
+		}
+		hex = false;
+		if (s.length >= 2 && (s.charCodeAt(0) === 48) && ((lower(s.charCodeAt(1)) === 98) || (lower(s.charCodeAt(1)) === 111) || (lower(s.charCodeAt(1)) === 120))) {
+			i = 2;
+			saw = 48;
+			hex = lower(s.charCodeAt(1)) === 120;
+		}
+		while (true) {
+			if (!(i < s.length)) { break; }
+			if (48 <= s.charCodeAt(i) && s.charCodeAt(i) <= 57 || hex && 97 <= lower(s.charCodeAt(i)) && lower(s.charCodeAt(i)) <= 102) {
+				saw = 48;
+				i = i + (1) >> 0;
+				continue;
+			}
+			if (s.charCodeAt(i) === 95) {
+				if (!((saw === 48))) {
+					return false;
+				}
+				saw = 95;
+				i = i + (1) >> 0;
+				continue;
+			}
+			if (saw === 95) {
+				return false;
+			}
+			saw = 33;
+			i = i + (1) >> 0;
+		}
+		return !((saw === 95));
 	};
 	decimal.ptr.prototype.String = function() {
 		var a, buf, n, w;
@@ -6713,6 +6977,10 @@ $packages["strconv"] = (function() {
 		var x;
 		return (x & ((x - 1 >> 0))) === 0;
 	};
+	quoteWith = function(s, quote, ASCIIonly, graphicOnly) {
+		var ASCIIonly, _q, graphicOnly, quote, s;
+		return ($bytesToString(appendQuotedWith($makeSlice(sliceType$6, 0, (_q = ($imul(3, s.length)) / 2, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"))), s, quote, ASCIIonly, graphicOnly)));
+	};
 	appendQuotedWith = function(buf, s, quote, ASCIIonly, graphicOnly) {
 		var ASCIIonly, _tuple, buf, graphicOnly, nBuf, quote, r, s, width;
 		if ((buf.$capacity - buf.$length >> 0) < s.length) {
@@ -6821,6 +7089,11 @@ $packages["strconv"] = (function() {
 		}
 		return buf;
 	};
+	Quote = function(s) {
+		var s;
+		return quoteWith(s, 34, false, false);
+	};
+	$pkg.Quote = Quote;
 	AppendQuote = function(dst, s) {
 		var dst, s;
 		return appendQuotedWith(dst, s, 34, false, false);
@@ -7196,8 +7469,10 @@ $packages["strconv"] = (function() {
 		i = bsearch16(isGraphic, rr);
 		return i < isGraphic.$length && (rr === ((i < 0 || i >= isGraphic.$length) ? ($throwRuntimeError("index out of range"), undefined) : isGraphic.$array[isGraphic.$offset + i]));
 	};
+	ptrType.methods = [{prop: "Error", name: "Error", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Unwrap", name: "Unwrap", pkg: "", typ: $funcType([], [$error], false)}];
 	ptrType$2.methods = [{prop: "set", name: "set", pkg: "strconv", typ: $funcType([$String], [$Bool], false)}, {prop: "floatBits", name: "floatBits", pkg: "strconv", typ: $funcType([ptrType$1], [$Uint64, $Bool], false)}, {prop: "String", name: "String", pkg: "", typ: $funcType([], [$String], false)}, {prop: "Assign", name: "Assign", pkg: "", typ: $funcType([$Uint64], [], false)}, {prop: "Shift", name: "Shift", pkg: "", typ: $funcType([$Int], [], false)}, {prop: "Round", name: "Round", pkg: "", typ: $funcType([$Int], [], false)}, {prop: "RoundDown", name: "RoundDown", pkg: "", typ: $funcType([$Int], [], false)}, {prop: "RoundUp", name: "RoundUp", pkg: "", typ: $funcType([$Int], [], false)}, {prop: "RoundedInteger", name: "RoundedInteger", pkg: "", typ: $funcType([], [$Uint64], false)}];
 	ptrType$4.methods = [{prop: "AssignComputeBounds", name: "AssignComputeBounds", pkg: "", typ: $funcType([$Uint64, $Int, $Bool, ptrType$1], [extFloat, extFloat], false)}, {prop: "Normalize", name: "Normalize", pkg: "", typ: $funcType([], [$Uint], false)}, {prop: "Multiply", name: "Multiply", pkg: "", typ: $funcType([extFloat], [], false)}, {prop: "frexp10", name: "frexp10", pkg: "strconv", typ: $funcType([], [$Int, $Int], false)}, {prop: "FixedDecimal", name: "FixedDecimal", pkg: "", typ: $funcType([ptrType$3, $Int], [$Bool], false)}, {prop: "ShortestDecimal", name: "ShortestDecimal", pkg: "", typ: $funcType([ptrType$3, ptrType$4, ptrType$4], [$Bool], false)}];
+	NumError.init("", [{prop: "Func", name: "Func", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "Num", name: "Num", embedded: false, exported: true, typ: $String, tag: ""}, {prop: "Err", name: "Err", embedded: false, exported: true, typ: $error, tag: ""}]);
 	decimal.init("strconv", [{prop: "d", name: "d", embedded: false, exported: false, typ: arrayType$1, tag: ""}, {prop: "nd", name: "nd", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "dp", name: "dp", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "neg", name: "neg", embedded: false, exported: false, typ: $Bool, tag: ""}, {prop: "trunc", name: "trunc", embedded: false, exported: false, typ: $Bool, tag: ""}]);
 	leftCheat.init("strconv", [{prop: "delta", name: "delta", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "cutoff", name: "cutoff", embedded: false, exported: false, typ: $String, tag: ""}]);
 	extFloat.init("strconv", [{prop: "mant", name: "mant", embedded: false, exported: false, typ: $Uint64, tag: ""}, {prop: "exp", name: "exp", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "neg", name: "neg", embedded: false, exported: false, typ: $Bool, tag: ""}]);
@@ -25131,10 +25406,11 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, time, GameState, Board, Point, Square, Game, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, NewBoard, setupGame, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, main;
+	var $pkg = {}, $init, fmt, js, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
+	strconv = $packages["strconv"];
 	time = $packages["time"];
 	GameState = $pkg.GameState = $newType(4, $kindInt, "main.GameState", true, ".", true, null);
 	Board = $pkg.Board = $newType(12, $kindSlice, "main.Board", true, ".", true, null);
@@ -25148,6 +25424,17 @@ $packages["."] = (function() {
 		this.x = x_;
 		this.y = y_;
 	});
+	PixelPoint = $pkg.PixelPoint = $newType(0, $kindStruct, "main.PixelPoint", true, ".", true, function(x_, y_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.x = 0;
+			this.y = 0;
+			return;
+		}
+		this.x = x_;
+		this.y = y_;
+	});
+	ClickBuffer = $pkg.ClickBuffer = $newType(16, $kindArray, "main.ClickBuffer", true, ".", true, null);
 	Square = $pkg.Square = $newType(0, $kindStruct, "main.Square", true, ".", true, function(x_, y_, w_, h_) {
 		this.$val = this;
 		if (arguments.length === 0) {
@@ -25188,12 +25475,24 @@ $packages["."] = (function() {
 		this.Height = Height_;
 		this.Canvas = Canvas_;
 	});
+	arrayType = $arrayType(PixelPoint, 2);
 	sliceType = $sliceType($Int);
 	sliceType$1 = $sliceType(sliceType);
 	sliceType$2 = $sliceType($emptyInterface);
 	ptrType = $ptrType(js.Object);
 	funcType = $funcType([ptrType], [], false);
-	ptrType$1 = $ptrType(Game);
+	ptrType$1 = $ptrType(ClickBuffer);
+	ptrType$2 = $ptrType(Game);
+	ClickBuffer.prototype.Push = function(p) {
+		var c, p;
+		c = this.$val;
+		if ($equal((c.nilCheck, c[0]), (new PixelPoint.ptr(0, 0)), PixelPoint)) {
+			PixelPoint.copy((c.nilCheck, c[0]), p);
+		} else {
+			PixelPoint.copy((c.nilCheck, c[1]), p);
+		}
+	};
+	$ptrType(ClickBuffer).prototype.Push = function(p) { return (new ClickBuffer(this.$get())).Push(p); };
 	Point.ptr.prototype.ToCanvasSquare = function(g) {
 		var g, p, x, y;
 		p = this;
@@ -25272,9 +25571,27 @@ $packages["."] = (function() {
 		canvasCtx.fillStyle = $externalize("#000", $String);
 		canvasCtx.fillRect(0, 0, w, h);
 		$global.document.addEventListener($externalize("keydown", $String), $externalize(keyPressEvent, funcType), $externalize(true, $Bool));
+		$global.document.addEventListener($externalize("click", $String), $externalize(mouseClickEvent, funcType), $externalize(true, $Bool));
 		body.appendChild(canvas);
 		$s = -1; return new Game.ptr(0, NewBoard(rows, columns), 0, w / (rows), h / (columns), rows, columns, w, h, canvas);
 		/* */ } return; } if ($f === undefined) { $f = { $blk: setupGame }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.body = body; $f.canvas = canvas; $f.canvasCtx = canvasCtx; $f.columns = columns; $f.h = h; $f.rows = rows; $f.w = w; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	mouseClickEvent = function(e) {
+		var _r, _tmp, _tmp$1, _tuple, _tuple$1, clickX, clickY, e, x, y, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tuple = $f._tuple; _tuple$1 = $f._tuple$1; clickX = $f.clickX; clickY = $f.clickY; e = $f.e; x = $f.x; y = $f.y; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		_tmp = $internalize(e.pageX, $String);
+		_tmp$1 = $internalize(e.pageY, $String);
+		clickX = _tmp;
+		clickY = _tmp$1;
+		_tuple = strconv.Atoi(clickX);
+		x = _tuple[0];
+		_tuple$1 = strconv.Atoi(clickY);
+		y = _tuple$1[0];
+		new ptrType$1(clickBuffer).Push(new PixelPoint.ptr(x, y));
+		_r = fmt.Printf("%v\n", new sliceType$2([new ClickBuffer(clickBuffer)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+		_r;
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: mouseClickEvent }; } $f._r = _r; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tuple = _tuple; $f._tuple$1 = _tuple$1; $f.clickX = clickX; $f.clickY = clickY; $f.e = e; $f.x = x; $f.y = y; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	keyPressEvent = function(e) {
 		var _r, e, $s, $r;
@@ -25434,10 +25751,13 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: main }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
-	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$1], [Square], false)}];
-	ptrType$1.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
+	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$2], [Square], false)}];
+	ptrType$1.methods = [{prop: "Push", name: "Push", pkg: "", typ: $funcType([PixelPoint], [], false)}];
+	ptrType$2.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
 	Board.init(sliceType);
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
+	PixelPoint.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
+	ClickBuffer.init(PixelPoint, 2);
 	Square.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "w", name: "w", embedded: false, exported: false, typ: $Float64, tag: ""}, {prop: "h", name: "h", embedded: false, exported: false, typ: $Float64, tag: ""}]);
 	Game.init("", [{prop: "CurrentState", name: "CurrentState", embedded: false, exported: true, typ: GameState, tag: ""}, {prop: "Board", name: "Board", embedded: false, exported: true, typ: Board, tag: ""}, {prop: "Score", name: "Score", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileWidth", name: "TileWidth", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileHeight", name: "TileHeight", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "TileRows", name: "TileRows", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "TileColumns", name: "TileColumns", embedded: false, exported: true, typ: $Int, tag: ""}, {prop: "Width", name: "Width", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Height", name: "Height", embedded: false, exported: true, typ: $Float64, tag: ""}, {prop: "Canvas", name: "Canvas", embedded: false, exported: true, typ: ptrType, tag: ""}]);
 	$init = function() {
@@ -25446,16 +25766,18 @@ $packages["."] = (function() {
 		$r = fmt.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = js.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = rand.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = time.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = strconv.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = time.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
+		clickBuffer = arrayType.zero();
 		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 0, v: "red" }, { k: 1, v: "green" }, { k: 2, v: "blue" }, { k: 3, v: "white" }, { k: 4, v: "yellow" }, { k: 5, v: "orange" }]);
 		$pkg.CandyN = $keys($pkg.CandyImage).length;
-		/* */ if ($pkg === $mainPkg) { $s = 5; continue; }
-		/* */ $s = 6; continue;
-		/* if ($pkg === $mainPkg) { */ case 5:
-			$r = main(); /* */ $s = 7; case 7: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* */ if ($pkg === $mainPkg) { $s = 6; continue; }
+		/* */ $s = 7; continue;
+		/* if ($pkg === $mainPkg) { */ case 6:
+			$r = main(); /* */ $s = 8; case 8: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			$mainFinished = true;
-		/* } */ case 6:
+		/* } */ case 7:
 		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.$init = $init;
