@@ -34,7 +34,7 @@ var (
 		1: "red",
 		2: "green",
 		3: "blue",
-		4: "white",
+		4: "purple",
 		5: "yellow",
 		6: "orange",
 	}
@@ -128,6 +128,7 @@ func (g *Game) PopulateBoard() {
 			candy := rand.Intn(CandyN) + 1
 			g.Board[row][col] = candy
 		}
+		return
 	}
 }
 
@@ -224,8 +225,16 @@ func gameLoop(g *Game) {
 
 // applyGravity will drop the tiles downwards
 func (g *Game) applyGravity() {
+
 	for row := 0; row < g.TileRows-1; row++ {
 		for col := 0; col < g.TileColumns; col++ {
+			// spawn them in at the top
+			if row == 0 {
+				if g.Board[row][col] == 0 {
+					candy := rand.Intn(CandyN) + 1
+					g.Board[row][col] = candy
+				}
+			}
 			// if the one below it is empty, move it
 			if g.Board[row][col] != 0 {
 				if g.Board[row+1][col] == 0 {
