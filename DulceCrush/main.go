@@ -31,12 +31,12 @@ var (
 var (
 	// TODO: associate the candies with images instead of colours
 	CandyImage = map[int]string{
-		0: "red",
-		1: "green",
-		2: "blue",
-		3: "white",
-		4: "yellow",
-		5: "orange",
+		1: "red",
+		2: "green",
+		3: "blue",
+		4: "white",
+		5: "yellow",
+		6: "orange",
 	}
 
 	CandyN = len(CandyImage)
@@ -111,16 +111,6 @@ type Game struct {
 	Canvas       *js.Object
 }
 
-// SpawnFood selects a random location to spawn food
-func (g *Game) SpawnFood() {
-	maxX := g.TileColumns
-	maxY := g.TileRows
-	// TODO: make sure the player is not on the food already
-
-	x, y := rand.Intn(maxX), rand.Intn(maxY)
-	_, _ = x, y
-}
-
 func NewBoard(rows, columns int) Board {
 	b := make([][]int, rows)
 
@@ -133,10 +123,10 @@ func NewBoard(rows, columns int) Board {
 
 // Randomize enters random candies in the board
 func (g *Game) PopulateBoard() {
-	for i := 0; i < g.TileRows; i++ {
-		for j := 0; j < g.TileColumns; j++ {
-			candy := rand.Intn(CandyN)
-			g.Board[i][j] = candy
+	for row := 0; row < g.TileRows; row++ {
+		for col := 0; col < g.TileColumns; col++ {
+			candy := rand.Intn(CandyN) + 1
+			g.Board[row][col] = candy
 		}
 	}
 }
@@ -219,6 +209,7 @@ func gameLoop(g *Game) {
 			select {
 			case <-actionLoop:
 				g.processInputBuffer()
+				g.applyGravity()
 				// todo: add snake state here (dead || alive)
 			}
 		case GAME_OVER:
@@ -227,6 +218,21 @@ func gameLoop(g *Game) {
 		default:
 			// clear the buffers
 			_ = <-actionLoop
+		}
+	}
+}
+
+// applyGravity will drop the tiles downwards
+func (g *Game) applyGravity() {
+	for row := 0; row < g.TileRows-1; row++ {
+		for col := 0; col < g.TileColumns; col++ {
+			// if the one below it is empty, move it
+			if g.Board[row][col] != 0 {
+				if g.Board[row+1][col] == 0 {
+					g.Board[row+1][col] = g.Board[row][col]
+					g.Board[row][col] = 0
+				}
+			}
 		}
 	}
 }
@@ -283,8 +289,8 @@ func renderScore(g *Game) {
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("font", "20px Arial")
 	ctx.Set("fillStyle", "#fff")
-	ctx.Call("fillText", fmt.Sprintf("Score: %v", g.Score), 10, 50)
-	ctx.Call("fillText", "use WASD to move", 10, 75)
+	//ctx.Call("fillText", fmt.Sprintf("Score: %v", g.Score), 10, 50)
+	//ctx.Call("fillText", "use WASD to move", 10, 75)
 }
 
 func renderBackground(g *Game) {
@@ -298,10 +304,10 @@ func renderBoard(g *Game) {
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("fillStyle", "white")
 
-	for i := 0; i < g.TileRows; i++ {
-		for j := 0; j < g.TileColumns; j++ {
-			sq := Point{i, j}.ToCanvasSquare(g)
-			ctx.Set("fillStyle", CandyImage[g.Board[i][j]])
+	for row := 0; row < g.TileRows; row++ {
+		for col := 0; col < g.TileColumns; col++ {
+			sq := Point{col, row}.ToCanvasSquare(g)
+			ctx.Set("fillStyle", CandyImage[g.Board[row][col]])
 			ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 		}
 	}

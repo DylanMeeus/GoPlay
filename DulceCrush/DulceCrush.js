@@ -25527,24 +25527,6 @@ $packages["."] = (function() {
 		return new Square.ptr(x, y, g.TileWidth, g.TileHeight);
 	};
 	Point.prototype.ToCanvasSquare = function(g) { return this.$val.ToCanvasSquare(g); };
-	Game.ptr.prototype.SpawnFood = function() {
-		var _r, _r$1, _tmp, _tmp$1, _tmp$2, _tmp$3, g, maxX, maxY, x, y, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; _r$1 = $f._r$1; _tmp = $f._tmp; _tmp$1 = $f._tmp$1; _tmp$2 = $f._tmp$2; _tmp$3 = $f._tmp$3; g = $f.g; maxX = $f.maxX; maxY = $f.maxY; x = $f.x; y = $f.y; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		g = this;
-		maxX = g.TileColumns;
-		maxY = g.TileRows;
-		_r = rand.Intn(maxX); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-		_tmp = _r;
-		_r$1 = rand.Intn(maxY); /* */ $s = 2; case 2: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
-		_tmp$1 = _r$1;
-		x = _tmp;
-		y = _tmp$1;
-		$unused(x);
-		$unused(y);
-		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.SpawnFood }; } $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f._tmp$2 = _tmp$2; $f._tmp$3 = _tmp$3; $f.g = g; $f.maxX = maxX; $f.maxY = maxY; $f.x = x; $f.y = y; $f.$s = $s; $f.$r = $r; return $f;
-	};
-	Game.prototype.SpawnFood = function() { return this.$val.SpawnFood(); };
 	NewBoard = function(rows, columns) {
 		var b, columns, i, rows;
 		b = $makeSlice(sliceType$1, rows);
@@ -25558,24 +25540,24 @@ $packages["."] = (function() {
 	};
 	$pkg.NewBoard = NewBoard;
 	Game.ptr.prototype.PopulateBoard = function() {
-		var _r, candy, g, i, j, x, x$1, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; candy = $f.candy; g = $f.g; i = $f.i; j = $f.j; x = $f.x; x$1 = $f.x$1; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var _r, candy, col, g, row, x, x$1, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; candy = $f.candy; col = $f.col; g = $f.g; row = $f.row; x = $f.x; x$1 = $f.x$1; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		g = this;
-		i = 0;
+		row = 0;
 		/* while (true) { */ case 1:
-			/* if (!(i < g.TileRows)) { break; } */ if(!(i < g.TileRows)) { $s = 2; continue; }
-			j = 0;
+			/* if (!(row < g.TileRows)) { break; } */ if(!(row < g.TileRows)) { $s = 2; continue; }
+			col = 0;
 			/* while (true) { */ case 3:
-				/* if (!(j < g.TileColumns)) { break; } */ if(!(j < g.TileColumns)) { $s = 4; continue; }
+				/* if (!(col < g.TileColumns)) { break; } */ if(!(col < g.TileColumns)) { $s = 4; continue; }
 				_r = rand.Intn($pkg.CandyN); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-				candy = _r;
-				(x = (x$1 = g.Board, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i])), ((j < 0 || j >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + j] = candy));
-				j = j + (1) >> 0;
+				candy = _r + 1 >> 0;
+				(x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col] = candy));
+				col = col + (1) >> 0;
 			/* } */ $s = 3; continue; case 4:
-			i = i + (1) >> 0;
+			row = row + (1) >> 0;
 		/* } */ $s = 1; continue; case 2:
 		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.PopulateBoard }; } $f._r = _r; $f.candy = candy; $f.g = g; $f.i = i; $f.j = j; $f.x = x; $f.x$1 = x$1; $f.$s = $s; $f.$r = $r; return $f;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.PopulateBoard }; } $f._r = _r; $f.candy = candy; $f.col = col; $f.g = g; $f.row = row; $f.x = x; $f.x$1 = x$1; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	Game.prototype.PopulateBoard = function() { return this.$val.PopulateBoard(); };
 	setupGame = function() {
@@ -25663,6 +25645,7 @@ $packages["."] = (function() {
 					/* */ $s = 10; continue;
 					/* if (_selection[0] === 0) { */ case 9:
 						$r = g.processInputBuffer(); /* */ $s = 11; case 11: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+						g.applyGravity();
 					/* } */ case 10:
 					$s = 7; continue;
 				/* } else if (_1 === (1)) { */ case 5:
@@ -25679,6 +25662,27 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._selection = _selection; $f.actionLoop = actionLoop; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
+	Game.ptr.prototype.applyGravity = function() {
+		var col, g, row, x, x$1, x$10, x$11, x$2, x$3, x$4, x$5, x$6, x$7, x$8, x$9;
+		g = this;
+		row = 0;
+		while (true) {
+			if (!(row < (g.TileRows - 1 >> 0))) { break; }
+			col = 0;
+			while (true) {
+				if (!(col < g.TileColumns)) { break; }
+				if (!(((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])) === 0))) {
+					if ((x$2 = (x$3 = g.Board, x$4 = row + 1 >> 0, ((x$4 < 0 || x$4 >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + x$4])), ((col < 0 || col >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + col])) === 0) {
+						(x$7 = (x$8 = g.Board, x$9 = row + 1 >> 0, ((x$9 < 0 || x$9 >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + x$9])), ((col < 0 || col >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + col] = (x$5 = (x$6 = g.Board, ((row < 0 || row >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + row])), ((col < 0 || col >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + col]))));
+						(x$10 = (x$11 = g.Board, ((row < 0 || row >= x$11.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$11.$array[x$11.$offset + row])), ((col < 0 || col >= x$10.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$10.$array[x$10.$offset + col] = 0));
+					}
+				}
+				col = col + (1) >> 0;
+			}
+			row = row + (1) >> 0;
+		}
+	};
+	Game.prototype.applyGravity = function() { return this.$val.applyGravity(); };
 	Game.ptr.prototype.processInputBuffer = function() {
 		var _r, g, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25713,10 +25717,10 @@ $packages["."] = (function() {
 			/* */ if (_1 === (0)) { $s = 2; continue; }
 			/* */ $s = 3; continue;
 			/* if (_1 === (0)) { */ case 2:
-				$r = renderRunning(g); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+				renderRunning(g);
 				$s = 4; continue;
 			/* } else { */ case 3:
-				$r = renderGameOver(g); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+				$r = renderGameOver(g); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			/* } */ case 4:
 		case 1:
 		$s = -1; return;
@@ -25742,25 +25746,16 @@ $packages["."] = (function() {
 		/* */ } return; } if ($f === undefined) { $f = { $blk: renderGameOver }; } $f._r = _r; $f._r$1 = _r$1; $f._tmp = _tmp; $f._tmp$1 = _tmp$1; $f.centreX = centreX; $f.centreY = centreY; $f.ctx = ctx; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	renderRunning = function(g) {
-		var g, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var g;
 		renderBackground(g);
 		renderBoard(g);
-		$r = renderScore(g); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: renderRunning }; } $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+		renderScore(g);
 	};
 	renderScore = function(g) {
-		var _r, ctx, g, $s, $r;
-		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; ctx = $f.ctx; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		var ctx, g;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.font = $externalize("20px Arial", $String);
 		ctx.fillStyle = $externalize("#fff", $String);
-		_r = fmt.Sprintf("Score: %v", new sliceType$2([new $Int(g.Score)])); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-		ctx.fillText($externalize(_r, $String), 10, 50);
-		ctx.fillText($externalize("use WASD to move", $String), 10, 75);
-		$s = -1; return;
-		/* */ } return; } if ($f === undefined) { $f = { $blk: renderScore }; } $f._r = _r; $f.ctx = ctx; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
 	renderBackground = function(g) {
 		var ctx, g;
@@ -25769,21 +25764,21 @@ $packages["."] = (function() {
 		ctx.fillRect(0, 0, g.Width, g.Height);
 	};
 	renderBoard = function(g) {
-		var _entry, ctx, g, i, j, sq, x, x$1;
+		var _entry, col, ctx, g, row, sq, x, x$1;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.fillStyle = $externalize("white", $String);
-		i = 0;
+		row = 0;
 		while (true) {
-			if (!(i < g.TileRows)) { break; }
-			j = 0;
+			if (!(row < g.TileRows)) { break; }
+			col = 0;
 			while (true) {
-				if (!(j < g.TileColumns)) { break; }
-				sq = $clone(new Point.ptr(i, j).ToCanvasSquare(g), Square);
-				ctx.fillStyle = $externalize((_entry = $pkg.CandyImage[$Int.keyFor((x = (x$1 = g.Board, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i])), ((j < 0 || j >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + j])))], _entry !== undefined ? _entry.v : ""), $String);
+				if (!(col < g.TileColumns)) { break; }
+				sq = $clone(new Point.ptr(col, row).ToCanvasSquare(g), Square);
+				ctx.fillStyle = $externalize((_entry = $pkg.CandyImage[$Int.keyFor((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])))], _entry !== undefined ? _entry.v : ""), $String);
 				ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
-				j = j + (1) >> 0;
+				col = col + (1) >> 0;
 			}
-			i = i + (1) >> 0;
+			row = row + (1) >> 0;
 		}
 	};
 	main = function() {
@@ -25795,7 +25790,7 @@ $packages["."] = (function() {
 	};
 	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$2], [Square], false)}];
 	ptrType$1.methods = [{prop: "Push", name: "Push", pkg: "", typ: $funcType([PixelPoint], [], false)}, {prop: "Len", name: "Len", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Empty", name: "Empty", pkg: "", typ: $funcType([], [], false)}];
-	ptrType$2.methods = [{prop: "SpawnFood", name: "SpawnFood", pkg: "", typ: $funcType([], [], false)}, {prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "processInputBuffer", name: "processInputBuffer", pkg: ".", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
+	ptrType$2.methods = [{prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "applyGravity", name: "applyGravity", pkg: ".", typ: $funcType([], [], false)}, {prop: "processInputBuffer", name: "processInputBuffer", pkg: ".", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
 	Board.init(sliceType);
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	PixelPoint.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
@@ -25812,7 +25807,7 @@ $packages["."] = (function() {
 		$r = time.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
 		clickBuffer = arrayType.zero();
-		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 0, v: "red" }, { k: 1, v: "green" }, { k: 2, v: "blue" }, { k: 3, v: "white" }, { k: 4, v: "yellow" }, { k: 5, v: "orange" }]);
+		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "red" }, { k: 2, v: "green" }, { k: 3, v: "blue" }, { k: 4, v: "white" }, { k: 5, v: "yellow" }, { k: 6, v: "orange" }]);
 		$pkg.CandyN = $keys($pkg.CandyImage).length;
 		/* */ if ($pkg === $mainPkg) { $s = 6; continue; }
 		/* */ $s = 7; continue;
