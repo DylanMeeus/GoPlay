@@ -213,6 +213,7 @@ func gameLoop(g *Game) {
 			case <-actionLoop:
 				g.processInputBuffer()
 				g.applyGravity()
+				g.crush()
 				// todo: add snake state here (dead || alive)
 			}
 		case GAME_OVER:
@@ -223,6 +224,44 @@ func gameLoop(g *Game) {
 			_ = <-actionLoop
 		}
 	}
+}
+
+// crush will remove tiles if they are three in a row..
+func (g *Game) crush() {
+	// TODO: figure out what candy crush actually considers valid
+	// TODO: does candy crush allow 3+ combinations as valid in any direction?
+
+	crushHorizontal := func() {
+		for row := 0; row < g.TileRows; row++ {
+			for col := 0; col < g.TileColumns-2; col++ {
+				if g.Board[row][col] == g.Board[row][col+1] && g.Board[row][col] == g.Board[row][col+2] {
+					fmt.Println("crushing it!")
+					g.Board[row][col] = 0
+					g.Board[row][col+1] = 0
+					g.Board[row][col+2] = 0
+				}
+			}
+		}
+	}
+
+	crushVertical := func() {
+		for col := 0; col < g.TileColumns; col++ {
+			for row := 0; row < g.TileRows-2; row++ {
+				if g.Board[row][col] == g.Board[row+1][col] && g.Board[row][col] == g.Board[row+2][col] {
+					fmt.Println("crushing it!")
+					g.Board[row][col] = 0
+					g.Board[row+1][col] = 0
+					g.Board[row+2][col] = 0
+				}
+			}
+		}
+	}
+
+	crushHorizontal()
+	crushVertical()
+
+	// TODO: loop these crashes until nothing crashed. Sounds like I'm programing windows!
+
 }
 
 // applyGravity will drop the tiles downwards

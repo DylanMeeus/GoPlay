@@ -25652,15 +25652,16 @@ $packages["."] = (function() {
 					/* if (_selection[0] === 0) { */ case 9:
 						$r = g.processInputBuffer(); /* */ $s = 11; case 11: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 						$r = g.applyGravity(); /* */ $s = 12; case 12: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+						$r = g.crush(); /* */ $s = 13; case 13: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 					/* } */ case 10:
 					$s = 7; continue;
 				/* } else if (_1 === (1)) { */ case 5:
-					_r$1 = $recv(actionLoop); /* */ $s = 13; case 13: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
+					_r$1 = $recv(actionLoop); /* */ $s = 14; case 14: if($c) { $c = false; _r$1 = _r$1.$blk(); } if (_r$1 && _r$1.$blk !== undefined) { break s; }
 					$unused(_r$1[0]);
 					g.pauseScreenLoop();
 					$s = 7; continue;
 				/* } else { */ case 6:
-					_r$2 = $recv(actionLoop); /* */ $s = 14; case 14: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
+					_r$2 = $recv(actionLoop); /* */ $s = 15; case 15: if($c) { $c = false; _r$2 = _r$2.$blk(); } if (_r$2 && _r$2.$blk !== undefined) { break s; }
 					$unused(_r$2[0]);
 				/* } */ case 7:
 			case 3:
@@ -25668,6 +25669,67 @@ $packages["."] = (function() {
 		$s = -1; return;
 		/* */ } return; } if ($f === undefined) { $f = { $blk: gameLoop }; } $f._1 = _1; $f._r = _r; $f._r$1 = _r$1; $f._r$2 = _r$2; $f._selection = _selection; $f.actionLoop = actionLoop; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
 	};
+	Game.ptr.prototype.crush = function() {
+		var crushHorizontal, crushVertical, g, $s, $r;
+		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; crushHorizontal = $f.crushHorizontal; crushVertical = $f.crushVertical; g = $f.g; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+		g = [g];
+		g[0] = this;
+		crushHorizontal = (function(g) { return function $b() {
+			var _r, col, row, x, x$1, x$10, x$11, x$12, x$13, x$14, x$15, x$16, x$17, x$2, x$3, x$4, x$5, x$6, x$7, x$8, x$9, $s, $r;
+			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; col = $f.col; row = $f.row; x = $f.x; x$1 = $f.x$1; x$10 = $f.x$10; x$11 = $f.x$11; x$12 = $f.x$12; x$13 = $f.x$13; x$14 = $f.x$14; x$15 = $f.x$15; x$16 = $f.x$16; x$17 = $f.x$17; x$2 = $f.x$2; x$3 = $f.x$3; x$4 = $f.x$4; x$5 = $f.x$5; x$6 = $f.x$6; x$7 = $f.x$7; x$8 = $f.x$8; x$9 = $f.x$9; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+			row = 0;
+			/* while (true) { */ case 1:
+				/* if (!(row < g[0].TileRows)) { break; } */ if(!(row < g[0].TileRows)) { $s = 2; continue; }
+				col = 0;
+				/* while (true) { */ case 3:
+					/* if (!(col < (g[0].TileColumns - 2 >> 0))) { break; } */ if(!(col < (g[0].TileColumns - 2 >> 0))) { $s = 4; continue; }
+					/* */ if (((x = (x$1 = g[0].Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])) === (x$2 = (x$3 = g[0].Board, ((row < 0 || row >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + row])), x$4 = col + 1 >> 0, ((x$4 < 0 || x$4 >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x$4]))) && ((x$5 = (x$6 = g[0].Board, ((row < 0 || row >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + row])), ((col < 0 || col >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + col])) === (x$7 = (x$8 = g[0].Board, ((row < 0 || row >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + row])), x$9 = col + 2 >> 0, ((x$9 < 0 || x$9 >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + x$9])))) { $s = 5; continue; }
+					/* */ $s = 6; continue;
+					/* if (((x = (x$1 = g[0].Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])) === (x$2 = (x$3 = g[0].Board, ((row < 0 || row >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + row])), x$4 = col + 1 >> 0, ((x$4 < 0 || x$4 >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x$4]))) && ((x$5 = (x$6 = g[0].Board, ((row < 0 || row >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + row])), ((col < 0 || col >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + col])) === (x$7 = (x$8 = g[0].Board, ((row < 0 || row >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + row])), x$9 = col + 2 >> 0, ((x$9 < 0 || x$9 >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + x$9])))) { */ case 5:
+						_r = fmt.Println(new sliceType$2([new $String("crushing it!")])); /* */ $s = 7; case 7: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+						_r;
+						(x$10 = (x$11 = g[0].Board, ((row < 0 || row >= x$11.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$11.$array[x$11.$offset + row])), ((col < 0 || col >= x$10.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$10.$array[x$10.$offset + col] = 0));
+						(x$12 = (x$13 = g[0].Board, ((row < 0 || row >= x$13.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$13.$array[x$13.$offset + row])), x$14 = col + 1 >> 0, ((x$14 < 0 || x$14 >= x$12.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$12.$array[x$12.$offset + x$14] = 0));
+						(x$15 = (x$16 = g[0].Board, ((row < 0 || row >= x$16.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$16.$array[x$16.$offset + row])), x$17 = col + 2 >> 0, ((x$17 < 0 || x$17 >= x$15.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$15.$array[x$15.$offset + x$17] = 0));
+					/* } */ case 6:
+					col = col + (1) >> 0;
+				/* } */ $s = 3; continue; case 4:
+				row = row + (1) >> 0;
+			/* } */ $s = 1; continue; case 2:
+			$s = -1; return;
+			/* */ } return; } if ($f === undefined) { $f = { $blk: $b }; } $f._r = _r; $f.col = col; $f.row = row; $f.x = x; $f.x$1 = x$1; $f.x$10 = x$10; $f.x$11 = x$11; $f.x$12 = x$12; $f.x$13 = x$13; $f.x$14 = x$14; $f.x$15 = x$15; $f.x$16 = x$16; $f.x$17 = x$17; $f.x$2 = x$2; $f.x$3 = x$3; $f.x$4 = x$4; $f.x$5 = x$5; $f.x$6 = x$6; $f.x$7 = x$7; $f.x$8 = x$8; $f.x$9 = x$9; $f.$s = $s; $f.$r = $r; return $f;
+		}; })(g);
+		crushVertical = (function(g) { return function $b() {
+			var _r, col, row, x, x$1, x$10, x$11, x$12, x$13, x$14, x$15, x$16, x$17, x$2, x$3, x$4, x$5, x$6, x$7, x$8, x$9, $s, $r;
+			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; col = $f.col; row = $f.row; x = $f.x; x$1 = $f.x$1; x$10 = $f.x$10; x$11 = $f.x$11; x$12 = $f.x$12; x$13 = $f.x$13; x$14 = $f.x$14; x$15 = $f.x$15; x$16 = $f.x$16; x$17 = $f.x$17; x$2 = $f.x$2; x$3 = $f.x$3; x$4 = $f.x$4; x$5 = $f.x$5; x$6 = $f.x$6; x$7 = $f.x$7; x$8 = $f.x$8; x$9 = $f.x$9; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+			col = 0;
+			/* while (true) { */ case 1:
+				/* if (!(col < g[0].TileColumns)) { break; } */ if(!(col < g[0].TileColumns)) { $s = 2; continue; }
+				row = 0;
+				/* while (true) { */ case 3:
+					/* if (!(row < (g[0].TileRows - 2 >> 0))) { break; } */ if(!(row < (g[0].TileRows - 2 >> 0))) { $s = 4; continue; }
+					/* */ if (((x = (x$1 = g[0].Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])) === (x$2 = (x$3 = g[0].Board, x$4 = row + 1 >> 0, ((x$4 < 0 || x$4 >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + x$4])), ((col < 0 || col >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + col]))) && ((x$5 = (x$6 = g[0].Board, ((row < 0 || row >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + row])), ((col < 0 || col >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + col])) === (x$7 = (x$8 = g[0].Board, x$9 = row + 2 >> 0, ((x$9 < 0 || x$9 >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + x$9])), ((col < 0 || col >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + col])))) { $s = 5; continue; }
+					/* */ $s = 6; continue;
+					/* if (((x = (x$1 = g[0].Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])) === (x$2 = (x$3 = g[0].Board, x$4 = row + 1 >> 0, ((x$4 < 0 || x$4 >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + x$4])), ((col < 0 || col >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + col]))) && ((x$5 = (x$6 = g[0].Board, ((row < 0 || row >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + row])), ((col < 0 || col >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + col])) === (x$7 = (x$8 = g[0].Board, x$9 = row + 2 >> 0, ((x$9 < 0 || x$9 >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + x$9])), ((col < 0 || col >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + col])))) { */ case 5:
+						_r = fmt.Println(new sliceType$2([new $String("crushing it!")])); /* */ $s = 7; case 7: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+						_r;
+						(x$10 = (x$11 = g[0].Board, ((row < 0 || row >= x$11.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$11.$array[x$11.$offset + row])), ((col < 0 || col >= x$10.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$10.$array[x$10.$offset + col] = 0));
+						(x$12 = (x$13 = g[0].Board, x$14 = row + 1 >> 0, ((x$14 < 0 || x$14 >= x$13.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$13.$array[x$13.$offset + x$14])), ((col < 0 || col >= x$12.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$12.$array[x$12.$offset + col] = 0));
+						(x$15 = (x$16 = g[0].Board, x$17 = row + 2 >> 0, ((x$17 < 0 || x$17 >= x$16.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$16.$array[x$16.$offset + x$17])), ((col < 0 || col >= x$15.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$15.$array[x$15.$offset + col] = 0));
+					/* } */ case 6:
+					row = row + (1) >> 0;
+				/* } */ $s = 3; continue; case 4:
+				col = col + (1) >> 0;
+			/* } */ $s = 1; continue; case 2:
+			$s = -1; return;
+			/* */ } return; } if ($f === undefined) { $f = { $blk: $b }; } $f._r = _r; $f.col = col; $f.row = row; $f.x = x; $f.x$1 = x$1; $f.x$10 = x$10; $f.x$11 = x$11; $f.x$12 = x$12; $f.x$13 = x$13; $f.x$14 = x$14; $f.x$15 = x$15; $f.x$16 = x$16; $f.x$17 = x$17; $f.x$2 = x$2; $f.x$3 = x$3; $f.x$4 = x$4; $f.x$5 = x$5; $f.x$6 = x$6; $f.x$7 = x$7; $f.x$8 = x$8; $f.x$9 = x$9; $f.$s = $s; $f.$r = $r; return $f;
+		}; })(g);
+		$r = crushHorizontal(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = crushVertical(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$s = -1; return;
+		/* */ } return; } if ($f === undefined) { $f = { $blk: Game.ptr.prototype.crush }; } $f.crushHorizontal = crushHorizontal; $f.crushVertical = crushVertical; $f.g = g; $f.$s = $s; $f.$r = $r; return $f;
+	};
+	Game.prototype.crush = function() { return this.$val.crush(); };
 	Game.ptr.prototype.applyGravity = function() {
 		var _r, candy, col, g, row, x, x$1, x$10, x$11, x$12, x$13, x$14, x$15, x$2, x$3, x$4, x$5, x$6, x$7, x$8, x$9, $s, $r;
 		/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; candy = $f.candy; col = $f.col; g = $f.g; row = $f.row; x = $f.x; x$1 = $f.x$1; x$10 = $f.x$10; x$11 = $f.x$11; x$12 = $f.x$12; x$13 = $f.x$13; x$14 = $f.x$14; x$15 = $f.x$15; x$2 = $f.x$2; x$3 = $f.x$3; x$4 = $f.x$4; x$5 = $f.x$5; x$6 = $f.x$6; x$7 = $f.x$7; x$8 = $f.x$8; x$9 = $f.x$9; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -25832,7 +25894,7 @@ $packages["."] = (function() {
 	Point.methods = [{prop: "ToCanvasSquare", name: "ToCanvasSquare", pkg: "", typ: $funcType([ptrType$2], [Square], false)}];
 	PixelPoint.methods = [{prop: "ToPoint", name: "ToPoint", pkg: "", typ: $funcType([ptrType$2], [Point], false)}];
 	ptrType$1.methods = [{prop: "Push", name: "Push", pkg: "", typ: $funcType([PixelPoint], [], false)}, {prop: "Len", name: "Len", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Empty", name: "Empty", pkg: "", typ: $funcType([], [], false)}];
-	ptrType$2.methods = [{prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "applyGravity", name: "applyGravity", pkg: ".", typ: $funcType([], [], false)}, {prop: "processInputBuffer", name: "processInputBuffer", pkg: ".", typ: $funcType([], [], false)}, {prop: "SwapTiles", name: "SwapTiles", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
+	ptrType$2.methods = [{prop: "PopulateBoard", name: "PopulateBoard", pkg: "", typ: $funcType([], [], false)}, {prop: "crush", name: "crush", pkg: ".", typ: $funcType([], [], false)}, {prop: "applyGravity", name: "applyGravity", pkg: ".", typ: $funcType([], [], false)}, {prop: "processInputBuffer", name: "processInputBuffer", pkg: ".", typ: $funcType([], [], false)}, {prop: "SwapTiles", name: "SwapTiles", pkg: "", typ: $funcType([], [], false)}, {prop: "resetGame", name: "resetGame", pkg: ".", typ: $funcType([], [], false)}, {prop: "pauseScreenLoop", name: "pauseScreenLoop", pkg: ".", typ: $funcType([], [], false)}];
 	Board.init(sliceType);
 	Point.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
 	PixelPoint.init(".", [{prop: "x", name: "x", embedded: false, exported: false, typ: $Int, tag: ""}, {prop: "y", name: "y", embedded: false, exported: false, typ: $Int, tag: ""}]);
