@@ -52,6 +52,14 @@ type Point struct {
 // PixelPoint identifies a point by the pixel coordinates
 type PixelPoint Point
 
+func (p PixelPoint) ToPoint(g *Game) Point {
+	return Point{
+		// TODO: figure out why I messed up the coordinates here
+		y: int(float64(p.x) / g.TileWidth),
+		x: int(float64(p.y) / g.TileHeight),
+	}
+}
+
 type ClickBuffer [2]PixelPoint
 
 // Push an element to the pixel buffer
@@ -90,12 +98,6 @@ func (p Point) ToCanvasSquare(g *Game) Square {
 		w: g.TileWidth,
 		h: g.TileHeight,
 	}
-}
-
-// CoordinatesToPoint returns the point located at the coordinates
-func CoordinatesToPoint(x, y int, g *Game) Point {
-
-	return Point{}
 }
 
 type Game struct {
@@ -225,7 +227,6 @@ func gameLoop(g *Game) {
 
 // applyGravity will drop the tiles downwards
 func (g *Game) applyGravity() {
-
 	for row := 0; row < g.TileRows-1; row++ {
 		for col := 0; col < g.TileColumns; col++ {
 			// spawn them in at the top
@@ -250,9 +251,18 @@ func (g *Game) applyGravity() {
 // and takes appropriate actions
 func (g *Game) processInputBuffer() {
 	if clickBuffer.Len() == 2 {
+		g.SwapTiles()
 		clickBuffer.Empty()
 	}
-	fmt.Printf("buf: %v\n", clickBuffer)
+}
+
+func (g *Game) SwapTiles() {
+	// swap tiles in the clickbuffer
+	a, b := clickBuffer[0], clickBuffer[1]
+	ap := a.ToPoint(g)
+	bp := b.ToPoint(g)
+	fmt.Printf("a: %v, b: %v\n", ap, bp)
+	g.Board[ap.x][ap.y], g.Board[bp.x][bp.y] = g.Board[bp.x][bp.y], g.Board[ap.x][ap.y]
 }
 
 func (g *Game) resetGame() {
