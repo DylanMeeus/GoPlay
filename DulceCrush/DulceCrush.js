@@ -25406,7 +25406,7 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, main;
+	var $pkg = {}, $init, fmt, js, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, renderDebugBoard, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
@@ -25867,6 +25867,28 @@ $packages["."] = (function() {
 		ctx.fillRect(0, 0, g.Width, g.Height);
 	};
 	renderBoard = function(g) {
+		var col, ctx, g, imgElement, row, sq;
+		if (false) {
+			renderDebugBoard(g);
+		} else {
+			ctx = g.Canvas.getContext($externalize("2d", $String));
+			row = 0;
+			while (true) {
+				if (!(row < g.TileRows)) { break; }
+				col = 0;
+				while (true) {
+					if (!(col < g.TileColumns)) { break; }
+					sq = $clone(new Point.ptr(col, row).ToCanvasSquare(g), Square);
+					imgElement = $global.document.createElement($externalize("img", $String));
+					imgElement.src = $externalize("images/takisfuego.png", $String);
+					ctx.drawImage(imgElement, sq.x, sq.y, sq.w, sq.h);
+					col = col + (1) >> 0;
+				}
+				row = row + (1) >> 0;
+			}
+		}
+	};
+	renderDebugBoard = function(g) {
 		var _entry, col, ctx, g, row, sq, x, x$1;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.fillStyle = $externalize("white", $String);
@@ -25911,7 +25933,7 @@ $packages["."] = (function() {
 		$r = time.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
 		clickBuffer = arrayType.zero();
-		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "red" }, { k: 2, v: "green" }, { k: 3, v: "blue" }, { k: 4, v: "purple" }, { k: 5, v: "yellow" }, { k: 6, v: "orange" }]);
+		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "images/takisfuego.png" }, { k: 2, v: "green" }, { k: 3, v: "blue" }, { k: 4, v: "purple" }, { k: 5, v: "yellow" }, { k: 6, v: "orange" }]);
 		$pkg.CandyN = $keys($pkg.CandyImage).length;
 		/* */ if ($pkg === $mainPkg) { $s = 6; continue; }
 		/* */ $s = 7; continue;

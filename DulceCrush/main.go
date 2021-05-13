@@ -12,6 +12,7 @@ import (
 const (
 	// POLLING_INTERVAL to check for user input??
 	POLLING_INTERVAL = 100
+	DEBUG_RENDERER   = false
 )
 
 type GameState int
@@ -30,8 +31,19 @@ var (
 
 var (
 	// TODO: associate the candies with images instead of colours
+	/*
+		CandyImage = map[int]string{
+			1: "red",
+			2: "green",
+			3: "blue",
+			4: "purple",
+			5: "yellow",
+			6: "orange",
+		}
+	*/
+
 	CandyImage = map[int]string{
-		1: "red",
+		1: "images/takisfuego.png",
 		2: "green",
 		3: "blue",
 		4: "purple",
@@ -358,6 +370,24 @@ func renderBackground(g *Game) {
 }
 
 func renderBoard(g *Game) {
+	if DEBUG_RENDERER {
+		renderDebugBoard(g)
+	} else {
+		// real renderer
+		ctx := g.Canvas.Call("getContext", "2d")
+		for row := 0; row < g.TileRows; row++ {
+			for col := 0; col < g.TileColumns; col++ {
+				sq := Point{col, row}.ToCanvasSquare(g)
+				imgElement := js.Global.Get("document").Call("createElement", "img")
+				imgElement.Set("src", "images/takisfuego.png")
+				ctx.Call("drawImage", imgElement, sq.x, sq.y, sq.w, sq.h)
+			}
+		}
+	}
+
+}
+
+func renderDebugBoard(g *Game) {
 
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("fillStyle", "white")
@@ -369,7 +399,6 @@ func renderBoard(g *Game) {
 			ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 		}
 	}
-
 }
 
 func main() {
