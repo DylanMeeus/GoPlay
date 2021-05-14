@@ -44,11 +44,11 @@ var (
 
 	CandyImage = map[int]string{
 		1: "images/takisfuego.png",
-		2: "green",
-		3: "blue",
-		4: "purple",
-		5: "yellow",
-		6: "orange",
+		2: "images/elote.png",
+		3: "images/obleas.png",
+		4: "images/pinguinos.png",
+		5: "images/coconut.jpg",
+		6: "images/rebanaditas.jpg",
 	}
 
 	CandyN = len(CandyImage)
@@ -379,7 +379,8 @@ func renderBoard(g *Game) {
 			for col := 0; col < g.TileColumns; col++ {
 				sq := Point{col, row}.ToCanvasSquare(g)
 				imgElement := js.Global.Get("document").Call("createElement", "img")
-				imgElement.Set("src", "images/takisfuego.png")
+				imgSrc := CandyImage[g.Board[row][col]]
+				imgElement.Set("src", imgSrc)
 				ctx.Call("drawImage", imgElement, sq.x, sq.y, sq.w, sq.h)
 			}
 		}

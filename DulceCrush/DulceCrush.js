@@ -25867,7 +25867,7 @@ $packages["."] = (function() {
 		ctx.fillRect(0, 0, g.Width, g.Height);
 	};
 	renderBoard = function(g) {
-		var col, ctx, g, imgElement, row, sq;
+		var _entry, col, ctx, g, imgElement, imgSrc, row, sq, x, x$1;
 		if (false) {
 			renderDebugBoard(g);
 		} else {
@@ -25880,7 +25880,8 @@ $packages["."] = (function() {
 					if (!(col < g.TileColumns)) { break; }
 					sq = $clone(new Point.ptr(col, row).ToCanvasSquare(g), Square);
 					imgElement = $global.document.createElement($externalize("img", $String));
-					imgElement.src = $externalize("images/takisfuego.png", $String);
+					imgSrc = (_entry = $pkg.CandyImage[$Int.keyFor((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])))], _entry !== undefined ? _entry.v : "");
+					imgElement.src = $externalize(imgSrc, $String);
 					ctx.drawImage(imgElement, sq.x, sq.y, sq.w, sq.h);
 					col = col + (1) >> 0;
 				}
@@ -25933,7 +25934,7 @@ $packages["."] = (function() {
 		$r = time.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
 		clickBuffer = arrayType.zero();
-		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "images/takisfuego.png" }, { k: 2, v: "green" }, { k: 3, v: "blue" }, { k: 4, v: "purple" }, { k: 5, v: "yellow" }, { k: 6, v: "orange" }]);
+		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "images/takisfuego.png" }, { k: 2, v: "images/elote.png" }, { k: 3, v: "images/obleas.png" }, { k: 4, v: "images/pinguinos.png" }, { k: 5, v: "images/coconut.jpg" }, { k: 6, v: "images/rebanaditas.jpg" }]);
 		$pkg.CandyN = $keys($pkg.CandyImage).length;
 		/* */ if ($pkg === $mainPkg) { $s = 6; continue; }
 		/* */ $s = 7; continue;
