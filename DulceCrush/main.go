@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -12,7 +13,7 @@ import (
 const (
 	// POLLING_INTERVAL to check for user input??
 	POLLING_INTERVAL = 100
-	DEBUG_RENDERER   = false
+	DEBUG_RENDERER   = true
 )
 
 type GameState int
@@ -31,16 +32,14 @@ var (
 
 var (
 	// TODO: associate the candies with images instead of colours
-	/*
-		CandyImage = map[int]string{
-			1: "red",
-			2: "green",
-			3: "blue",
-			4: "purple",
-			5: "yellow",
-			6: "orange",
-		}
-	*/
+	DebugImage = map[int]string{
+		1: "red",
+		2: "green",
+		3: "blue",
+		4: "purple",
+		5: "yellow",
+		6: "orange",
+	}
 
 	CandyImage = map[int]string{
 		1: "images/takisfuego.png",
@@ -396,8 +395,11 @@ func renderDebugBoard(g *Game) {
 	for row := 0; row < g.TileRows; row++ {
 		for col := 0; col < g.TileColumns; col++ {
 			sq := Point{col, row}.ToCanvasSquare(g)
-			ctx.Set("fillStyle", CandyImage[g.Board[row][col]])
-			ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
+			ctx.Set("fillStyle", DebugImage[g.Board[row][col]])
+			//ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
+			ctx.Call("beginPath")
+			ctx.Call("arc", sq.x+(sq.w/2), sq.y+(sq.h/2), sq.w/2, 0, math.Pi*2)
+			ctx.Call("fill")
 		}
 	}
 }

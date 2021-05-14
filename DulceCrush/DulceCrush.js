@@ -25406,9 +25406,10 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, renderDebugBoard, main;
+	var $pkg = {}, $init, fmt, js, math, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, renderDebugBoard, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
+	math = $packages["math"];
 	rand = $packages["math/rand"];
 	strconv = $packages["strconv"];
 	time = $packages["time"];
@@ -25868,7 +25869,7 @@ $packages["."] = (function() {
 	};
 	renderBoard = function(g) {
 		var _entry, col, ctx, g, imgElement, imgSrc, row, sq, x, x$1;
-		if (false) {
+		if (true) {
 			renderDebugBoard(g);
 		} else {
 			ctx = g.Canvas.getContext($externalize("2d", $String));
@@ -25900,8 +25901,10 @@ $packages["."] = (function() {
 			while (true) {
 				if (!(col < g.TileColumns)) { break; }
 				sq = $clone(new Point.ptr(col, row).ToCanvasSquare(g), Square);
-				ctx.fillStyle = $externalize((_entry = $pkg.CandyImage[$Int.keyFor((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])))], _entry !== undefined ? _entry.v : ""), $String);
-				ctx.fillRect(sq.x, sq.y, sq.w, sq.h);
+				ctx.fillStyle = $externalize((_entry = $pkg.DebugImage[$Int.keyFor((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])))], _entry !== undefined ? _entry.v : ""), $String);
+				ctx.beginPath();
+				ctx.arc(sq.x + (sq.w / 2), sq.y + (sq.h / 2), sq.w / 2, 0, 6.283185307179586);
+				ctx.fill();
 				col = col + (1) >> 0;
 			}
 			row = row + (1) >> 0;
@@ -25929,19 +25932,21 @@ $packages["."] = (function() {
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 		$r = fmt.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$r = js.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = rand.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = strconv.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = time.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = math.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = rand.$init(); /* */ $s = 4; case 4: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = strconv.$init(); /* */ $s = 5; case 5: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = time.$init(); /* */ $s = 6; case 6: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		$pkg.SPACEBAR_PRESSED = false;
 		clickBuffer = arrayType.zero();
+		$pkg.DebugImage = $makeMap($Int.keyFor, [{ k: 1, v: "red" }, { k: 2, v: "green" }, { k: 3, v: "blue" }, { k: 4, v: "purple" }, { k: 5, v: "yellow" }, { k: 6, v: "orange" }]);
 		$pkg.CandyImage = $makeMap($Int.keyFor, [{ k: 1, v: "images/takisfuego.png" }, { k: 2, v: "images/elote.png" }, { k: 3, v: "images/obleas.png" }, { k: 4, v: "images/pinguinos.png" }, { k: 5, v: "images/coconut.jpg" }, { k: 6, v: "images/rebanaditas.jpg" }]);
 		$pkg.CandyN = $keys($pkg.CandyImage).length;
-		/* */ if ($pkg === $mainPkg) { $s = 6; continue; }
-		/* */ $s = 7; continue;
-		/* if ($pkg === $mainPkg) { */ case 6:
-			$r = main(); /* */ $s = 8; case 8: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		/* */ if ($pkg === $mainPkg) { $s = 7; continue; }
+		/* */ $s = 8; continue;
+		/* if ($pkg === $mainPkg) { */ case 7:
+			$r = main(); /* */ $s = 9; case 9: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 			$mainFinished = true;
-		/* } */ case 7:
+		/* } */ case 8:
 		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
 	};
 	$pkg.$init = $init;
