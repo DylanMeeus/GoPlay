@@ -25406,7 +25406,7 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["."] = (function() {
-	var $pkg = {}, $init, fmt, js, math, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, renderDebugBoard, main;
+	var $pkg = {}, $init, fmt, js, math, rand, strconv, time, GameState, Board, Point, PixelPoint, ClickBuffer, Square, Game, arrayType, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, clickBuffer, NewBoard, setupGame, mouseClickEvent, keyPressEvent, run, gameLoop, render, renderGameOver, renderRunning, renderScore, renderBackground, renderBoard, min, renderDebugBoard, main;
 	fmt = $packages["fmt"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	math = $packages["math"];
@@ -25869,7 +25869,7 @@ $packages["."] = (function() {
 	};
 	renderBoard = function(g) {
 		var _entry, col, ctx, g, imgElement, imgSrc, row, sq, x, x$1;
-		if (true) {
+		if (false) {
 			renderDebugBoard(g);
 		} else {
 			ctx = g.Canvas.getContext($externalize("2d", $String));
@@ -25890,8 +25890,15 @@ $packages["."] = (function() {
 			}
 		}
 	};
+	min = function(a, b) {
+		var a, b;
+		if (a < b) {
+			return a;
+		}
+		return b;
+	};
 	renderDebugBoard = function(g) {
-		var _entry, col, ctx, g, row, sq, x, x$1;
+		var _entry, col, ctx, g, halfHeight, halfWidth, radius, row, sq, x, x$1;
 		ctx = g.Canvas.getContext($externalize("2d", $String));
 		ctx.fillStyle = $externalize("white", $String);
 		row = 0;
@@ -25903,7 +25910,10 @@ $packages["."] = (function() {
 				sq = $clone(new Point.ptr(col, row).ToCanvasSquare(g), Square);
 				ctx.fillStyle = $externalize((_entry = $pkg.DebugImage[$Int.keyFor((x = (x$1 = g.Board, ((row < 0 || row >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + row])), ((col < 0 || col >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + col])))], _entry !== undefined ? _entry.v : ""), $String);
 				ctx.beginPath();
-				ctx.arc(sq.x + (sq.w / 2), sq.y + (sq.h / 2), sq.w / 2, 0, 6.283185307179586);
+				halfHeight = sq.h / 2;
+				halfWidth = sq.w / 2;
+				radius = min(halfHeight, halfWidth);
+				ctx.arc(sq.x + (sq.w / 2), sq.y + (sq.h / 2), radius, 0, 6.283185307179586);
 				ctx.fill();
 				col = col + (1) >> 0;
 			}

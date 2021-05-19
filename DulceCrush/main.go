@@ -13,7 +13,7 @@ import (
 const (
 	// POLLING_INTERVAL to check for user input??
 	POLLING_INTERVAL = 100
-	DEBUG_RENDERER   = true
+	DEBUG_RENDERER   = false
 )
 
 type GameState int
@@ -387,8 +387,14 @@ func renderBoard(g *Game) {
 
 }
 
-func renderDebugBoard(g *Game) {
+func min(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}
 
+func renderDebugBoard(g *Game) {
 	ctx := g.Canvas.Call("getContext", "2d")
 	ctx.Set("fillStyle", "white")
 
@@ -398,7 +404,10 @@ func renderDebugBoard(g *Game) {
 			ctx.Set("fillStyle", DebugImage[g.Board[row][col]])
 			//ctx.Call("fillRect", sq.x, sq.y, sq.w, sq.h)
 			ctx.Call("beginPath")
-			ctx.Call("arc", sq.x+(sq.w/2), sq.y+(sq.h/2), sq.w/2, 0, math.Pi*2)
+			halfHeight := sq.h / 2
+			halfWidth := sq.w / 2
+			radius := min(halfHeight, halfWidth)
+			ctx.Call("arc", sq.x+(sq.w/2), sq.y+(sq.h/2), radius, 0, math.Pi*2)
 			ctx.Call("fill")
 		}
 	}
